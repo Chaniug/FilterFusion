@@ -200,9 +200,9 @@ class RuleMerger:
         
         # 构建最终内容
         content = header + "\n"
-        content += f"! 合并规则数量: {self.final_rule_count}\n"
-        content += f"! 源规则总数: {self.initial_rule_count}\n"
-        content += f"! 重复规则: {self.initial_rule_count - self.final_rule_count}\n\n"
+        content += f"! Combined rules: {self.final_rule_count}\n"
+        content += f"! Total rules: {self.initial_rule_count}\n"
+        content += f"! Repetitions: {self.initial_rule_count - self.final_rule_count}\n\n"
         content += "\n".join(rules)
         
         # 计算校验和
