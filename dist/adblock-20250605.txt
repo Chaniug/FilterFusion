@@ -1,11 +1,12 @@
 ! Title: FilterFusion AdBlock Rules
 ! Version: 20250605
-! Updated: 2025-06-05 07:18:57 UTC
-! Last modified: 2025-06-05 07:18:57 UTC
-! Checksum: b0dd5b25353741a4d2343bf815da8e9d00931809358ffd80b6b2fa035ebddaf0
+! Updated: 2025-06-05 07:26:47 UTC
+! Last modified: 2025-06-05 07:26:47 UTC
+! Checksum: a3168aaf2b4184f491017e461b73f61d337ef665e6779172ad4c35a7cbc0701e
 ! Homepage: https://github.com/Chaniug/FilterFusion
 ! Expires: 1 day
 ! License: MIT License
+! Description: adguard kill file
 ! --------------------------------------
 ! Sources count: 3
 ! Sources:
