@@ -1,26 +1,29 @@
 {
-  "fetch_date": "2025-06-05T06:12:12.154224+00:00",
+  "fetch_date": "2025-06-05T06:31:59.630008+00:00",
   "sources": [
     {
       "name": "AdGuard Mobile",
+      "file": "adguard_mobile.txt",
       "url": "https://raw.githubusercontent.com/AdguardTeam/FiltersRegistry/master/filters/filter_11_Mobile/filter.txt",
-      "status": "failed",
-      "error": "HTTPSConnectionPool(host='raw.githubusercontent.com', port=443): Max retries exceeded with url: /AdguardTeam/FiltersRegistry/master/filters/filter_11_Mobile/filter.txt (Caused by NameResolutionError(\"<urllib3.connection.HTTPSConnection object at 0x000001C517FAF770>: Failed to resolve 'raw.githubusercontent.com' ([Errno 11004] getaddrinfo failed)\"))",
-      "timestamp": "2025-06-05T06:12:12.144054+00:00"
+      "timestamp": "2025-06-05T06:29:39.540192+00:00",
+      "hash": "d2d4ed6390d7695bb9d18d41edfca230115c08c524781a97b5718ba78d62ad0b",
+      "status": "success"
     },
     {
       "name": "AdGuard Chinese",
+      "file": "adguard_chinese.txt",
       "url": "https://raw.githubusercontent.com/AdguardTeam/FiltersRegistry/master/filters/filter_224_Chinese/filter.txt",
-      "status": "failed",
-      "error": "HTTPSConnectionPool(host='raw.githubusercontent.com', port=443): Max retries exceeded with url: /AdguardTeam/FiltersRegistry/master/filters/filter_224_Chinese/filter.txt (Caused by NameResolutionError(\"<urllib3.connection.HTTPSConnection object at 0x000001C517FF8BC0>: Failed to resolve 'raw.githubusercontent.com' ([Errno 11004] getaddrinfo failed)\"))",
-      "timestamp": "2025-06-05T06:12:12.146331+00:00"
+      "timestamp": "2025-06-05T06:31:27.722384+00:00",
+      "hash": "eb58f904570ad7bd713f4cb9c9bcd0e2acc37794c9ebe5791423bb8cf0fef73c",
+      "status": "success"
     },
     {
       "name": "Chaniug AdSuper",
+      "file": "chaniug_adsuper.txt",
       "url": "https://raw.githubusercontent.com/Chaniug/AdSuper/master/Code/AdSuper.txt",
-      "status": "failed",
-      "error": "HTTPSConnectionPool(host='raw.githubusercontent.com', port=443): Max retries exceeded with url: /Chaniug/AdSuper/master/Code/AdSuper.txt (Caused by NameResolutionError(\"<urllib3.connection.HTTPSConnection object at 0x000001C517FF82F0>: Failed to resolve 'raw.githubusercontent.com' ([Errno 11004] getaddrinfo failed)\"))",
-      "timestamp": "2025-06-05T06:12:12.154224+00:00"
+      "timestamp": "2025-06-05T06:31:59.630008+00:00",
+      "hash": "06cf232723a0db81b03d4c8d8bee454a87884b482d5fd19abcbde19e82fb7fc3",
+      "status": "success"
     }
   ]
 }
