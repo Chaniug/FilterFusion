@@ -1,0 +1,21 @@
+{
+  "date": "2025-06-05T03:17:59.441510+00:00",
+  "version": "FF20250605",
+  "sources": [
+    {
+      "name": "AdGuard Chinese",
+      "rule_count": 19681
+    },
+    {
+      "name": "Chaniug AdSuper",
+      "rule_count": 408
+    }
+  ],
+  "stats": {
+    "initial_rules": 20089,
+    "final_rules": 20050,
+    "duplicates": 39,
+    "processing_time_sec": 0.164771,
+    "checksum": "42828402428c2a3296168c94ced91cc76a539a8a6dbbbcbbad7a473c8d1e1288"
+  }
+}
