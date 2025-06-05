@@ -211,7 +211,7 @@ class RuleMerger:
         content = content.replace('{CHECKSUM}', checksum)
         
         # 保存规则文件
-        rule_filename = f"adblockfile.txt"
+        rule_filename = f"adblock-{version}.txt"
         rule_path = self.dist_dir / rule_filename
         print(f"保存规则文件到: {rule_path}")
         with open(rule_path, 'w', encoding='utf-8') as f:
