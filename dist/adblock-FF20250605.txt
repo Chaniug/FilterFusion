@@ -1,8 +1,8 @@
 ! Title: FilterFusion AdBlock Rules
 ! Version: FF20250605
-! Updated: 2025-06-05 06:06:25 UTC
-! Last modified: 2025-06-05 06:06:25 UTC
-! Checksum: bf2328e0f20d3a1738c54f51bc18b12a3f2ee11bfffb8df73bf78c80681cfe94
+! Updated: 2025-06-05 06:11:54 UTC
+! Last modified: 2025-06-05 06:11:54 UTC
+! Checksum: e018d758144202b58f856d7cfe1cc70e4be8827d0bb2ebaf6850941c132aaf3b
 ! Homepage: https://github.com/your-username/FilterFusion
 ! Expires: 1 day
 ! License: MIT License
