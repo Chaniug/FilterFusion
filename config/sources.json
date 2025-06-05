@@ -1,0 +1,19 @@
+{
+  "sources": [
+    {
+      "name": "AdGuard Mobile",
+      "url": "https://raw.githubusercontent.com/AdguardTeam/FiltersRegistry/master/filters/filter_11_Mobile/filter.txt",
+      "enabled": true
+    },
+    {
+      "name": "AdGuard Chinese",
+      "url": "https://raw.githubusercontent.com/AdguardTeam/FiltersRegistry/master/filters/filter_224_Chinese/filter.txt",
+      "enabled": true
+    },
+    {
+      "name": "Chaniug AdSuper",
+      "url": "https://raw.githubusercontent.com/Chaniug/AdSuper/master/Code/AdSuper.txt",
+      "enabled": true
+    }
+  ]
+}

@@ -1,0 +1,37 @@
+name: FilterFusion Daily Update
+
+on:
+  schedule:
+    - cron: '0 0 * * *'  # UTC每天午夜
+  workflow_dispatch:
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    
+    steps:
+    - name: 🛠️ 检出仓库
+      uses: actions/checkout@v4
+      
+    - name: 🐍 设置 Python 3.10
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+    
+    - name: 📦 安装依赖
+      run: pip install -r requirements.txt
+      
+    - name: 📥 抓取广告规则
+      run: python -m scripts.fetch_rules
+      
+    - name: 🧩 合并规则
+      run: python -m scripts.merge_rules
+      
+    - name: 📤 提交变更
+      run: |
+        git config user.name "FilterFusion Bot"
+        git config user.email "filterfusion-bot@users.noreply.github.com"
+        git add dist rules
+        git commit -m "FilterFusion自动更新: $(date -u +'%Y-%m-%d %H:%M UTC')"
+        git push
