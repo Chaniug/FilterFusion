@@ -161,7 +161,7 @@ class RuleMerger:
     def generate_version(self):
         """生成简单的语义化版本号"""
         today = datetime.now(timezone.utc)
-        return f"FF{today.year}{today.month:02d}{today.day:02d}"
+        return f"{today.year}{today.month:02d}{today.day:02d}"
     
     def merge(self):
         print("="*50)
@@ -195,7 +195,7 @@ class RuleMerger:
             .replace('{SOURCE_COUNT}', str(len([s for s in sources if s.get('status') == 'success']))) \
             .replace('{SOURCE_LIST}', source_list) \
             .replace('{RULE_COUNT}', str(self.final_rule_count)) \
-            .replace('{HOMEPAGE}', "https://github.com/your-username/FilterFusion") \
+            .replace('{HOMEPAGE}', "https://github.com/Chaniug/FilterFusion") \
             .replace('{LICENSE}', "MIT License")
         
         # 构建最终内容

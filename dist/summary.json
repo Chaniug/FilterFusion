@@ -1,6 +1,6 @@
 {
-  "date": "2025-06-05T06:33:41.482197+00:00",
-  "version": "FF20250605",
+  "date": "2025-06-05T07:13:59.374944+00:00",
+  "version": "20250605",
   "sources": [
     {
       "name": "AdGuard Mobile",
@@ -19,7 +19,7 @@
     "initial_rules": 27896,
     "final_rules": 27833,
     "duplicates": 63,
-    "processing_time_sec": 0.164734,
-    "checksum": "b0a5259286e395419813bce3870e1d019782a16b5e987455795298e44c5da401"
+    "processing_time_sec": 0.057482,
+    "checksum": "28bafc5726baab48e9a6eaf0aadda4ed6c43eede28394881d5365a37d14e507c"
   }
 }
