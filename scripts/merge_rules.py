@@ -1,6 +1,7 @@
 import json
 import hashlib
 import sys
+import shutil
 from datetime import datetime, timezone
 from pathlib import Path
 from collections import defaultdict
@@ -217,12 +218,12 @@ class RuleMerger:
         with open(rule_path, 'w', encoding='utf-8') as f:
             f.write(content)
         
-        # 创建符号链接
-        print("步骤8: 创建符号链接")
+        # 保存最新规则副本（最佳实践：直接复制内容而非符号链接）
+        print("步骤8: 保存最新规则副本")
         latest_path = self.dist_dir / "adblock-latest.txt"
-        if latest_path.exists() or latest_path.is_symlink():
+        if latest_path.exists():
             latest_path.unlink()
-        latest_path.symlink_to(rule_filename)
+        shutil.copyfile(rule_path, latest_path)  # 直接复制文件内容
         
         # 计算处理时间
         processing_time = (datetime.now() - self.start_time).total_seconds()
@@ -238,7 +239,7 @@ class RuleMerger:
         print(f"⏱️  处理时间: {processing_time:.2f}秒")
         print(f"🔐 校验和: {checksum[:16]}...{checksum[-16:]}")
         print(f"📄 合并规则文件: dist/{rule_filename}")
-        print(f"🔗 最新规则链接: dist/adblock-latest.txt")
+        print(f"📄 最新规则副本: dist/adblock-latest.txt")
         
         # 保存摘要信息
         print("步骤9: 保存摘要信息")
@@ -273,4 +274,3 @@ if __name__ == "__main__":
     except Exception as e:
         print(f"❌ 合并过程中发生致命错误: {str(e)}")
         sys.exit(1)
-        
