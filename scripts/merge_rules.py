@@ -200,7 +200,7 @@ class RuleMerger:
             .replace('{LICENSE}', "MIT License")
         
         # 构建最终内容
-        content = header + "\n"
+        content = header
         content += f"! Combined rules: {self.final_rule_count}\n"
         content += f"! Total rules: {self.initial_rule_count}\n"
         content += f"! Repetitions: {self.initial_rule_count - self.final_rule_count}\n\n"
