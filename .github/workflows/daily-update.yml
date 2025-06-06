@@ -31,9 +31,9 @@ jobs:
     - name: 🧩 合并规则
       run: python -m scripts.merge_rules
 
-    - name: 🧹 清理旧的规则文件 (仅保留最近30天)
+    - name: 🧹 清理旧的规则文件 (仅保留最近3天)
       run: |
-        # 删除dist/目录下30天前的adblock-YYYYMMDD.txt文件
+        # 删除dist/目录下3天前的adblock-YYYYMMDD.txt文件
         find dist -type f -name 'adblock-*.txt' -mtime +3 -delete
 
     - name: 📤 提交变更
