@@ -36,11 +36,11 @@
 ## 📬 规则订阅地址
 
 - **GitHub Raw**（全球可用）  
-```js
+```python
 https://raw.githubusercontent.com/Chaniug/FilterFusion/main/dist/adblock-main.txt
 ```
 - **FastGit 加速（中国地区部分可用）**  
-```java
+```python
 https://raw.fastgit.org/Chaniug/FilterFusion/main/dist/adblock-main.txt
 ```
 - **GitHub Proxy（中国地区部分可用）**  
@@ -48,7 +48,7 @@ https://raw.fastgit.org/Chaniug/FilterFusion/main/dist/adblock-main.txt
 https://ghproxy.com/https://raw.githubusercontent.com/Chaniug/FilterFusion/main/dist/adblock-main.txt
 ```
 - **jsDelivr CDN**  
-```go
+```python
 https://cdn.jsdelivr.net/gh/Chaniug/FilterFusion/dist/adblock-main.txt
 ```
 
