@@ -15,6 +15,46 @@
   </a>
   <img src="https://img.shields.io/github/contributors/Chaniug/FilterFusion?color=orange" alt="Contributors" />
   <img src="https://img.shields.io/github/last-commit/Chaniug/FilterFusion?color=success" alt="Last Commit" />
+  <!-- 新增有趣按钮区 -->
+  <a href="https://github.com/Chaniug/FilterFusion/releases">
+    <img src="https://img.shields.io/github/v/release/Chaniug/FilterFusion?display_name=tag&color=brightgreen" alt="Latest Release" />
+  </a>
+  <a href="https://github.com/Chaniug/FilterFusion/graphs/commit-activity">
+    <img src="https://img.shields.io/badge/活跃度-热力图-orange?logo=github" alt="活跃度热力图" />
+  </a>
+  <a href="https://github.com/Chaniug/FilterFusion/discussions">
+    <img src="https://img.shields.io/badge/畅聊-Discussions-blueviolet?logo=github" alt="Discussions" />
+  </a>
+  <a href="https://github.com/Chaniug/FilterFusion/issues/new?assignees=&labels=question&template=question.yml">
+    <img src="https://img.shields.io/badge/提问-Question-green?logo=github" alt="提问" />
+  </a>
+</p>
+
+---
+
+<!-- 订阅地址提前，突出显示 -->
+## 📬 规则订阅地址
+
+- **GitHub Raw**（全球可用）  
+  `https://raw.githubusercontent.com/Chaniug/FilterFusion/main/dist/adblock-main.txt`
+- **FastGit 加速（中国大陆推荐）**  
+  `https://raw.fastgit.org/Chaniug/FilterFusion/main/dist/adblock-main.txt`
+- **GitHub Proxy（中国大陆推荐）**  
+  `https://ghproxy.com/https://raw.githubusercontent.com/Chaniug/FilterFusion/main/dist/adblock-main.txt`
+- **jsDelivr CDN**  
+  `https://cdn.jsdelivr.net/gh/Chaniug/FilterFusion/dist/adblock-main.txt`
+
+---
+
+<!-- 子项目反馈引导 -->
+<p align="center">
+  <a href="https://github.com/Chaniug/AdSuper/issues/new?labels=%E8%A7%84%E5%88%99%E5%8F%8D%E9%A6%88&template=rule_report.yml" style="text-decoration:none;">
+    <img src="https://img.shields.io/badge/规则反馈&建议-点此前往@Chaniug/AdSuper-ff69b4?logo=github" alt="前往 AdSuper 反馈规则" />
+  </a>
+</p>
+
+<p align="center">
+  <b>如需反馈误拦截、漏拦截或希望补充的新规则，请前往我们的子项目 <a href="https://github.com/Chaniug/AdSuper" target="_blank">@Chaniug/AdSuper</a> 提交 <b>规则 Issue</b>，我们会第一时间处理！</b>
 </p>
 
 ---
@@ -68,22 +108,12 @@ python scripts/fetch_rules.py
 ```bash
 python scripts/merge_rules.py
 ```
-- 自动去除重复、无效和注释行，融合所有规则，生成最终可用的标准规则文件（例如：`dist/adblock-main.txt`）
+- 自动去除重复、无效和注释行，融合所有规则，生成最终可用的标准规则文件（例如：`dist/adblock-latest.txt`）
 
 #### 步骤四：在广告拦截软件中使用
 
-- 直接将 `dist/adblock-main.txt` 作为外部规则导入 uBlock Origin、AdGuard、Adblock Plus 等支持自定义规则的插件
+- 直接将 `dist/adblock-latest.txt` 作为外部规则导入 uBlock Origin、AdGuard、Adblock Plus 等支持自定义规则的插件
 - 也可将 `rules/chaniug_adsuper.txt` 作为本地自定义规则使用
-
----
-
-## 🌐 推荐在线订阅地址
-
-- **jsDelivr CDN**  
-  `https://cdn.jsdelivr.net/gh/Chaniug/FilterFusion/dist/adblock-main.txt`
-
-- **GitHub Raw**  
-  `https://raw.githubusercontent.com/Chaniug/FilterFusion/main/dist/adblock-main.txt`
 
 ---
 
@@ -116,10 +146,9 @@ python scripts/merge_rules.py
 - 🏆 你也可以出现在这里，欢迎参与贡献！
 
 ---
-[![Chaniug's github activity graph](https://github-readme-activity-graph.vercel.app/graph?username=Chaniug&theme=github-compact)](https://github.com/Ashutosh00710/github-readme-activity-graph)
+
 ## 🤝 如何参与
-![Chaniug's GitHub stats](https://github-readme-stats.vercel.app/api?username=Chaniug&show_icons=true&theme=tokyonight)
-![Top Langs](https://github-readme-stats.vercel.app/api/top-langs/?username=Chaniug&layout=compact)
+
 - 🌟 点亮 [Star](https://github.com/Chaniug/FilterFusion/stargazers) 支持项目
 - 🐛 通过 [Issue](https://github.com/Chaniug/FilterFusion/issues) 反馈问题和建议
 - ✨ 提交 [Pull Request](https://github.com/Chaniug/FilterFusion/pulls) 贡献你的代码
