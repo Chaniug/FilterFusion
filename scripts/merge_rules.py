@@ -200,12 +200,12 @@ class RuleMerger:
             except Exception as e:
                 print(f"⚠️ 警告：处理 {source['name']} 规则时出错: {str(e)}")
 
-        # 输出时按分组分类拼接
+        # 输出时按分组分类拼接（去掉注释分组）
         merged_lines = []
-        if groups['comment']:
-            merged_lines.append("! === 合并注释及元数据 ===")
-            merged_lines.extend(sorted(groups['comment']))
-            merged_lines.append("")
+        # if groups['comment']:
+        #     merged_lines.append("! === 合并注释及元数据 ===")
+        #     merged_lines.extend(sorted(groups['comment']))
+        #     merged_lines.append("")
         if groups['exception']:
             merged_lines.append("! === 例外规则 Exception Rules ===")
             merged_lines.extend(sorted(groups['exception']))
