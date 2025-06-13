@@ -36,7 +36,7 @@
 ## 📬 规则订阅地址
 
 - **GitHub Raw**（全球可用）  
-```
+```https
 https://raw.githubusercontent.com/Chaniug/FilterFusion/main/dist/adblock-main.txt
 ```
 - **FastGit 加速（中国大陆推荐）**  
