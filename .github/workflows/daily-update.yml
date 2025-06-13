@@ -33,21 +33,34 @@ jobs:
 
     - name: 🧹 清理旧的规则文件 (仅保留最近3天)
       run: |
-        # 删除dist/目录下3天前的adblock-YYYYMMDD.txt文件
-        find dist -type f -name 'adblock-*.txt' -mtime +3 -delete
+        cd dist
+        # 获取最近3天的日期
+        keep_dates=""
+        for i in 0 1 2; do
+          keep_dates="$keep_dates $(date -d "-$i day" +%Y%m%d)"
+        done
+        # 遍历所有 adblock-*.txt 文件，保留最近三天的，删除其余
+        for file in adblock-*.txt; do
+          keep=false
+          for d in $keep_dates; do
+            if [[ "$file" == "adblock-$d.txt" ]]; then
+              keep=true
+              break
+            fi
+          done
+          if [ "$keep" = false ]; then
+            rm -f "$file"
+          fi
+        done
+        cd ..
 
     - name: 📤 提交变更
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
-        # 设置Git配置
         git config user.name "FilterFusion Bot"
         git config user.email "filterfusion-bot@users.noreply.github.com"
-
-        # 仅添加dist目录（规则文件）
         git add dist
-
-        # 检查是否有更改
         if git diff-index --quiet HEAD; then
           echo "没有规则变更，跳过提交"
         else
