@@ -139,10 +139,10 @@ python scripts/merge_rules.py
 
 ## 📊 贡献者统计
 
-[![Chaniug's github activity graph](https://github-readme-activity-graph.vercel.app/graph?username=Chaniug&theme=github-compact)](https://github.com/Ashutosh00710/github-readme-activity-graph)
 <p align="center">
   <img src="https://contrib.rocks/image?repo=Chaniug/FilterFusion" alt="Contributors" />
 </p>
+[![Chaniug's github activity graph](https://github-readme-activity-graph.vercel.app/graph?username=Chaniug&theme=github-compact)](https://github.com/Ashutosh00710/github-readme-activity-graph)
 - 👥 查看所有 [贡献者名单](https://github.com/Chaniug/FilterFusion/graphs/contributors)
 - 🏆 你也可以出现在这里，欢迎参与贡献！
 
