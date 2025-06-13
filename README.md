@@ -142,11 +142,10 @@ python scripts/merge_rules.py
 <p align="center">
   <img src="https://contrib.rocks/image?repo=Chaniug/FilterFusion" alt="Contributors" />
 </p>
-![Chaniug's GitHub stats](https://github-readme-stats.vercel.app/api?username=Chaniug&show_icons=true&theme=tokyonight)
-![Top Langs](https://github-readme-stats.vercel.app/api/top-langs/?username=Chaniug&layout=compact)
 - 👥 查看所有 [贡献者名单](https://github.com/Chaniug/FilterFusion/graphs/contributors)
 - 🏆 你也可以出现在这里，欢迎参与贡献！
-
+![Chaniug's GitHub stats](https://github-readme-stats.vercel.app/api?username=Chaniug&show_icons=true&theme=tokyonight)
+![Top Langs](https://github-readme-stats.vercel.app/api/top-langs/?username=Chaniug&layout=compact)
 ---
 
 ## 🤝 如何参与
