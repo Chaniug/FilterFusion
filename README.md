@@ -152,7 +152,8 @@ python scripts/merge_rules.py
 
 ## 🤝 如何参与
 
-[![Chaniug's github activity graph](https://github-readme-activity-graph.vercel.app/graph?username=Chaniug&theme=github-compact)](https://github.com/Ashutosh00710/github-readme-activity-graph)
+![Chaniug's GitHub stats](https://github-readme-stats.vercel.app/api?username=Chaniug&show_icons=true&theme=tokyonight)
+![Top Langs](https://github-readme-stats.vercel.app/api/top-langs/?username=Chaniug&layout=compact)
 
 - 🌟 点亮 [Star](https://github.com/Chaniug/FilterFusion/stargazers) 支持项目
 - 🐛 通过 [Issue](https://github.com/Chaniug/FilterFusion/issues) 反馈问题和建议
