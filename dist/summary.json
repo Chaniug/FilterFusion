@@ -1,5 +1,5 @@
 {
-  "date": "2025-06-13T10:52:00.715558+00:00",
+  "date": "2025-06-13T10:56:19.416808+00:00",
   "version": "20250613",
   "sources": [
     {
@@ -19,7 +19,7 @@
     "initial_rules": 27474,
     "final_rules": 0,
     "duplicates": 27474,
-    "processing_time_sec": 0.204409,
-    "checksum": "b7c465bd44d19359688ada3e4b04ae0732f78000974aae542295db9b7daa0fc5"
+    "processing_time_sec": 0.171436,
+    "checksum": "ffd418fb956bd76322d354389f2e17bf5b901eb28e964696ab26650297646b3e"
   }
 }

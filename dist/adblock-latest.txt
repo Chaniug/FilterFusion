@@ -1,8 +1,8 @@
 ! Title: FilterFusion AdBlock Rules
 ! Version: 20250613
-! Updated: 2025-06-13 10:52:00 UTC
-! Last modified: 2025-06-13 10:52:00 UTC
-! Checksum: b7c465bd44d19359688ada3e4b04ae0732f78000974aae542295db9b7daa0fc5
+! Updated: 2025-06-13 10:56:19 UTC
+! Last modified: 2025-06-13 10:56:19 UTC
+! Checksum: ffd418fb956bd76322d354389f2e17bf5b901eb28e964696ab26650297646b3e
 ! Homepage: https://github.com/Chaniug/FilterFusion
 ! Expires: 1 day
 ! License: MIT License
@@ -21,18 +21,6 @@
 ! Combined rules: 0
 ! Total rules: 27474
 ! Repetitions: 27474
-
-! === 合并注释及元数据 ===
-!
-! Bad: /banner.jpg (should be in general_url.txt)
-! Bad: ||adssubdomain.legitwebsite.com^ (should be in adservers_firstparty.txt)
-! Good: ||doubleclick.net^$third-party
-! Homepage: https://github.com/AdguardTeam/AdGuardFilters
-! License: https://github.com/AdguardTeam/AdguardFilters/blob/master/LICENSE
-! Note, that we only put rules that block full domains here and not URL parts (there's `general_url.txt` for that). Also, it must be domains that are used in a third-party context.
-! This section contains the list of third-party advertising networks domains for mobile devices.
-!-------------- Advertising networks ---------------------------------------!
-!---------------------------------------------------------------------------!
 
 ! === 例外规则 Exception Rules ===
 @@*$app=com.cinemark.mobile
