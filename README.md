@@ -39,10 +39,14 @@
 ```https
 https://raw.githubusercontent.com/Chaniug/FilterFusion/main/dist/adblock-main.txt
 ```
-- **FastGit 加速（中国大陆推荐）**  
-  `https://raw.fastgit.org/Chaniug/FilterFusion/main/dist/adblock-main.txt`
-- **GitHub Proxy（中国大陆推荐）**  
-  `https://ghproxy.com/https://raw.githubusercontent.com/Chaniug/FilterFusion/main/dist/adblock-main.txt`
+- **FastGit 加速（中国地区部分可用）**  
+```https
+https://raw.fastgit.org/Chaniug/FilterFusion/main/dist/adblock-main.txt
+```
+- **GitHub Proxy（中国地区部分可用）**  
+```https
+https://ghproxy.com/https://raw.githubusercontent.com/Chaniug/FilterFusion/main/dist/adblock-main.txt
+```
 - **jsDelivr CDN**  
   `https://cdn.jsdelivr.net/gh/Chaniug/FilterFusion/dist/adblock-main.txt`
 
