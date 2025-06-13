@@ -49,7 +49,7 @@ https://ghproxy.com/https://raw.githubusercontent.com/Chaniug/FilterFusion/main/
 ```
 - **jsDelivr CDN**  
 ```python
-https://cdn.jsdelivr.net/gh/Chaniug/FilterFusion/dist/adblock-main.txt
+https://cdn.jsdelivr.net/gh/Chaniug/FilterFusion@main/dist/adblock-main.txt
 ```
 
 ---
