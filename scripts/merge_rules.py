@@ -2,6 +2,8 @@ import json
 import hashlib
 import sys
 import shutil
+import re
+import unicodedata
 from datetime import datetime, timezone
 from pathlib import Path
 from collections import defaultdict
@@ -122,42 +124,111 @@ class RuleMerger:
         
         print("源统计完成")
         return source_stats, rule_counts
-    
+
+    def process_rule(self, line):
+        """
+        对单条规则进行规范化、分组和兼容性处理，返回 (type, rule)。
+        type: normal/exception/html_filter/regex/special/comment
+        """
+        # 去除不可见字符和多余空白
+        rule = unicodedata.normalize('NFKC', line.strip())
+        if not rule:
+            return (None, None)
+        # 注释
+        if rule.startswith('!') or rule.startswith('#'):
+            return ('comment', rule)
+        # 正则 (如 /adunion.*/ 或 /xxx/[flags])
+        if re.match(r"^\/.+\/[a-zA-Z0-9]*$", rule):
+            return ('regex', rule)
+        # AdGuard扩展语法/HTML/scriptlet等
+        if any(k in rule for k in [
+            "#%#", "#@#", "#$#", "#@$#", "#?#",
+            "$removeparam=", "$cookie=", "$redirect=",
+            "$generichide", "scriptlet(", "jsinject"
+        ]):
+            return ('html_filter', rule)
+        # 例外规则 (@@)
+        if rule.startswith('@@'):
+            return ('exception', rule)
+        # uBlock/AdGuard特殊参数
+        if any(k in rule for k in [
+            "$badfilter", "$important", "$app=", "$domain=", "$csp=", "$replace="
+        ]):
+            return ('special', rule)
+        # 普通屏蔽
+        return ('normal', rule)
+
     def collect_and_process_rules(self, sources, rule_counts):
-        """收集并处理规则"""
-        all_rules = []
+        """
+        收集并处理规则，语法分组、格式规范、扩展兼容
+        """
+        # 分组容器
+        groups = {
+            'normal': set(),
+            'exception': set(),
+            'html_filter': set(),
+            'regex': set(),
+            'special': set(),
+            'comment': set()
+        }
         seen_rules = set()
-        
         print("收集和处理规则:")
         for source in sources:
             if source.get('status') != 'success' or rule_counts.get(source['name'], 0) == 0:
                 continue
-                
             source_path = self.rules_dir / source['file']
             print(f"处理源文件: {source_path}")
-            
             if not source_path.exists():
                 continue
-                
             try:
                 with open(source_path, 'r', encoding='utf-8', errors='replace') as f:
                     for line in f:
-                        stripped = line.strip()
-                        # 跳过空行和注释
-                        if not stripped or stripped.startswith('!') or stripped.startswith('#'):
+                        typ, rule = self.process_rule(line)
+                        if not rule or (typ == 'comment' and rule in groups['comment']):
                             continue
-                            
-                        # 简单去重
-                        if stripped in seen_rules:
+                        # 注释只保留前10条
+                        if typ == 'comment':
+                            if len(groups['comment']) < 10:
+                                groups['comment'].add(rule)
                             continue
-                            
-                        seen_rules.add(stripped)
-                        all_rules.append(stripped)
+                        # 其余类型做全局唯一去重
+                        rule_id = f"{typ}:{rule}"
+                        if rule_id in seen_rules:
+                            continue
+                        seen_rules.add(rule_id)
+                        groups[typ].add(rule)
             except Exception as e:
                 print(f"⚠️ 警告：处理 {source['name']} 规则时出错: {str(e)}")
-        
-        print(f"收集了 {len(all_rules)} 条唯一规则")
-        return all_rules
+
+        # 输出时按分组分类拼接
+        merged_lines = []
+        if groups['comment']:
+            merged_lines.append("! === 合并注释及元数据 ===")
+            merged_lines.extend(sorted(groups['comment']))
+            merged_lines.append("")
+        if groups['exception']:
+            merged_lines.append("! === 例外规则 Exception Rules ===")
+            merged_lines.extend(sorted(groups['exception']))
+            merged_lines.append("")
+        if groups['html_filter']:
+            merged_lines.append("! === AdGuard/HTML Scriptlet Rules ===")
+            merged_lines.extend(sorted(groups['html_filter']))
+            merged_lines.append("")
+        if groups['regex']:
+            merged_lines.append("! === 正则规则 Regex Rules ===")
+            merged_lines.extend(sorted(groups['regex']))
+            merged_lines.append("")
+        if groups['special']:
+            merged_lines.append("! === 特殊参数/实验性规则 Special/Experimental ===")
+            merged_lines.extend(sorted(groups['special']))
+            merged_lines.append("")
+        if groups['normal']:
+            merged_lines.append("! === 屏蔽规则 Blocking Rules ===")
+            merged_lines.extend(sorted(groups['normal']))
+            merged_lines.append("")
+
+        print(f"收集了 {sum(len(v) for k, v in groups.items() if k != 'comment')} 条唯一规则")
+        return merged_lines
     
     def generate_version(self):
         """生成简单的语义化版本号"""
@@ -183,7 +254,12 @@ class RuleMerger:
         
         print("步骤4: 收集和处理规则")
         rules = self.collect_and_process_rules(sources, rule_counts)
-        self.final_rule_count = len(rules)
+        self.final_rule_count = sum(len(r) for k, r in {
+            k: v for k, v in {
+                'normal': set(), 'exception': set(), 'html_filter': set(),
+                'regex': set(), 'special': set()
+            }.items()
+        }.items())  # 这里可以直接用len(rules)但更严谨可细分
         
         print("步骤5: 生成版本号")
         version = self.generate_version()
