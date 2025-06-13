@@ -39,8 +39,12 @@ jobs:
         for i in 0 1 2; do
           keep_dates="$keep_dates $(date -d "-$i day" +%Y%m%d)"
         done
-        # 遍历所有 adblock-*.txt 文件，保留最近三天的，删除其余
+        # 遍历所有 adblock-*.txt 文件，保留最近三天和 adblock-latest.txt，删除其余
         for file in adblock-*.txt; do
+          # 跳过 adblock-latest.txt
+          if [ "$file" = "adblock-latest.txt" ]; then
+            continue
+          fi
           keep=false
           for d in $keep_dates; do
             if [[ "$file" == "adblock-$d.txt" ]]; then
