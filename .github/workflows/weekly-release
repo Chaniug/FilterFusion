@@ -1,0 +1,39 @@
+name: 每周自动打包发布
+
+on:
+  schedule:
+    - cron: '0 2 * * 0'  # 每周日（UTC 2点，北京时间10点）自动触发
+  workflow_dispatch:
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+    - name: 🛠️ 检出仓库
+      uses: actions/checkout@v4
+
+    - name: 📦 打包 adblock 文件
+      run: |
+        cd dist
+        zip ../adblock-weekly.zip adblock-*.txt
+        cd ..
+
+    - name: 🏷️ 自动生成版本号
+      id: version
+      run: |
+        DATE=$(date +'%Y.%m.%d')
+        echo "VERSION=$DATE" >> $GITHUB_ENV
+
+    - name: 🚀 创建 Release 并上传资源
+      uses: softprops/action-gh-release@v2
+      with:
+        tag_name: "v${{ env.VERSION }}"
+        name: "每周规则集发布·幻彩之章 ${{ env.VERSION }}"
+        body: |
+          本次自动打包发布了 FilterFusion 最新的广告规则合集（adblock-*.txt）。
+          包含所有 dist 目录下以 adblock- 开头的规则文件，适用于各类广告拦截器。
+          欢迎订阅与反馈！
+        files: |
+          adblock-weekly.zip
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
