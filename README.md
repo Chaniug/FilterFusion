@@ -1,13 +1,7 @@
 # 🚀 FilterFusion
 
-![GitHub Logo](https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png)
-
 <p align="center">
-  <img src="https://user-images.githubusercontent.com/9919/123456789-abcdef00-1234-5678-90ab-cdef12345678.gif" width="400" alt="Demo" />
-</p>
-
-<p align="center">
-  <a href="https://github.com/Chaniug/FilterFusion/stargazers">
+  <a href="https://github.com/Chaniug/FilterFusion">
     <img src="https://img.shields.io/github/stars/Chaniug/FilterFusion?style=social" alt="Stars" />
   </a>
   <a href="https://github.com/Chaniug/FilterFusion/fork">
@@ -24,28 +18,27 @@
 </p>
 
 ---
+## ✨ 关于 FilterFusion
 
-> 欢迎来到 **FilterFusion** 项目！  
-> 一个专为开发者打造的高效、灵活的过滤器融合工具，助你轻松处理复杂数据流。  
-> <img src="https://github.githubassets.com/images/icons/emoji/octocat.png" height="20"/> <b>让我们一起在 GitHub 上创造更美好的开源世界！</b>
+FilterFusion 是一个专为开发者设计的高效、灵活的过滤器融合工具集 🧩。  
+无论你是数据工程师、算法开发者还是注重性能的后端程序员，都能借助本项目轻松实现复杂数据流的处理和过滤器链路的自由组合！
 
----
+### 🌈 核心优势
 
-## ✨ 项目亮点
-
-- 🛠️ **易于集成**：只需几步即可集成到你的项目中
-- ⚡ **高性能**：优化的算法，处理速度飞快
-- 🔧 **高度可定制**：支持多种过滤器组合，满足不同需求
-- 📦 **开源共享**：欢迎 Star、Fork 和贡献你的代码！
+- **极致性能** ⚡：采用优化算法，处理大规模数据流时依然高速、流畅
+- **高度可定制** 🔧：支持多种过滤器灵活组合，适配各种业务场景
+- **轻松集成** 🛠️：API 简洁易用，几分钟即可嵌入你的项目
+- **开源共享** 🌍：欢迎 Star、Fork、贡献你的创意和代码！
 
 ---
 
-## 📸 项目预览
+## 💡 适用场景
 
-<p align="center">
-  <img src="https://user-images.githubusercontent.com/9919/123456789-abcdef00-1234-5678-90ab-cdef12345678.gif" width="60%" alt="FilterFusion Demo" /><br>
-  <em>（此处可替换为你的项目演示 GIF 或截图）</em>
-</p>
+- 流式数据的多重筛选与加工
+- 日志处理、数据清洗、机器学习预处理
+- 任意需要过滤器链式组合的应用
+
+无论是构建 ETL 管道、实时监控系统，还是需要灵活扩展的数据处理平台，FilterFusion 都能帮你大大简化开发流程！
 
 ---
 
@@ -60,22 +53,22 @@ npm start
 
 ---
 
-## 📊 项目贡献统计
+## 📊 贡献者统计
 
 <p align="center">
   <img src="https://contrib.rocks/image?repo=Chaniug/FilterFusion" alt="Contributors" />
 </p>
-
 - 👥 查看所有 [贡献者名单](https://github.com/Chaniug/FilterFusion/graphs/contributors)
-- 🏆 你也可以出现在这里，快来参与贡献吧！
+- 🏆 你也可以出现在这里，欢迎参与贡献！
 
 ---
 
-## 🤝 加入我们
+## 🤝 如何参与
 
-- 🌟 点亮 [Star](https://github.com/Chaniug/FilterFusion/stargazers)，关注项目最新动态
-- 🐛 提交 [Issue](https://github.com/Chaniug/FilterFusion/issues) 或 [Pull Request](https://github.com/Chaniug/FilterFusion/pulls) 参与贡献
-- 💬 欢迎在 [Discussions](https://github.com/Chaniug/FilterFusion/discussions) 区交流想法
+- 🌟 点亮 [Star](https://github.com/Chaniug/FilterFusion/stargazers) 支持项目
+- 🐛 通过 [Issue](https://github.com/Chaniug/FilterFusion/issues) 反馈问题和建议
+- ✨ 提交 [Pull Request](https://github.com/Chaniug/FilterFusion/pulls) 贡献你的代码
+- 💬 在 [Discussions](https://github.com/Chaniug/FilterFusion/discussions) 区畅聊你的想法
 
 ---
 
