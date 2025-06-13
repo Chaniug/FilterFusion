@@ -116,7 +116,7 @@ python scripts/merge_rules.py
 - 🏆 你也可以出现在这里，欢迎参与贡献！
 
 ---
-
+[![Chaniug's github activity graph](https://github-readme-activity-graph.vercel.app/graph?username=Chaniug&theme=github-compact)](https://github.com/Ashutosh00710/github-readme-activity-graph)
 ## 🤝 如何参与
 
 - 🌟 点亮 [Star](https://github.com/Chaniug/FilterFusion/stargazers) 支持项目
