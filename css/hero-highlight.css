@@ -1,0 +1,32 @@
+/* hero-highlight.css: 专用于主标题高亮效果 */
+.hero-highlight {
+  color: #fff !important;
+  font-weight: 900;
+  letter-spacing: 3px;
+  text-shadow: 0 4px 24px rgba(56,189,248,0.18), 0 1px 8px #fbbf24;
+  background: linear-gradient(90deg, #fbbf24 40%, #38bdf8 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  /* 兼容性处理：只用webkit方案 */
+  filter: none !important;
+  opacity: 1 !important;
+  z-index: 1000;
+  position: relative;
+  animation: highlightPop 1.2s cubic-bezier(.68,-0.55,.27,1.55) both;
+  transition: none;
+}
+@keyframes highlightPop {
+  0% { opacity: 0; transform: scale(0.7) rotate(-8deg); }
+  80% { opacity: 1; transform: scale(1.1) rotate(2deg); }
+  100% { opacity: 1; transform: scale(1) rotate(0); }
+}
+.hero-title-line.hero-highlight {
+  color: #fff !important;
+  filter: none !important;
+  text-shadow: 0 4px 24px rgba(56,189,248,0.18), 0 1px 8px #fbbf24;
+  background: none !important;
+  -webkit-background-clip: initial !important;
+  background-clip: initial !important;
+  -webkit-text-fill-color: initial !important;
+}

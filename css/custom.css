@@ -59,98 +59,68 @@ body {
   content: '';
   position: absolute;
   left: 0; top: 0; right: 0; bottom: 0;
-  z-index: 0;
+  z-index: 1;
   background: url('../assets/images/hero-abstract-strong.svg') center/cover no-repeat;
   opacity: 0.22;
   pointer-events: none;
 }
-.hero-content, .hero-title {
+.hero-content {
   position: relative;
-  z-index: 1;
+  z-index: 10;
+  background: none !important;
 }
-.hero h1, .intro-title {
-  font-family: 'LXGW WenKai', 'HarmonyOS Sans', 'PingFang SC', 'Microsoft YaHei', 'Segoe UI', system-ui, sans-serif;
-  font-size: 3.2rem;
-  letter-spacing: 2px;
-  font-weight: bold;
-  background: linear-gradient(90deg, #7c3aed, #38bdf8);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  animation: textPop 1.2s cubic-bezier(.68,-0.55,.27,1.55) both;
+.hero-title, .hero-title-line, .valkjin, .hero-avatar-wrap {
+  position: relative !important;
+  z-index: 1000 !important;
+  color: #1e293b !important;
 }
-@keyframes textPop {
-  0% { opacity: 0; transform: scale(0.8) translateY(40px); }
-  80% { opacity: 1; transform: scale(1.05) translateY(-8px); }
-  100% { opacity: 1; transform: scale(1) translateY(0); }
-}
-
-/* 区块标题样式 */
-.section-title {
-  font-family: 'ZCOOL QingKe HuangYou', 'HarmonyOS Sans', 'PingFang SC', 'Microsoft YaHei', 'Segoe UI', system-ui, sans-serif;
-  font-size: 2.2rem;
-  color: #7c3aed;
-  letter-spacing: 1px;
-  margin-bottom: 1.5rem;
-  animation: fadeInTitle 1.2s both;
-}
-@keyframes fadeInTitle {
-  from { opacity: 0; transform: translateY(30px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-/* 爱好图标和卡片标题字体 */
-.hobby-icon, .card-title {
-  font-family: 'ZCOOL KuaiLe', 'HarmonyOS Sans', 'PingFang SC', 'Microsoft YaHei', 'Segoe UI', system-ui, sans-serif;
-}
-
-/* 其它区块背景渐变 */
-.bg-light {
-  background: linear-gradient(120deg, #f3f4f6 60%, #e0e7ef 100%);
-}
-.bg-white {
-  background: linear-gradient(120deg, #fff 60%, #f3f4f6 100%);
-}
-
-/* 联系表单美化 */
-.contact .form-control {
-  border-radius: 1rem;
-  border: 1.5px solid #7c3aed;
-  box-shadow: 0 2px 8px rgba(124,58,237,0.08);
-}
-.contact .btn-primary {
-  background: linear-gradient(90deg, #7c3aed, #38bdf8);
-  border: none;
-  border-radius: 2rem;
-  font-weight: bold;
-  letter-spacing: 1px;
-}
-
-/* 打字机动画样式 */
-.typewriter {
-  display: inline-block;
-  overflow: hidden;
-  border-right: .15em solid #7c3aed;
-  white-space: nowrap;
-  animation: typing 3.2s steps(13, end) 1s 1 normal both, blink-caret .75s step-end infinite;
-  font-family: inherit;
-}
-@keyframes typing {
-  from { width: 0 }
-  to { width: 13em }
-}
-@keyframes blink-caret {
-  from, to { border-color: transparent }
-  50% { border-color: #7c3aed; }
-}
-
 .hero-title {
+  position: relative;
+  z-index: 20;
+  background: none !important;
+}
+.hero-title, .hero-title-line, .valkjin {
+  background: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+}
+.hero-title-line {
+  display: block;
+  color: #1e293b !important;
+  font-size: 3.2rem;
+  font-family: 'Noto Serif SC', 'LXGW WenKai', 'HarmonyOS Sans', 'PingFang SC', 'Microsoft YaHei', serif;
+  font-weight: 700;
+  letter-spacing: 2.5px;
+  position: relative;
+  z-index: 30;
+  opacity: 1 !important;
+  visibility: visible !important;
+  background: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  transition: opacity 0.7s cubic-bezier(.77,0,.175,1), filter 0.7s cubic-bezier(.77,0,.175,1), transform 0.7s cubic-bezier(.77,0,.175,1);
+  will-change: opacity, filter, transform;
+}
+.hero-title-line.hide {
+  opacity: 0 !important;
+  filter: blur(12px);
+  transform: translateY(40px) scale(0.95);
+  pointer-events: none;
+}
+.hero h1, .hero-title {
+  color: #1e293b !important;
+  background: none !important;
+  -webkit-background-clip: initial !important;
+  background-clip: initial !important;
+  -webkit-text-fill-color: initial !important;
+}
+.hero-title {
+  position: relative;
   font-size: 3.2rem;
   color: #1e293b;
   font-family: 'Noto Serif SC', 'LXGW WenKai', 'HarmonyOS Sans', 'PingFang SC', 'Microsoft YaHei', serif;
   font-weight: 700;
   letter-spacing: 2.5px;
-  text-shadow: 0 2px 12px rgba(255,255,255,0.18);
 }
 .hero-title .valkjin {
   font-size: 4.2rem;
@@ -185,6 +155,8 @@ body, .hero, .intro-card, .section-title, .hobby-icon, .card-title, .contact .fo
   justify-content: center;
   align-items: center;
   margin: 2.2rem 0 1.2rem 0;
+  z-index: 10;
+  position: relative;
 }
 .hero-avatar {
   width: 144px;
@@ -194,10 +166,148 @@ body, .hero, .intro-card, .section-title, .hobby-icon, .card-title, .contact .fo
   border: 4px solid #fff;
   object-fit: cover;
   background: #f3f4f6;
-  transition: transform 0.7s cubic-bezier(.68,-0.55,.27,1.55), box-shadow 0.7s;
+  animation: avatarFadeIn 1.2s cubic-bezier(.22,1,.36,1) 0.3s both;
+  transition: transform 0.35s cubic-bezier(.22,1,.36,1), box-shadow 0.35s;
   will-change: transform, box-shadow;
 }
+@keyframes avatarFadeIn {
+  0% { transform: scale(0.7); opacity: 0; }
+  80% { transform: scale(1.08); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
 .hero-avatar:hover {
-  transform: scale(1.08) rotate(-3deg);
+  transform: scale(1.08) rotate(-2deg);
   box-shadow: 0 12px 48px 0 rgba(56,189,248,0.28), 0 3px 16px 0 rgba(251,191,36,0.18);
+  animation: none;
+}
+
+/* 解决样式冲突，确保主标题显示 */
+.hero-title-line {
+  display: block;
+  color: #1e293b !important;
+  font-size: 3.2rem;
+  font-family: 'Noto Serif SC', 'LXGW WenKai', 'HarmonyOS Sans', 'PingFang SC', 'Microsoft YaHei', serif;
+  font-weight: 700;
+  letter-spacing: 2.5px;
+  position: relative;
+  z-index: 30;
+  opacity: 1 !important;
+  visibility: visible !important;
+  background: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+}
+.hero h1, .hero-title {
+  color: #1e293b !important;
+  background: none !important;
+  -webkit-background-clip: initial !important;
+  background-clip: initial !important;
+  -webkit-text-fill-color: initial !important;
+}
+
+/* 动画延迟类 */
+.animate__delay-02s {
+  animation-delay: 0.2s !important;
+}
+.animate__delay-06s {
+  animation-delay: 0.6s !important;
+}
+.typewriter {
+  display: inline-block;
+  overflow: hidden;
+  border-right: .15em solid #7c3aed;
+  white-space: nowrap;
+  animation: typing 3.2s steps(12, end) 0.8s 1 normal both, blink-caret .75s step-end infinite;
+  font-family: inherit;
+}
+@keyframes typing {
+  from { width: 0 }
+  to { width: 24ch }
+}
+.hero-highlight {
+  color: #fff !important;
+  font-weight: 900;
+  letter-spacing: 3px;
+  text-shadow: 0 4px 24px rgba(56,189,248,0.18), 0 1px 8px #fbbf24;
+  background: linear-gradient(90deg, #fbbf24 40%, #38bdf8 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: none !important;
+  opacity: 1 !important;
+  z-index: 1000;
+  position: relative;
+  animation: highlightPop 1.2s cubic-bezier(.68,-0.55,.27,1.55) both;
+  transition: none;
+}
+.hero-highlight.hide {
+  filter: none !important;
+  opacity: 1 !important;
+  transform: none !important;
+}
+@keyframes highlightPop {
+  0% { opacity: 0; transform: scale(0.7) rotate(-8deg); }
+  80% { opacity: 1; transform: scale(1.1) rotate(2deg); }
+  100% { opacity: 1; transform: scale(1) rotate(0); }
+}
+
+/* GitHub按钮样式 */
+.btn-github {
+  display: inline-flex;
+  align-items: center;
+  background: linear-gradient(90deg, #24292f 60%, #57606a 100%);
+  color: #fff;
+  font-weight: 600;
+  border: none;
+  border-radius: 2rem;
+  padding: 0.5rem 1.4rem;
+  font-size: 1.1rem;
+  box-shadow: 0 2px 8px rgba(36,41,47,0.08);
+  transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+  cursor: pointer;
+  outline: none;
+  gap: 8px;
+}
+.btn-github:hover, .btn-github:focus {
+  background: linear-gradient(90deg, #57606a 60%, #24292f 100%);
+  transform: translateY(-2px) scale(1.04);
+  box-shadow: 0 6px 24px rgba(36,41,47,0.18);
+}
+.github-icon {
+  vertical-align: middle;
+  margin-right: 8px;
+  width: 22px;
+  height: 22px;
+  display: inline-block;
+}
+
+/* X（推特）按钮样式 */
+.btn-x {
+  display: inline-flex;
+  align-items: center;
+  background: linear-gradient(90deg, #16181c 60%, #3b3b3b 100%);
+  color: #fff;
+  font-weight: 600;
+  border: none;
+  border-radius: 2rem;
+  padding: 0.5rem 1.4rem;
+  font-size: 1.1rem;
+  box-shadow: 0 2px 8px rgba(22,24,28,0.08);
+  transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+  cursor: pointer;
+  outline: none;
+  gap: 8px;
+  margin-left: 1rem;
+}
+.btn-x:hover, .btn-x:focus {
+  background: linear-gradient(90deg, #3b3b3b 60%, #16181c 100%);
+  transform: translateY(-2px) scale(1.04);
+  box-shadow: 0 6px 24px rgba(22,24,28,0.18);
+}
+.x-icon {
+  vertical-align: middle;
+  margin-right: 8px;
+  width: 22px;
+  height: 22px;
+  display: inline-block;
 }
