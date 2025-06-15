@@ -1,0 +1,39 @@
+/* 冷色系深色科技感背景，适配视频背景 */
+.hero {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(120deg, #0f172a 0%, #1e293b 100%); /* 深蓝冷色系 */
+  color: #e0e7ef;
+}
+.hero-bg-video {
+  position: absolute;
+  left: 0; top: 0; width: 100%; height: 100%;
+  object-fit: cover;
+  z-index: 1;
+  opacity: 0.55;
+  pointer-events: none;
+  transition: opacity 0.4s;
+  background: #0f172a;
+}
+.hero-bg-canvas {
+  position: absolute;
+  left: 0; top: 0; width: 100%; height: 100%;
+  z-index: 2;
+  pointer-events: none;
+  opacity: 0.7;
+  transition: opacity 0.4s;
+}
+.hero-content {
+  position: relative;
+  z-index: 10;
+  background: none !important;
+}
+@media (max-width: 768px) {
+  .hero-bg-video { opacity: 0.38; }
+  .hero-bg-canvas { opacity: 0.5; }
+}

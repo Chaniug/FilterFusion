@@ -34,12 +34,47 @@
 }
 
 /* 背景图和渐变 */
-body {
-  font-family: 'HarmonyOS Sans', 'PingFang SC', 'Microsoft YaHei', 'Segoe UI', system-ui, sans-serif;
-  background: linear-gradient(135deg, #f3f4f6 0%, #e0e7ef 100%), url('../assets/images/bg-main.jpg') center/cover no-repeat fixed;
-  color: var(--text-color);
-  line-height: 1.6;
+body, html {
+  width: 100vw;
+  max-width: 100vw;
   overflow-x: hidden;
+}
+main, .container, .row {
+  width: 100%;
+  max-width: 100vw;
+  margin: 0 auto;
+  box-sizing: border-box;
+}
+.hero-bg-video, .hero-bg-canvas {
+  position: absolute;
+  left: 0; top: 0;
+  width: 100vw;
+  min-width: 100vw;
+  max-width: 100vw;
+  height: 100%;
+  object-fit: cover;
+  z-index: 1;
+  pointer-events: none;
+}
+.hero-content {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 1.2rem 0.5rem 0.5rem 0.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-index: 10;
+}
+@media (max-width: 768px) {
+  body, html, main, .container, .row {
+    width: 100vw;
+    max-width: 100vw;
+    overflow-x: hidden;
+  }
+  .hero-content {
+    max-width: 98vw;
+    padding: 0.5rem 0.2rem 0.2rem 0.2rem;
+  }
 }
 
 /* 主页主标题样式 */
@@ -51,18 +86,16 @@ body {
   text-align: center;
   position: relative;
   overflow: hidden;
-  /* 蓝橙渐变+科技感背景图+SVG水印 */
   background: linear-gradient(120deg, #38bdf8 0%, #fbbf24 100%), url('../assets/images/hero-bg.jpg') center/cover no-repeat;
   color: #222;
 }
-.hero::before {
-  content: '';
+.hero-bg-canvas {
   position: absolute;
-  left: 0; top: 0; right: 0; bottom: 0;
-  z-index: 1;
-  background: url('../assets/images/hero-abstract-strong.svg') center/cover no-repeat;
-  opacity: 0.22;
+  left: 0; top: 0; width: 100%; height: 100%;
+  z-index: 2;
   pointer-events: none;
+  opacity: 0.7;
+  transition: opacity 0.4s;
 }
 .hero-content {
   position: relative;
@@ -273,6 +306,14 @@ body, .hero, .intro-card, .section-title, .hobby-icon, .card-title, .contact .fo
   transform: translateY(-2px) scale(1.04);
   box-shadow: 0 6px 24px rgba(36,41,47,0.18);
 }
+.social-guide {
+  margin-bottom: 0.7rem;
+  font-size: 1.13rem;
+  color: #64748b;
+  font-weight: 500;
+  letter-spacing: 1px;
+  text-align: center;
+}
 .github-icon {
   vertical-align: middle;
   margin-right: 8px;
@@ -394,4 +435,48 @@ body, .hero, .intro-card, .section-title, .hobby-icon, .card-title, .contact .fo
 .wechat-toast.show {
   opacity: 1;
   pointer-events: auto;
+}
+
+/* 移动端适配样式 */
+@media (max-width: 768px) {
+  .hero-title-line {
+    font-size: 2rem;
+    letter-spacing: 1.2px;
+    text-align: center;
+  }
+  .hero-title {
+    font-size: 2.1rem;
+    padding: 0 0.5rem;
+  }
+  .hero-avatar {
+    width: 96px;
+    height: 96px;
+  }
+  .subtitle, .typewriter {
+    font-size: 1.05rem;
+    text-align: center;
+  }
+  .social-links {
+    flex-direction: column;
+    align-items: center;
+    gap: 0.7rem;
+    margin-top: 1.2rem;
+  }
+  .btn-github, .btn-x, .btn-wechat, .btn-qq {
+    width: 90vw;
+    max-width: 340px;
+    justify-content: center;
+    font-size: 1rem;
+    margin-left: 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero-title-line {
+    font-size: 1.3rem;
+  }
+  .hero-avatar {
+    width: 72px;
+    height: 72px;
+  }
 }
