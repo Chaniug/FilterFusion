@@ -35,7 +35,7 @@
 
 /* 背景图和渐变 */
 body {
-  font-family: 'Segoe UI', system-ui, sans-serif;
+  font-family: 'HarmonyOS Sans', 'PingFang SC', 'Microsoft YaHei', 'Segoe UI', system-ui, sans-serif;
   background: linear-gradient(135deg, #f3f4f6 0%, #e0e7ef 100%), url('../assets/images/bg-main.jpg') center/cover no-repeat fixed;
   color: var(--text-color);
   line-height: 1.6;
@@ -51,11 +51,25 @@ body {
   text-align: center;
   position: relative;
   overflow: hidden;
-  background: linear-gradient(120deg, rgba(124,58,237,0.08) 0%, rgba(236,239,241,0.7) 100%), url('../assets/images/bg-hero.jpg') center/cover no-repeat;
+  /* 蓝橙渐变+科技感背景图+SVG水印 */
+  background: linear-gradient(120deg, #38bdf8 0%, #fbbf24 100%), url('../assets/images/hero-bg.jpg') center/cover no-repeat;
   color: #222;
 }
+.hero::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; right: 0; bottom: 0;
+  z-index: 0;
+  background: url('../assets/images/hero-abstract-strong.svg') center/cover no-repeat;
+  opacity: 0.22;
+  pointer-events: none;
+}
+.hero-content, .hero-title {
+  position: relative;
+  z-index: 1;
+}
 .hero h1, .intro-title {
-  font-family: 'ZCOOL XiaoWei', 'Segoe UI', system-ui, sans-serif;
+  font-family: 'LXGW WenKai', 'HarmonyOS Sans', 'PingFang SC', 'Microsoft YaHei', 'Segoe UI', system-ui, sans-serif;
   font-size: 3.2rem;
   letter-spacing: 2px;
   font-weight: bold;
@@ -73,7 +87,7 @@ body {
 
 /* 区块标题样式 */
 .section-title {
-  font-family: 'ZCOOL QingKe HuangYou', 'Segoe UI', system-ui, sans-serif;
+  font-family: 'ZCOOL QingKe HuangYou', 'HarmonyOS Sans', 'PingFang SC', 'Microsoft YaHei', 'Segoe UI', system-ui, sans-serif;
   font-size: 2.2rem;
   color: #7c3aed;
   letter-spacing: 1px;
@@ -87,7 +101,7 @@ body {
 
 /* 爱好图标和卡片标题字体 */
 .hobby-icon, .card-title {
-  font-family: 'ZCOOL KuaiLe', 'Segoe UI', system-ui, sans-serif;
+  font-family: 'ZCOOL KuaiLe', 'HarmonyOS Sans', 'PingFang SC', 'Microsoft YaHei', 'Segoe UI', system-ui, sans-serif;
 }
 
 /* 其它区块背景渐变 */
@@ -110,4 +124,80 @@ body {
   border-radius: 2rem;
   font-weight: bold;
   letter-spacing: 1px;
+}
+
+/* 打字机动画样式 */
+.typewriter {
+  display: inline-block;
+  overflow: hidden;
+  border-right: .15em solid #7c3aed;
+  white-space: nowrap;
+  animation: typing 3.2s steps(13, end) 1s 1 normal both, blink-caret .75s step-end infinite;
+  font-family: inherit;
+}
+@keyframes typing {
+  from { width: 0 }
+  to { width: 13em }
+}
+@keyframes blink-caret {
+  from, to { border-color: transparent }
+  50% { border-color: #7c3aed; }
+}
+
+.hero-title {
+  font-size: 3.2rem;
+  color: #1e293b;
+  font-family: 'Noto Serif SC', 'LXGW WenKai', 'HarmonyOS Sans', 'PingFang SC', 'Microsoft YaHei', serif;
+  font-weight: 700;
+  letter-spacing: 2.5px;
+  text-shadow: 0 2px 12px rgba(255,255,255,0.18);
+}
+.hero-title .valkjin {
+  font-size: 4.2rem;
+  font-family: 'Montserrat', 'ZCOOL KuaiLe', 'Segoe UI', 'Arial', sans-serif;
+  color: #0ea5e9;
+  font-weight: 900;
+  letter-spacing: 4px;
+  text-shadow: 0 4px 24px rgba(251,191,36,0.18);
+}
+.subtitle, .typewriter {
+  color: #334155;
+  font-size: 1.5rem;
+  font-family: 'Noto Sans SC', 'HarmonyOS Sans', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  font-weight: 500;
+  text-shadow: 0 1px 8px rgba(255,255,255,0.10);
+}
+.subtitle-en {
+  color: #f59e42;
+  font-size: 1.15rem;
+  font-family: 'Montserrat', 'Segoe UI', 'Arial', sans-serif;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+/* Safari兼容性调整 */
+body, .hero, .intro-card, .section-title, .hobby-icon, .card-title, .contact .form-control, .contact .btn-primary, .typewriter, .hero-title, .hero-title .valkjin, .hero-title .valkjin-bg {
+  -webkit-user-select: none;
+  user-select: none;
+}
+.hero-avatar-wrap {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 2.2rem 0 1.2rem 0;
+}
+.hero-avatar {
+  width: 144px;
+  height: 144px;
+  border-radius: 50%;
+  box-shadow: 0 6px 32px 0 rgba(56,189,248,0.18), 0 1.5px 8px 0 rgba(251,191,36,0.10);
+  border: 4px solid #fff;
+  object-fit: cover;
+  background: #f3f4f6;
+  transition: transform 0.7s cubic-bezier(.68,-0.55,.27,1.55), box-shadow 0.7s;
+  will-change: transform, box-shadow;
+}
+.hero-avatar:hover {
+  transform: scale(1.08) rotate(-3deg);
+  box-shadow: 0 12px 48px 0 rgba(56,189,248,0.28), 0 3px 16px 0 rgba(251,191,36,0.18);
 }
