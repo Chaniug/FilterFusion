@@ -1,0 +1,31 @@
+/* 自定义动画和介绍卡片样式 */
+.fade-in {
+  opacity: 0;
+  transform: scale(0.95);
+  animation: fadeInScale 1.2s ease-out forwards;
+}
+@keyframes fadeInScale {
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+.intro-card {
+  background: rgba(255,255,255,0.85);
+  border-radius: 1.5rem;
+  box-shadow: 0 8px 32px 0 rgba(31,38,135,0.18);
+  padding: 2.5rem 2rem;
+  margin-top: 3rem;
+}
+.intro-title {
+  font-size: 2.5rem;
+  font-weight: bold;
+  letter-spacing: 2px;
+  margin-bottom: 1.2rem;
+  color: #2c3e50;
+}
+.intro-subtitle {
+  font-size: 1.3rem;
+  color: #34495e;
+  margin-bottom: 1.5rem;
+}
