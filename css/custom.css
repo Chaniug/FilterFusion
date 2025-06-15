@@ -311,3 +311,87 @@ body, .hero, .intro-card, .section-title, .hobby-icon, .card-title, .contact .fo
   height: 22px;
   display: inline-block;
 }
+
+/* 微信按钮样式 */
+.btn-wechat {
+  display: inline-flex;
+  align-items: center;
+  background: linear-gradient(90deg, #7bb32e 60%, #a8e063 100%);
+  color: #fff;
+  font-weight: 600;
+  border: none;
+  border-radius: 2rem;
+  padding: 0.5rem 1.4rem;
+  font-size: 1.1rem;
+  box-shadow: 0 2px 8px rgba(123,179,46,0.08);
+  transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+  cursor: pointer;
+  outline: none;
+  gap: 8px;
+  margin-left: 1rem;
+}
+.btn-wechat:hover, .btn-wechat:focus {
+  background: linear-gradient(90deg, #a8e063 60%, #7bb32e 100%);
+  transform: translateY(-2px) scale(1.04);
+  box-shadow: 0 6px 24px rgba(123,179,46,0.18);
+}
+.wechat-icon {
+  vertical-align: middle;
+  margin-right: 8px;
+  width: 22px;
+  height: 22px;
+  display: inline-block;
+}
+
+/* QQ按钮样式 */
+.btn-qq {
+  display: inline-flex;
+  align-items: center;
+  background: linear-gradient(90deg, #12b7f5 60%, #1e90ff 100%);
+  color: #fff;
+  font-weight: 600;
+  border: none;
+  border-radius: 2rem;
+  padding: 0.5rem 1.4rem;
+  font-size: 1.1rem;
+  box-shadow: 0 2px 8px rgba(18,183,245,0.08);
+  transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+  cursor: pointer;
+  outline: none;
+  gap: 8px;
+  margin-left: 1rem;
+}
+.btn-qq:hover, .btn-qq:focus {
+  background: linear-gradient(90deg, #1e90ff 60%, #12b7f5 100%);
+  transform: translateY(-2px) scale(1.04);
+  box-shadow: 0 6px 24px rgba(18,183,245,0.18);
+}
+.qq-icon {
+  vertical-align: middle;
+  margin-right: 8px;
+  width: 22px;
+  height: 22px;
+  display: inline-block;
+}
+
+/* 微信复制提示 */
+.wechat-toast {
+  position: fixed;
+  left: 50%;
+  top: 18%;
+  transform: translateX(-50%);
+  background: rgba(60,60,60,0.96);
+  color: #fff;
+  padding: 0.7rem 1.6rem;
+  border-radius: 1.5rem;
+  font-size: 1.1rem;
+  z-index: 9999;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.18);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s;
+}
+.wechat-toast.show {
+  opacity: 1;
+  pointer-events: auto;
+}
