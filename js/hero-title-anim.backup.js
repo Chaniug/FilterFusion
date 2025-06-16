@@ -1,3 +1,4 @@
+// 备份原 hero-title-anim.js
 // hero-title-anim.js: 主标题三行动画控制
 function showHeroLinesSequential() {
   const lines = document.querySelectorAll('.hero-title-line');
@@ -23,11 +24,7 @@ function fadeOutHero() {
 }
 function fadeInHero() {
   const hero = document.querySelector('.hero');
-  if(hero) {
-    hero.classList.remove('hero-fade-out');
-    hero.style.opacity = '1';
-    hero.style.transform = 'none';
-  }
+  if(hero) hero.classList.remove('hero-fade-out');
 }
 window.addEventListener('DOMContentLoaded', function() {
   showHeroLinesSequential();

@@ -18,29 +18,29 @@
     <link href="https://fonts.googleapis.com/css2?family=ZCOOL+XiaoWei&family=ZCOOL+QingKe+HuangYou&family=ZCOOL+KuaiLe&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=LXGW+WenKai&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=HarmonyOS+Sans:wght@400;700&display=swap" rel="stylesheet">
-    <!-- Google Fonts for Chinese/English (Noto Serif SC, Noto Sans SC, Montserrat) -->
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;900&family=Noto+Serif+SC:wght@700&family=Noto+Sans+SC:wght@500&display=swap" rel="stylesheet">
+    <!-- Google Fonts for Chinese/English (Space Grotesk, Noto Sans SC, Montserrat, Poppins, Inter, Roboto) -->
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@700&family=Noto+Sans+SC:wght@500;700&family=Montserrat:wght@700;900&family=Poppins:wght@700&family=Inter:wght@700&family=Roboto:wght@700&display=swap" rel="stylesheet">
+    <!-- Swiper.js 轮播库 -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
 </head>
 <body>
     <header class="hero">
-        <video class="hero-bg-video" autoplay loop muted playsinline>
-          <source src="assets/videos/hero-bg.mp4" type="video/mp4">
-        </video>
+        <div class="hero-bg-wave-wrap">
+          <img class="hero-bg-image hero-bg-animate" src="assets/images/hero-bg.webp" alt="深蓝色海面夜色V字未来科技感背景" />
+          <div id="hero-particles"></div>
+        </div>
         <div class="hero-content animate__animated animate__fadeInDown">
+          <div class="hero-title-group">
             <h1 class="hero-title position-relative">
-              <span class="hero-title-line animate__animated animate__fadeInDown animate__delay-02s" data-aos="fade-up">你好！</span>
-              <span class="hero-title-line animate__animated animate__fadeInDown animate__delay-06s" data-aos="fade-up" data-aos-delay="200">我是</span>
-              <span class="hero-title-line hero-highlight animate__animated animate__zoomIn animate__delay-1s" data-aos="zoom-in" data-aos-delay="400" style="color:#fff !important; filter:none !important; text-shadow:0 4px 24px rgba(56,189,248,0.18),0 1px 8px #fbbf24; background:none; -webkit-background-clip:initial; background-clip:initial; -webkit-text-fill-color:initial;">Valkjin</span>
+              <span class="hero-title-line hero-main-title">Valkjin</span>
             </h1>
-            <div class="hero-avatar-wrap">
-              <img src="assets/images/avatar.jpg" alt="Valkjin 头像" class="hero-avatar animate__animated animate__zoomIn" />
-            </div>
-            <p class="subtitle animate__animated animate__fadeInUp animate__delay-1s"><span class="typewriter">一名充满激情的个人开发者</span> </p>
-            <!-- 新增引导语 -->
-            <div class="social-guide fade-in" data-aos="fade-right" data-aos-delay="100" style="margin-bottom:0.7rem;font-size:1.13rem;color:#64748b;font-weight:500;letter-spacing:1px;">
-              欢迎关注我的社交账号 👇
-            </div>
-            <div class="social-links animate__animated animate__fadeIn animate__delay-2s">
+            <p class="subtitle animate__animated animate__fadeInUp animate__delay-1s">探索未来的开发者｜用代码点亮数字世界</p>
+          </div>
+          <div class="hero-avatar-wrap">
+            <img src="assets/images/avatar.jpg" alt="Valkjin 头像" class="hero-avatar animate__animated animate__zoomIn" />
+          </div>
+          <div class="social-guide fade-in" data-aos="fade-right" data-aos-delay="100">欢迎关注我的社交账号 👇</div>
+          <div class="social-links animate__animated animate__fadeIn animate__delay-2s">
                 <a href="https://github.com/Chaniug" class="btn btn-github fade-in" target="_blank" rel="noopener" aria-label="GitHub" data-aos="fade-up" data-aos-delay="200">
                   <svg class="github-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="vertical-align:middle;margin-right:8px;"><path d="M12 2C6.48 2 2 6.58 2 12.26c0 4.49 2.87 8.3 6.84 9.64.5.09.68-.22.68-.48 0-.24-.01-.87-.01-1.7-2.78.62-3.37-1.36-3.37-1.36-.45-1.18-1.1-1.5-1.1-1.5-.9-.63.07-.62.07-.62 1 .07 1.53 1.05 1.53 1.05.89 1.56 2.34 1.11 2.91.85.09-.66.35-1.11.63-1.37-2.22-.26-4.56-1.14-4.56-5.07 0-1.12.39-2.03 1.03-2.75-.1-.26-.45-1.3.1-2.7 0 0 .84-.28 2.75 1.05A9.38 9.38 0 0 1 12 6.84c.85.004 1.71.12 2.51.35 1.91-1.33 2.75-1.05 2.75-1.05.55 1.4.2 2.44.1 2.7.64.72 1.03 1.63 1.03 2.75 0 3.94-2.34 4.81-4.57 5.07.36.32.68.94.68 1.9 0 1.37-.01 2.47-.01 2.81 0 .27.18.58.69.48A10.01 10.01 0 0 0 22 12.26C22 6.58 17.52 2 12 2Z" fill="currentColor"/></svg>
                   GitHub
@@ -59,19 +59,39 @@
                 </a>
             </div>
         </div>
+        <div class="hero-scroll-indicator" onclick="window.scrollTo({top: window.innerHeight * 0.98, behavior: 'smooth'});">
+          <div class="mouse">
+            <div class="wheel"></div>
+          </div>
+          <svg class="arrow" viewBox="0 0 18 18"><polyline points="4,7 9,13 14,7"/></svg>
+        </div>
         <div class="scroll-indicator animate__animated animate__fadeInUp animate__delay-3s">
             <span></span>
         </div>
     </header>
     <main class="container-fluid px-0">
-        <section id="about" class="about section py-5 bg-white text-dark" data-aos="fade-up">
-            <div class="container">
-                <h2 class="section-title mb-4" data-aos="fade-right">关于我</h2>
-                <div class="about-content" data-aos="fade-up" data-aos-delay="100">
-                    <p>我是一个热爱技术和创新的个人开发者，专注于人工智能与数字世界研究。我享受解决问题的过程，并不断学习新技能来提升自己。</p>
-                    <p>在我的职业生涯中，我致力于解决数字网络世界的种种问题，希望通过我的努力能够用科技与技术改变世界！</p>
+        <section id="about" class="about section py-5 text-dark" data-aos="fade-up" style="position:relative;overflow:hidden;">
+          <img src="assets/images/about-bg.webp" alt="未来城市夜景" class="about-bg-img">
+          <div class="about-bg-overlay"></div>
+          <div class="container about-card-glass animate__animated animate__fadeInUp">
+            <h2 class="section-title mb-4" data-aos="fade-right">关于 Valkjin</h2>
+            <div class="about-swiper swiper">
+              <div class="swiper-wrapper">
+                <div class="swiper-slide">
+                  <p class="about-intro">你好，我是 <b>Valkjin</b>，一名热爱技术与创新的开发者，专注于人工智能与数字世界的探索。</p>
                 </div>
+                <div class="swiper-slide">
+                  <p class="about-intro">我享受解决问题的过程，乐于用科技与创意点亮未来。</p>
+                </div>
+                <div class="swiper-slide">
+                  <p class="about-motto">“用科技点亮未来。”</p>
+                </div>
+              </div>
+              <div class="swiper-pagination"></div>
+              <div class="swiper-button-prev"></div>
+              <div class="swiper-button-next"></div>
             </div>
+          </div>
         </section>
         <section id="skills" class="skills section py-5 bg-light" data-aos="fade-up">
             <div class="container">
@@ -166,6 +186,13 @@
     <script src="js/qq-btn.js"></script>
     <script src="js/hero-bg-canvas.js"></script>
     <script src="js/hero-bg-video.js"></script>
+    <!-- VANTA.js WAVES 动态水面特效 -->
+    <script src="https://cdn.jsdelivr.net/npm/vanta@latest/dist/vanta.waves.min.js"></script>
+    <script src="js/hero-bg-waves.js"></script>
+    <!-- tsParticles 粒子特效库 -->
+    <script src="https://cdn.jsdelivr.net/npm/tsparticles-engine@2.12.0/tsparticles.engine.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tsparticles@2.12.0/tsparticles.min.js"></script>
+    <script src="js/hero-particles.js"></script>
     <script>
     document.addEventListener('DOMContentLoaded', function() {
       const projects = [
@@ -190,5 +217,8 @@
       });
     });
     </script>
+    <script src="js/hero-split-anim.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+    <script src="js/about-swiper.js"></script>
 </body>
 </html>
