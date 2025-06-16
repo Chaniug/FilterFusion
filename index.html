@@ -22,6 +22,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@700&family=Noto+Sans+SC:wght@500;700&family=Montserrat:wght@700;900&family=Poppins:wght@700&family=Inter:wght@700&family=Roboto:wght@700&display=swap" rel="stylesheet">
     <!-- Swiper.js 轮播库 -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+    <!-- Glide.js 轮播库 -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@glidejs/glide/dist/css/glide.core.min.css">
 </head>
 <body>
     <header class="hero">
@@ -70,26 +72,44 @@
         </div>
     </header>
     <main class="container-fluid px-0">
-        <section id="about" class="about section py-5 text-dark" data-aos="fade-up" style="position:relative;overflow:hidden;">
+        <section id="about" class="about section py-5 text-dark" data-aos="fade-up">
+          <!-- about边框外飞入弹出图片占位 -->
+          <div class="about-float-img about-float-img-1">[图片1占位]</div>
+          <div class="about-float-img about-float-img-2">[图片2占位]</div>
           <img src="assets/images/about-bg.webp" alt="未来城市夜景" class="about-bg-img">
           <div class="about-bg-overlay"></div>
-          <div class="container about-card-glass animate__animated animate__fadeInUp">
-            <h2 class="section-title mb-4" data-aos="fade-right">关于 Valkjin</h2>
-            <div class="about-swiper swiper">
-              <div class="swiper-wrapper">
-                <div class="swiper-slide">
-                  <p class="about-intro">你好，我是 <b>Valkjin</b>，一名热爱技术与创新的开发者，专注于人工智能与数字世界的探索。</p>
-                </div>
-                <div class="swiper-slide">
-                  <p class="about-intro">我享受解决问题的过程，乐于用科技与创意点亮未来。</p>
-                </div>
-                <div class="swiper-slide">
-                  <p class="about-motto">“用科技点亮未来。”</p>
-                </div>
+          <div class="container">
+            <div class="about-glide glide">
+              <div class="glide__track" data-glide-el="track">
+                <ul class="glide__slides">
+                  <li class="glide__slide">
+                    <img src="assets/images/avatar.jpg" loading="lazy" class="about-slide-bg" alt="Valkjin 头像" />
+                    <div class="about-slide-content">
+                      <h3 class="about-slide-title">你好，我是 <span class="about-title-outline">Valkjin</span></h3>
+                      <p>热爱技术与创新，专注AI与数字世界探索。</p>
+                    </div>
+                  </li>
+                  <li class="glide__slide">
+                    <img src="assets/images/about-bg.webp" loading="lazy" class="about-slide-bg" alt="未来城市夜景" />
+                    <div class="about-slide-content">
+                      <h3 class="about-slide-title">信条</h3>
+                      <p>“用科技点亮未来。”</p>
+                    </div>
+                  </li>
+                  <li class="glide__slide">
+                    <img src="assets/images/about-bg.webp" loading="lazy" class="about-slide-bg" alt="未来城市夜景" />
+                    <div class="about-slide-content">
+                      <h3 class="about-slide-title">我的愿景</h3>
+                      <p>用AI和创新技术解决数字世界的难题，让科技改变生活。</p>
+                    </div>
+                  </li>
+                </ul>
               </div>
-              <div class="swiper-pagination"></div>
-              <div class="swiper-button-prev"></div>
-              <div class="swiper-button-next"></div>
+              <div class="glide__arrows" data-glide-el="controls">
+                <button class="glide__arrow glide__arrow--left" data-glide-dir="<">‹</button>
+                <button class="glide__arrow glide__arrow--right" data-glide-dir=">">›</button>
+              </div>
+              <div class="glide__bullets" data-glide-el="controls[nav]"></div>
             </div>
           </div>
         </section>
@@ -220,5 +240,7 @@
     <script src="js/hero-split-anim.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
     <script src="js/about-swiper.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@glidejs/glide/dist/glide.min.js"></script>
+    <script src="js/about-glide.js"></script>
 </body>
 </html>

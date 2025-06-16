@@ -29,13 +29,20 @@ function fadeInHero() {
     hero.style.transform = 'none';
   }
 }
+function isHeroShouldFade() {
+  // 只在hero底部完全离开视口时才触发淡出
+  const hero = document.querySelector('.hero');
+  if(!hero) return false;
+  const rect = hero.getBoundingClientRect();
+  return rect.bottom <= 0;
+}
 window.addEventListener('DOMContentLoaded', function() {
   showHeroLinesSequential();
   setTimeout(hideHeroLinesSequential, 3200);
   // 滚动触发整体淡出动画，回滚时恢复
   let faded = false;
   window.addEventListener('scroll', function() {
-    if(window.scrollY > window.innerHeight * 0.3) {
+    if(isHeroShouldFade()) {
       if(!faded) {
         fadeOutHero();
         faded = true;
