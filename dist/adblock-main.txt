@@ -1,8 +1,8 @@
 ! Title: FilterFusion AdBlock Rules
-! Version: 20250722
-! Updated: 2025-07-22 01:22:30 UTC
-! Last modified: 2025-07-22 01:22:30 UTC
-! Checksum: 44e822587dc55f3240b4d8e534ea5940eb13ff2663a5189c96439e00799d07bf
+! Version: 20250723
+! Updated: 2025-07-23 01:23:31 UTC
+! Last modified: 2025-07-23 01:23:31 UTC
+! Checksum: cf975c4c3de4e6b98ab17669ec8f143a15bffb2b607e4292693f7088990b03ae
 ! Homepage: https://github.com/Chaniug/FilterFusion
 ! Expires: 1 day
 ! License: MIT License
@@ -10,10 +10,10 @@
 ! --------------------------------------
 ! Sources count: 4
 ! Sources:
-! - ✓ AdGuard Mobile (更新: 2025-07-22)
-! - ✓ AdGuard Chinese (更新: 2025-07-22)
-! - ✓ Chaniug AdSuper (更新: 2025-07-22)
-! - ✓ Adguard Extra (更新: 2025-07-22)
+! - ✓ AdGuard Mobile (更新: 2025-07-23)
+! - ✓ AdGuard Chinese (更新: 2025-07-23)
+! - ✓ Chaniug AdSuper (更新: 2025-07-23)
+! - ✓ Adguard Extra (更新: 2025-07-23)
 ! --------------------------------------
 ! Rule count: 27616
 ! Format: Adblock Plus
@@ -7220,6 +7220,7 @@ bejson.com##img[src^="data"]
 belcy.jp###Ad_Overlay
 belcy.jp##.Ad_widget
 belcy.jp##.ads_textbox
+belcy.jp##div[style="min-width: 300px; min-height: 250px;"]
 belcy.jp,cuty.jp##div[style^="min-width: 336px; min-height: 280px;"]
 bella.tw##.hide-mobile[style]
 bella.tw##.hide-pc[style]
@@ -8779,7 +8780,7 @@ edition.cnn.com##section[id^="ad-spon-"]
 edu.qq.com##.L
 educity.cn##.content_relate:nth-child(5)
 eefocus.com##.detailpage-rolling-ad
-eegg.fun##iframe[id^="rlad_"][src^="/ad_html/"]
+eegg.fun##iframe[id][src^="/ad_html/"]
 eelly.com##.top-picture
 eenadu.net##.add-block
 eenadu.net##.n-ads
@@ -14943,8 +14944,6 @@ sueddeutsche.de##power-stories-embed
 suibiankan.co##.vddb + a,.vddb,.vddb_qq,style + div[id],a > video
 suizhoushi.com##.sznew_ad_top
 suizhoushi.com##div[id^="sznew_ad"]
-suki-kira.com##.row > div.container
-suki-kira.com,belcy.jp##div[style="min-width: 300px; min-height: 250px;"]
 sumaho-susume.com###sp-tokusetsu-bottom
 sumaholife-plus.jp,yamareco.com##div[style="min-height: 280px;"]
 sumaity.com###adBnr_detail
@@ -15474,11 +15473,9 @@ tw.news.yahoo.com###sda-LREC2-iframe
 tw.news.yahoo.com###sda-MON
 tw.news.yahoo.com###sda-WPS-iframe
 tw.news.yahoo.com##.YDC-Lead
-tw.news.yahoo.com##.atoms > div:has(> div[id^="sda-"])
 tw.news.yahoo.com##.caas-body > .caas-iframe-wrapper > .flourish
 tw.news.yahoo.com##div[data-google-query-id]
 tw.news.yahoo.com##div[id^="sda-"]
-tw.news.yahoo.com##iframe[id^="mkt-iframe-"]
 tw.news.yahoo.com##li[id^="ad-"]
 tw.news.yahoo.com,tw.stock.yahoo.com##iframe[src^="https://tw.buy.yahoo.com/smartbanner/"]
 tw.nextapple.com##[class^="na-ad-"]
@@ -15486,6 +15483,9 @@ tw.nextapple.com##[id^="lrec"]
 tw.stock.yahoo.com###ysmcm
 tw.stock.yahoo.com##td > div.ysm
 tw.stock.yahoo.com##tr:has(> td[valign="top"] > .geminiAd)
+tw.stock.yahoo.com,tw.news.yahoo.com##.atoms > div:has(> div[id^="sda-"])
+tw.stock.yahoo.com,tw.news.yahoo.com##div[id^="sda-"][id$="-iframe"]
+tw.stock.yahoo.com,tw.news.yahoo.com##iframe[id^="mkt-iframe-"]
 tw.yahoo.com##.travelads
 tw.yahoo.com##[class*="has-beacon-click"][data-wf-beacons^="https://*.gemini.yahoo.com/"]
 tw.yahoo.com##div[data-id^="wfpad"]
