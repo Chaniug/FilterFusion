@@ -1,8 +1,8 @@
 ! Title: FilterFusion AdBlock Rules
-! Version: 20250806
-! Updated: 2025-08-06 01:24:19 UTC
-! Last modified: 2025-08-06 01:24:19 UTC
-! Checksum: 9540bfe839ee553a6d5ea1cff86db2fc1cdd05f3f07c12b5ad299826419af1f3
+! Version: 20250807
+! Updated: 2025-08-07 01:25:03 UTC
+! Last modified: 2025-08-07 01:25:03 UTC
+! Checksum: 52c9f6e8f655465b11ff3700d949955f109957bbe83d194e4e089231e841070b
 ! Homepage: https://github.com/Chaniug/FilterFusion
 ! Expires: 1 day
 ! License: MIT License
@@ -10,10 +10,10 @@
 ! --------------------------------------
 ! Sources count: 4
 ! Sources:
-! - ✓ AdGuard Mobile (更新: 2025-08-06)
-! - ✓ AdGuard Chinese (更新: 2025-08-06)
-! - ✓ Chaniug AdSuper (更新: 2025-08-06)
-! - ✓ Adguard Extra (更新: 2025-08-06)
+! - ✓ AdGuard Mobile (更新: 2025-08-07)
+! - ✓ AdGuard Chinese (更新: 2025-08-07)
+! - ✓ Chaniug AdSuper (更新: 2025-08-07)
+! - ✓ Adguard Extra (更新: 2025-08-07)
 ! --------------------------------------
 ! Rule count: 27818
 ! Format: Adblock Plus
@@ -3266,7 +3266,7 @@ www.youtube.com#$##contents ytd-rich-grid-row:has(> div[id="contents"] > ytd-ric
 www.youtube.com#$##contents ytd-rich-grid-row:has(> div[id="contents"] > ytd-rich-item-renderer[style="display: none !important;"]) ytd-rich-grid-media { max-width: unset !important; }
 www.youtube.com#$##contents ytd-rich-grid-row:has(> div[id="contents"] > ytd-rich-item-renderer[style="display: none !important;"]) { --ytd-rich-grid-items-per-row: 1 !important; }
 www.youtube.com#%#(()=>{const e=Function.prototype.call;let t=!1,o=!1;const n={apply:(n,c,r)=>{const a=r[0];if(a?.requestNumber&&a?.snapshot)try{t=((e,t=5)=>{if("object"!=typeof e||null===e)return!1;const n=new Array(1e3);let c=0;const r=new WeakSet;for(n[c++]={obj:e,depth:0};c>0&&!o;){const{obj:e,depth:a}=n[--c];if(a>t||"object"!=typeof e||null===e||r.has(e))continue;let l;r.add(e);try{l=Object.hasOwn(e,"backoffTimeMs")}catch(e){console.trace("Error while checking for backoffTimeMs:",e)}if(l)return void 0!==e.backoffTimeMs||(o=!0,!1);for(const t in e)if(Object.hasOwn(e,t)){let o;try{o=e[t]}catch(e){console.trace("Error while accessing property:",e)}null!==o&&"object"==typeof o&&!r.has(o)&&c<n.length&&(n[c++]={obj:o,depth:a+1})}}return!1})(a),(t||o)&&(Function.prototype.call=e)}catch(e){console.trace("Error while checking for backoffTimeMs:",e)}return Reflect.apply(n,c,r)}};window.Function.prototype.call=new Proxy(window.Function.prototype.call,n),window.addEventListener("load",(()=>{if(!t)return void(Function.prototype.call=e);const o=document.querySelector(".html5-video-player"),n=window.location.search,c=new URLSearchParams(n).get("v"),r=new URLSearchParams(n).get("t")??0;if(!o||!c)return;const a=parseInt(r,10);o.loadVideoById(c,a)}))})();
-www.youtube.com#%#(()=>{const e={apply:(e,t,c)=>{try{const e=c[0];e&&e.includes('"clientScreen"')&&!e.includes('"clientScreen":"ADUNIT"')&&(c[0]=e.replace('"clientScreen":"WATCH_FULL_SCREEN"','"clientScreen":"ADUNIT"'))}catch(e){console.trace("Error occurred:",e)}return Reflect.apply(e,t,c)}};window.XMLHttpRequest.prototype.send=new Proxy(window.XMLHttpRequest.prototype.send,e)})();
+www.youtube.com#%#(()=>{const e={apply:(e,r,c)=>{try{let t=c[0];if(!t)return Reflect.apply(e,r,c);const n=Array.isArray(t)?"array":"string";if("array"===n&&(t=t[0]),t.includes('"clientScreen"')&&!t.includes('"clientScreen":"ADUNIT"'))switch(n){case"array":c[0][0]=t.replace('"clientScreen":"WATCH_FULL_SCREEN"','"clientScreen":"ADUNIT"');break;case"string":c[0]=t.replace('"clientScreen":"WATCH_FULL_SCREEN"','"clientScreen":"ADUNIT"')}}catch(e){console.trace("Error occurred:",e)}return Reflect.apply(e,r,c)}};window.XMLHttpRequest.prototype.send=new Proxy(window.XMLHttpRequest.prototype.send,e)})();
 www.zol.com.cn#@##search_ad
 wxsck.com#$#.footer { margin-top: 0px !important; }
 x3cn.com#?#body > div#qmenu_menu ~ div[style]:has(> a[target="_blank"])
@@ -10135,6 +10135,7 @@ hdchina.org##.sitead
 hdmotori.it###skin_mobile
 hdmotori.it##div[style^="margin:"][style*="height: 90px;background:"]
 hdmotori.it,hdblog.it##div[style^="margin:"][style*="height: 610px;background:"]
+hdporno.xxx,poz.xxx,pornbaron.net,porn2.xxx,watch.xxx,tubeporn.site,myporn.tube,pornfree.gg,porn69.xxx,beeg.gg,porntek.com,haha.xxx,longvideos.xxx,hdporner.org,porno.wiki,3porn.gg,33porn.net,hqporner.gg,300.porn,sexyporn.org,pornstars.gg,sexvideos.gg,ixxx.gg,sexyporn.xxx,pornhd.tube,porn36.com,porn9.xxx,porn13.org,bee.xxx,filmz.xxx,xfilms.org,xporn.gg,porndo.net,tor.xxx,bestporn.gg,eporn.xxx,fullpornvideos.xxx,24porn.biz,bigporn.org,pornfulls.com,fullmovies.xxx,pornvideos.gg,pornfilms.xxx,hdporn.gg,txxx.porn,porntube.gg,1porn.tv,freeporn.gg,freepornmovies.net,freeporntube.tv,freesexvideos.xxx,wow.xxx,fullhd.xxx,many.xxx,porner.xxx,fullvideos.xxx,omg.xxx,4kporno.xxx,fullporn.*,fullporno.xxx,freepornvideos.xxx##.ft
 hdshare.cn,it168.com###adv
 hdtube.porn,pornid.*,sex3.com,rat.xxx,hdxnxx.xxx,zbporn.com,xbabe.com,hdpornfree.xxx,hellporno.net###fltd
 hdxclub.com##.video-wrapper + aside.video-aside
@@ -12276,6 +12277,7 @@ macaro-ni.jp##.articleShow__adTaboolaArticleThumbnail
 macd.cn###hbad
 macdaxue.com##.content > div.asb
 macfans.org###portal_block_180
+macitynet.it,phoneia.com##.widget_custom_html
 mag.app-liv.jp##.ad-area-adsense-display
 mag.app-liv.jp##.bnr-infeed
 magadanmedia.ru##.reklama-carousel
@@ -13658,7 +13660,6 @@ pharmnet.com.cn##.ad9502
 phileweb.com###banner-header
 phileweb.com,badspi.jp###sp_article_undertitle_wrapper
 phonearena.com##div[style="min-width:300px; min-height:250px; overflow: hidden; margin: 0 auto;"]
-phoneia.com##.widget_custom_html
 photopea.com##.flexrow > div[style^="padding-top:"]
 php.cn##.zwwad
 php.cn##a[href*="/go."]:not([href*="Fwww.php"])
@@ -13804,7 +13805,6 @@ porn5f.com##.position_fix_bottom
 porn5f.com##.preroll-adv-popup-iframe
 porn5f.com##.preroll-adv-two
 porn5f.com##.video-promote-adv
-pornbaron.net,porn2.xxx,watch.xxx,tubeporn.site,myporn.tube,pornfree.gg,porn69.xxx,beeg.gg,porntek.com,haha.xxx,longvideos.xxx,hdporner.org,porno.wiki,3porn.gg,33porn.net,hqporner.gg,300.porn,sexyporn.org,pornstars.gg,sexvideos.gg,ixxx.gg,sexyporn.xxx,pornhd.tube,porn36.com,porn9.xxx,porn13.org,bee.xxx,filmz.xxx,xfilms.org,xporn.gg,porndo.net,tor.xxx,bestporn.gg,eporn.xxx,fullpornvideos.xxx,24porn.biz,bigporn.org,pornfulls.com,fullmovies.xxx,pornvideos.gg,pornfilms.xxx,hdporn.gg,txxx.porn,porntube.gg,1porn.tv,freeporn.gg,freepornmovies.net,freeporntube.tv,freesexvideos.xxx,wow.xxx,fullhd.xxx,many.xxx,porner.xxx,fullvideos.xxx,omg.xxx,4kporno.xxx,fullporn.*,fullporno.xxx,freepornvideos.xxx##.ft
 pornbest.org,pornlulu.com,ptt.sex##.no-gutters
 pornbest.org,ptt.sex###fullPageModal
 pornbest.org,ptt.sex##.btn-group + .row
