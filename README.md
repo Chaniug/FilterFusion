@@ -1,4 +1,4 @@
-<img src="https://github.com/Chaniug/FilterFusion/raw/main/assets/preview.png" alt="项目预览" width="600"/>
+<img src="https://github.com/Chaniug/FilterFusion/raw/main/assets/preview.png" alt="项目预览" width="900" height="400"/>
 # 🚀 FilterFusion
 
 <p align="center">
