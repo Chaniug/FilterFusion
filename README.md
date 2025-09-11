@@ -1,3 +1,4 @@
+![项目预览](https://github.com/Chaniug/FilterFusion/raw/main/assets/preview.png)
 # 🚀 FilterFusion
 
 <p align="center">
