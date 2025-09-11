@@ -30,8 +30,6 @@ jobs:
         tag_name: "v${{ env.VERSION }}"
         name: "每周规则集发布·稳定版 ${{ env.VERSION }}"
         body: |
-          ![项目预览](https://github.com/Chaniug/FilterFusion/raw/main/assets/preview.png)
-        
           本次自动打包发布了 FilterFusion 最新的广告规则合集（adblock-*.txt）。
           包含所有 dist 目录下以 adblock- 开头的规则文件，适用于各类广告拦截器。
           欢迎订阅与反馈！
