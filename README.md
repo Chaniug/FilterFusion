@@ -1,4 +1,4 @@
-![项目预览](https://github.com/Chaniug/FilterFusion/raw/main/assets/preview.png)
+<img src="https://github.com/Chaniug/FilterFusion/raw/main/assets/preview.png" alt="项目预览" width="600"/>
 # 🚀 FilterFusion
 
 <p align="center">
