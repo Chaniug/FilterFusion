@@ -1,6 +1,6 @@
 <img src="https://github.com/Chaniug/FilterFusion/raw/main/assets/preview.png" alt="项目预览" />
-# 🚀 FilterFusion
 
+# 🚀 FilterFusion
 <p align="center">
   <a href="https://github.com/Chaniug/FilterFusion">
     <img src="https://img.shields.io/github/stars/Chaniug/FilterFusion?style=social" alt="Stars" />
