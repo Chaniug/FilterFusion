@@ -88,8 +88,7 @@ FilterFusion 是一个专为开发者设计、自动聚合和融合多源广告�
 ### 1. 规则格式支持
 
 - 支持 Adblock Plus 通用规则、uBlock Origin、EasyList 等主流语法
-- 规则示例
-（见 rules/chaniug_adsuper.txt）：
+- 规则示例（见rules/chaniug_adsuper.txt）：
   ```
   ||example.com^
   www.example.com##.ad-banner
