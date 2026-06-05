@@ -18,6 +18,14 @@ jobs:
         zip ../adblock-weekly.zip adblock-*.txt
         cd ..
 
+    - name: 📊 统计规则文件数量
+      id: stats
+      run: |
+        FILE_COUNT=$(ls -1 dist/adblock-*.txt 2>/dev/null | wc -l)
+        LINE_COUNT=$(cat dist/adblock-*.txt 2>/dev/null | wc -l)
+        echo "FILE_COUNT=$FILE_COUNT" >> $GITHUB_ENV
+        echo "LINE_COUNT=$LINE_COUNT" >> $GITHUB_ENV
+
     - name: 🏷️ 自动生成版本号
       id: version
       run: |
@@ -30,9 +38,32 @@ jobs:
         tag_name: "v${{ env.VERSION }}"
         name: "每周规则集发布·稳定版 ${{ env.VERSION }}"
         body: |
-          本次自动打包发布了 FilterFusion 最新的广告规则合集（adblock-*.txt）。
-          包含所有 dist 目录下以 adblock- 开头的规则文件，适用于各类广告拦截器。
-          欢迎订阅与反馈！
+          🎉 **每周规则集自动发布** 🎉
+          
+          > 又是崭新的一周，FilterFusion 为您带来最新鲜的广告拦截规则！
+          
+          ## 📋 本周更新内容
+          - ✨ 新增/更新多套广告拦截规则
+          - 🔥 包含所有 dist 目录下以 `adblock-` 开头的规则文件
+          - 🛡️ 适用于各类主流广告拦截器
+          
+          ## 📊 规则统计
+          - 📁 **规则文件数：** ${{ env.FILE_COUNT }} 个
+          - 📝 **规则条数：** ${{ env.LINE_COUNT }} 条
+          - 🎯 这周规则库又壮大了！不断进化中... ⚡
+          
+          ## 🎯 快速开始
+          1. 下载 `adblock-weekly.zip`
+          2. 解压后将 `.txt` 文件导入你的广告拦截器
+          3. 享受无广告的清爽上网体验！
+          
+          ---
+          
+          💡 **小贴士：** 定期更新规则集能获得更好的拦截效果！
+          
+          🙏 如果对规则有建议或发现误杀，欢迎提交 Issue 或 PR！
+          
+          **感谢您的支持！** 🌟
         files: |
           adblock-weekly.zip
       env:
