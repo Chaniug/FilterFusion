@@ -1,6 +1,6 @@
 {
-  "date": "2026-06-11T03:33:26.858191+00:00",
-  "version": "20260611",
+  "date": "2026-06-12T03:33:17.123086+00:00",
+  "version": "20260612",
   "sources": [
     {
       "name": "AdGuard Mobile",
@@ -8,7 +8,7 @@
     },
     {
       "name": "AdGuard Chinese",
-      "rule_count": 21558
+      "rule_count": 21576
     },
     {
       "name": "Chaniug AdSuper",
@@ -20,10 +20,10 @@
     }
   ],
   "stats": {
-    "initial_rules": 30141,
-    "final_rules": 30095,
-    "duplicates": 46,
-    "processing_time_sec": 0.200385,
-    "checksum": "8654ae33b6e7279de7a992960872f3b652f36dd050d7b29080e806215198a40d"
+    "initial_rules": 30159,
+    "final_rules": 30112,
+    "duplicates": 47,
+    "processing_time_sec": 0.168923,
+    "checksum": "31d3d337d003efd78faab47220e08c796b47ded174cfeb76af123b2e2216e859"
   }
 }
