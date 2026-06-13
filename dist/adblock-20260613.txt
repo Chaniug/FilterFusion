@@ -1,10 +1,10 @@
 [Adblock Plus 2.0]
-! Checksum: SNWTYBI5I8R8qkf97+2UdQ==
+! Checksum: NbafIangFHsimVfrDbf1vg==
 ! Title: FilterFusion Rules
 ! Description: FilterFusion - Ad blocking rules for Adblock Plus, uBlock Origin, and AdGuard
 ! Version: 20260613
-! Last modified: 2026-06-13 05:31:46 UTC
-! TimeUpdated: 2026-06-13T05:31:46.250492+00:00
+! Last modified: 2026-06-13 05:38:22 UTC
+! TimeUpdated: 2026-06-13T05:38:22.636298+00:00
 ! Expires: 1 day (update frequency)
 ! Homepage: https://github.com/Chaniug/FilterFusion
 ! License: MIT License
