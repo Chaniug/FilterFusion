@@ -281,8 +281,7 @@ class RuleMerger:
             .replace('{LICENSE}', "MIT License")
 
         # 构建最终内容
-        content = header
-        content += "\n".join(rules)
+        content = header.rstrip("\n") + "\n" + "\n".join(rules)
 
         # 计算校验和（ABP 标准：MD5 + Base64）
         print("步骤7: 计算校验和（ABP 标准）")
