@@ -28,6 +28,9 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true  # 提前适配 Node.js 24
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4

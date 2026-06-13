@@ -328,8 +328,8 @@ class RuleMerger:
             .replace('{SOURCE_COUNT}', str(len([s for s in sources if s.get('status') == 'success']))) \
             .replace('{SOURCE_LIST}', source_list) \
             .replace('{COMBINED_RULES}', str(self.final_rule_count)) \
-            .replace('{TOTAL_RULES}', str(self.initial_rule_count)) \
-            .replace('{REPETITIONS}', str(self.initial_rule_count - self.final_rule_count)) \
+        .replace('{TOTAL_RULES}', str(self.initial_rule_count)) \
+        .replace('{DUPLICATES}', str(self.initial_rule_count - self.final_rule_count)) \
             .replace('{HOMEPAGE}', "https://github.com/Chaniug/FilterFusion") \
             .replace('{LICENSE}', "MIT License")
 

@@ -223,7 +223,9 @@ python scripts/merge_rules.py
 | `{LICENSE}` | 许可证声明 |
 | `{SOURCE_COUNT}` | 成功抓取的规则源数量 |
 | `{SOURCE_LIST}` | 各源的详细描述列表 |
-| `{RULE_COUNT}` | 合并去重后的规则总数 |
+| `{COMBINED_RULES}` | 合并去重后的规则总数 |
+| `{TOTAL_RULES}` | 源规则总数（去重前） |
+| `{DUPLICATES}` | 重复规则数量（已移除） |
 
 ---
 
