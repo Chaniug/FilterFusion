@@ -273,15 +273,14 @@ class RuleMerger:
             .replace('{TIMEUPDATED}', datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S UTC')) \
             .replace('{SOURCE_COUNT}', str(len([s for s in sources if s.get('status') == 'success']))) \
             .replace('{SOURCE_LIST}', source_list) \
-            .replace('{RULE_COUNT}', str(self.final_rule_count)) \
+            .replace('{COMBINED_RULES}', str(self.final_rule_count)) \
+            .replace('{TOTAL_RULES}', str(self.initial_rule_count)) \
+            .replace('{REPETITIONS}', str(self.initial_rule_count - self.final_rule_count)) \
             .replace('{HOMEPAGE}', "https://github.com/Chaniug/FilterFusion") \
             .replace('{LICENSE}', "MIT License")
 
         # 构建最终内容
         content = header
-        content += f"! Combined rules: {self.final_rule_count}\n"
-        content += f"! Total rules: {self.initial_rule_count}\n"
-        content += f"! Repetitions: {self.initial_rule_count - self.final_rule_count}\n\n"
         content += "\n".join(rules)
 
         # 计算校验和（ABP 标准：MD5 + Base64）
