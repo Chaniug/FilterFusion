@@ -4,6 +4,20 @@ on:
   schedule:
     - cron: '0 2 * * 0'  # 每周日（UTC 2点，北京时间10点）自动触发
   workflow_dispatch:
+    inputs:
+      release_type:
+        description: '发布类型'
+        required: false
+        default: 'regular'
+        type: choice
+        options:
+          - regular
+          - major
+      release_notes:
+        description: '发布说明（用于 major 更新时补充说明）'
+        required: false
+        default: ''
+        type: string
 
 permissions:
   contents: write  # 允许创建 Tag 和 Release
@@ -55,33 +69,58 @@ jobs:
       uses: softprops/action-gh-release@v2
       with:
         tag_name: "${{ env.VERSION }}"
-        name: "FilterFusion Weekly · ${{ env.VERSION }}"
+        name: "${{ inputs.release_type == 'major' && format('FilterFusion v2.0 重大更新 · {0}', env.VERSION) || format('FilterFusion Weekly · {0}', env.VERSION) }}"
         body: |
-          🎉 **每周规则集自动发布** 🎉
-          
-          > 又是崭新的一周，FilterFusion 为您带来最新鲜的广告拦截规则！
-          
-          ## 📋 本周更新内容
+          ${{ inputs.release_type == 'major' && '## 🔥 FilterFusion v2.0 — 重大版本更新！' || '🎉 **每周规则集自动发布** 🎉' }}
+
+          ${{ inputs.release_type == 'major' && '> FilterFusion 迎来里程碑式的重大更新：Python 3.10+ 全面升级、全链路类型安全、现代化项目工程化改造。' || '> 又是崭新的一周，FilterFusion 为您带来最新鲜的广告拦截规则！' }}
+
+          ${{ inputs.release_type == 'major' && '
+          ## 🚀 v2.0 更新亮点
+
+          ### 🐍 技术栈升级
+          - **Python 3.10+**：全面采用现代 Python 语法特性，性能与安全性双重提升
+          - **完整类型注解**：`fetch_rules.py` 和 `merge_rules.py` 添加全链路类型注解
+          - **basedpyright 验证**：0 errors, 0 warnings, 0 notes
+
+          ### 🔧 工程化改造
+          - 创建 `pyproject.toml`：统一项目管理、类型检查、格式化、测试配置
+          - 新增 `requirements-dev.txt`：规范化开发依赖管理
+          - 升级 GitHub Actions：`checkout@v6`、`setup-python@v6` 原生支持 Node.js 24
+
+          ### 🛠 修复与优化
+          - 修复元素隐藏规则分类 bug
+          - 优化大型规则文件下载超时策略
+          - 修正 checksum 为 ABP 标准（MD5 + Base64）
+          - 更新模板实现 ABP + AdGuard 双格式兼容
+
+          ' || '' }}
+
+          ## 📋 更新内容
           - ✨ 新增/更新多套广告拦截规则
           - 🔥 包含所有 dist 目录下以 `adblock-` 开头的规则文件
           - 🛡️ 适用于各类主流广告拦截器
-          
+
           ## 📊 规则统计
           - 📁 **规则文件数：** ${{ env.FILE_COUNT }} 个
           - 📝 **规则条数：** ${{ env.LINE_COUNT }} 条
-          - 🎯 这周规则库又壮大了！不断进化中... ⚡
-          
+
+          ${{ inputs.release_notes != '' && format('
+          ---
+
+          {0}', inputs.release_notes) || '' }}
+
           ## 🎯 快速开始
           1. 下载 `adblock-weekly.zip`
           2. 解压后将 `.txt` 文件导入你的广告拦截器
           3. 享受无广告的清爽上网体验！
-          
+
           ---
-          
+
           💡 **小贴士：** 定期更新规则集能获得更好的拦截效果！
-          
+
           🙏 如果对规则有建议或发现误杀，欢迎提交 Issue 或 PR！
-          
+
           **感谢您的支持！** 🌟
         files: |
           adblock-weekly.zip
