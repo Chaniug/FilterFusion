@@ -5,12 +5,17 @@ on:
     - cron: '0 2 * * 0'  # 每周日（UTC 2点，北京时间10点）自动触发
   workflow_dispatch:
 
+permissions:
+  contents: write  # 允许创建 Tag 和 Release
+
 jobs:
   release:
     runs-on: ubuntu-latest
     steps:
     - name: 🛠️ 检出仓库
       uses: actions/checkout@v4
+      with:
+        fetch-depth: 0  # 检出完整历史，用于创建 Tag
 
     - name: 📦 打包 adblock 文件
       run: |
@@ -26,11 +31,19 @@ jobs:
         echo "FILE_COUNT=$FILE_COUNT" >> $GITHUB_ENV
         echo "LINE_COUNT=$LINE_COUNT" >> $GITHUB_ENV
 
-    - name: 🏷️ 自动生成版本号
+    - name: 🏷️ 自动生成版本号并创建 Tag
       id: version
       run: |
         DATE=$(date +'%Y.%m.%d')
         echo "VERSION=$DATE" >> $GITHUB_ENV
+        # 配置 Git 身份
+        git config user.name "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
+        # 创建 Tag（GitHub 会自动验证）
+        git tag "$DATE"
+        git push origin "$DATE"
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     - name: 🚀 创建 Release 并上传资源
       uses: softprops/action-gh-release@v2
