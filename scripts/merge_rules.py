@@ -104,7 +104,7 @@ class RuleMerger:
                 continue
 
             try:
-                with open(source_path, 'r', encoding='utf-8') as f:
+                with open(source_path, 'r', encoding='utf-8', errors='replace') as f:
                     rule_count = 0
                     for line in f:
                         stripped = line.strip()
@@ -135,9 +135,15 @@ class RuleMerger:
         rule = unicodedata.normalize('NFKC', line.strip())
         if not rule:
             return (None, None)
-        # 注释
-        if rule.startswith('!') or rule.startswith('#'):
+        # 注释：! 开头，或孤立的 #（不是 ##、#@#、#%#、#$#、#?# 等规则指令）
+        if rule.startswith('!'):
             return ('comment', rule)
+        if rule.startswith('#') and (len(rule) < 2 or rule[1] not in '#@%$?'):
+            return ('comment', rule)
+        # 元素隐藏规则（##selector 或 domain##selector）
+        # 注意：不含 #@#、#%# 等已在 html_filter 中处理的模式
+        if '##' in rule:
+            return ('element_hide', rule)
         # 正则规则 (Adblock Plus 格式: /pattern/flags)
         # 必须以 / 开头，且第二个字符不是 /（排除 // 注释）
         # 必须包含至少一个中间的 /，结尾可以有正则标志（i, g, m）
@@ -176,6 +182,7 @@ class RuleMerger:
         groups = {
             'normal': set(),
             'exception': set(),
+            'element_hide': set(),
             'html_filter': set(),
             'regex': set(),
             'special': set(),
@@ -216,6 +223,10 @@ class RuleMerger:
         if groups['exception']:
             merged_lines.append("! === 例外规则 Exception Rules ===")
             merged_lines.extend(sorted(groups['exception']))
+            merged_lines.append("")
+        if groups['element_hide']:
+            merged_lines.append("! === 元素隐藏规则 Element Hiding Rules ===")
+            merged_lines.extend(sorted(groups['element_hide']))
             merged_lines.append("")
         if groups['html_filter']:
             merged_lines.append("! === AdGuard/HTML Scriptlet Rules ===")

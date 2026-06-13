@@ -27,9 +27,10 @@ jobs:
       id: stats
       run: |
         FILE_COUNT=$(ls -1 dist/adblock-*.txt 2>/dev/null | wc -l)
-        LINE_COUNT=$(cat dist/adblock-*.txt 2>/dev/null | wc -l)
+        # 只统计实际规则行（排除注释、空行、分类分隔行）
+        RULE_COUNT=$(cat dist/adblock-*.txt 2>/dev/null | grep -vcE '^\s*(!|\[|$)' || echo 0)
         echo "FILE_COUNT=$FILE_COUNT" >> $GITHUB_ENV
-        echo "LINE_COUNT=$LINE_COUNT" >> $GITHUB_ENV
+        echo "LINE_COUNT=$RULE_COUNT" >> $GITHUB_ENV
 
     - name: 🏷️ 自动生成版本号并创建 Tag
       id: version

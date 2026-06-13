@@ -58,7 +58,7 @@ class RuleFetcher:
             try:
                 print(f"⬇️  抓取规则: {source['name']} (尝试 {attempt}/{retry_count})...", end=' ', flush=True)
                 # 增加超时时间
-                timeout = 10 + attempt * 5
+                timeout = 20 + attempt * 15  # 35s → 50s → 65s，适配大型规则文件
                 response = self.session.get(source['url'], timeout=timeout)
                 response.raise_for_status()
                 
