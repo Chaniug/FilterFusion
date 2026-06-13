@@ -1,0 +1,58 @@
+[project]
+name = "FilterFusion"
+version = "1.0.0"
+description = "高性能广告过滤规则合并工具，自动抓取、去重、分类多源规则"
+authors = [
+    {name = "Chaniug", email = "chaniug@example.com"}
+]
+license = {text = "MIT"}
+requires-python = ">=3.10"
+dependencies = [
+    "requests>=2.31.0"
+]
+
+[project.optional-dependencies]
+dev = [
+    "mypy>=1.0.0",
+    "pytest>=7.0.0",
+    "basedpyright>=1.0.0",
+    "types-requests>=2.31.0",
+    "black>=23.0.0",
+    "isort>=5.0.0"
+]
+
+[build-system]
+requires = ["setuptools>=68.0.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.mypy]
+python_version = "3.10"
+strict = true
+warn_return_any = false
+warn_unused_configs = true
+
+[tool.basedpyright]
+pythonVersion = "3.10"
+typeCheckingMode = "standard"
+reportExplicitAny = false
+reportAny = false
+reportUnknownMemberType = false
+reportUnknownVariableType = false
+reportUnknownArgumentType = false
+reportUnknownParameterType = false
+reportUnusedCallResult = "none"
+reportUnusedImport = "warning"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py", "*_test.py"]
+python_classes = ["Test*"]
+
+[tool.black]
+line-length = 120
+target-version = ['py310']
+
+[tool.isort]
+profile = "black"
+multi_line_output = 3
+line_length = 120

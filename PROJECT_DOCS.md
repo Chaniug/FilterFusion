@@ -252,8 +252,8 @@ python scripts/merge_rules.py
 ```
 
 **依赖要求**:
-- Python 3.8+
-- `requests >= 2.28.0`
+- Python 3.10+
+- `requests >= 2.31.0`
 
 ### 5.2 自动流水线 (GitHub Actions)
 

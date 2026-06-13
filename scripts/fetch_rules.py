@@ -5,21 +5,22 @@ import sys
 from datetime import datetime, timezone
 from pathlib import Path
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from typing import Any
 
 class RuleFetcher:
-    def __init__(self):
+    def __init__(self) -> None:
         # 获取项目根目录
-        self.project_root = Path(__file__).resolve().parent.parent
+        self.project_root: Path = Path(__file__).resolve().parent.parent
 
         # 打印调试信息
         print(f"项目根目录: {self.project_root}")
 
-        self.rules_dir = self.project_root / 'rules'
+        self.rules_dir: Path = self.project_root / 'rules'
         self.rules_dir.mkdir(parents=True, exist_ok=True)
-        self.meta_file = self.rules_dir / 'fetch_meta.json'
+        self.meta_file: Path = self.rules_dir / 'fetch_meta.json'
 
         # 创建 Session 连接池，复用 TCP 连接
-        self.session = requests.Session()
+        self.session: requests.Session = requests.Session()
         self.session.headers.update({
             'User-Agent': 'FilterFusion/1.0 (+https://github.com/Chaniug/FilterFusion)'
         })
@@ -27,7 +28,7 @@ class RuleFetcher:
         # 打印调试信息
         print(f"规则目录: {self.rules_dir}")
         
-    def load_sources(self):
+    def load_sources(self) -> list[dict[str, Any]]:
         try:
             config_path = self.project_root / 'config' / 'sources.json'
             
@@ -52,7 +53,7 @@ class RuleFetcher:
             print(f"❌ 加载配置文件时出错: {str(e)}")
             sys.exit(1)
     
-    def fetch_single_rule(self, source):
+    def fetch_single_rule(self, source: dict[str, Any]) -> dict[str, Any]:
         retry_count = 3
         for attempt in range(1, retry_count + 1):
             try:
@@ -68,7 +69,7 @@ class RuleFetcher:
                 filepath = self.rules_dir / filename
                 
                 with open(filepath, 'wb') as f:
-                    f.write(response.content)
+                    _ = f.write(response.content)
                 
                 file_hash = hashlib.sha256(response.content).hexdigest()
                 timestamp = datetime.now(timezone.utc).isoformat()
@@ -106,8 +107,10 @@ class RuleFetcher:
                         "error": str(e),
                         "timestamp": datetime.now(timezone.utc).isoformat()
                     }
+        # 理论上不会执行到这里（所有路径都有返回值），但帮助类型推断
+        raise RuntimeError("Unreachable code in fetch_single_rule")
     
-    def fetch_all_rules(self):
+    def fetch_all_rules(self) -> dict[str, Any]:
         sources = self.load_sources()
         results = []
 

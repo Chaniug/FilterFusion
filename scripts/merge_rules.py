@@ -7,26 +7,27 @@ import base64
 from datetime import datetime, timezone
 from pathlib import Path
 from collections import defaultdict
+from typing import Any
 
 class RuleMerger:
-    def __init__(self):
+    def __init__(self) -> None:
         # 获取项目根目录
-        self.project_root = Path(__file__).resolve().parent.parent
+        self.project_root: Path = Path(__file__).resolve().parent.parent
         print(f"项目根目录: {self.project_root}")
 
-        self.dist_dir = self.project_root / 'dist'
+        self.dist_dir: Path = self.project_root / 'dist'
         self.dist_dir.mkdir(parents=True, exist_ok=True)
-        self.rules_dir = self.project_root / 'rules'
+        self.rules_dir: Path = self.project_root / 'rules'
 
         print(f"分发目录: {self.dist_dir}")
         print(f"规则目录: {self.rules_dir}")
 
         # 统计信息
-        self.initial_rule_count = 0
-        self.final_rule_count = 0
-        self.start_time = datetime.now()
+        self.initial_rule_count: int = 0
+        self.final_rule_count: int = 0
+        self.start_time: datetime = datetime.now()
 
-    def load_metadata(self):
+    def load_metadata(self) -> dict[str, Any]:
         # 获取元数据文件路径
         meta_path = self.rules_dir / 'fetch_meta.json'
         print(f"尝试加载元数据: {meta_path}")
@@ -46,7 +47,7 @@ class RuleMerger:
             print(f"❌ 加载元数据时出错: {str(e)}")
             sys.exit(1)
 
-    def load_header_template(self):
+    def load_header_template(self) -> str:
         # 获取头部模板路径
         header_path = self.project_root / 'config' / 'default.header'
         print(f"尝试加载头部模板: {header_path}")
@@ -76,7 +77,7 @@ class RuleMerger:
             print(f"❌ 读取头部模板失败: {str(e)}")
             sys.exit(1)
 
-    def generate_source_list(self, sources):
+    def generate_source_list(self, sources: list[dict[str, Any]]) -> str:
         """生成格式化的源列表信息"""
         source_info = []
         for source in sources:
@@ -84,7 +85,7 @@ class RuleMerger:
             source_info.append(f"! - {status_icon} {source['name']} (更新: {source['timestamp'][:10]})")
         return "\n".join(source_info)
 
-    def calculate_source_stats(self, sources):
+    def calculate_source_stats(self, sources: list[dict[str, Any]]) -> tuple[list[dict[str, Any]], defaultdict[str, int]]:
         """计算源规则统计数据"""
         source_stats = []
         rule_counts = defaultdict(int)
@@ -125,7 +126,7 @@ class RuleMerger:
         print("源统计完成")
         return source_stats, rule_counts
 
-    def process_rule(self, line):
+    def process_rule(self, line: str) -> tuple[str | None, str | None]:
         """
         对单条规则进行规范化、分组和兼容性处理，返回 (type, rule)。
         type: normal/exception/html_filter/regex/special/comment/element_hide
@@ -215,7 +216,7 @@ class RuleMerger:
         # 标准: ||domain^, |http://..., *ad.* 等
         return ('normal', rule)
 
-    def collect_and_process_rules(self, sources, rule_counts):
+    def collect_and_process_rules(self, sources: list[dict[str, Any]], rule_counts: defaultdict[str, int]) -> tuple[list[str], dict[str, set[str]]]:
         """
         收集并处理规则，语法分组、格式规范、扩展兼容
         返回: merged_lines, groups
@@ -290,12 +291,12 @@ class RuleMerger:
         print(f"收集了 {sum(len(v) for k, v in groups.items() if k != 'comment')} 条唯一规则")
         return merged_lines, groups
 
-    def generate_version(self):
+    def generate_version(self) -> str:
         """生成简单的语义化版本号"""
         today = datetime.now(timezone.utc)
         return f"{today.year}{today.month:02d}{today.day:02d}"
 
-    def merge(self):
+    def merge(self) -> None:
         print("="*50)
         print("🔧 FilterFusion - 广告规则合并工具")
         print("="*50)
@@ -328,8 +329,8 @@ class RuleMerger:
             .replace('{SOURCE_COUNT}', str(len([s for s in sources if s.get('status') == 'success']))) \
             .replace('{SOURCE_LIST}', source_list) \
             .replace('{COMBINED_RULES}', str(self.final_rule_count)) \
-        .replace('{TOTAL_RULES}', str(self.initial_rule_count)) \
-        .replace('{DUPLICATES}', str(self.initial_rule_count - self.final_rule_count)) \
+            .replace('{TOTAL_RULES}', str(self.initial_rule_count)) \
+            .replace('{DUPLICATES}', str(self.initial_rule_count - self.final_rule_count)) \
             .replace('{HOMEPAGE}', "https://github.com/Chaniug/FilterFusion") \
             .replace('{LICENSE}', "MIT License")
 
@@ -351,7 +352,7 @@ class RuleMerger:
         rule_path = self.dist_dir / rule_filename
         print(f"保存规则文件到: {rule_path}")
         with open(rule_path, 'w', encoding='utf-8') as f:
-            f.write(content)
+            _ = f.write(content)
 
         # 保存最新规则副本（最佳实践：直接复制内容而非符号链接）
         print("步骤8: 保存最新规则副本")
@@ -359,6 +360,7 @@ class RuleMerger:
         if main_path.exists():
             main_path.unlink()
         shutil.copyfile(rule_path, main_path)  # 直接复制文件内容
+        _ = main_path.exists()  # 触发 Path 类型表达式
 
         # 计算处理时间
         processing_time = (datetime.now() - self.start_time).total_seconds()
@@ -380,7 +382,7 @@ class RuleMerger:
         print("步骤9: 保存摘要信息")
         self.save_summary(version, checksum, source_stats, processing_time)
 
-    def save_summary(self, version, checksum, source_stats, processing_time):
+    def save_summary(self, version: str, checksum: str, source_stats: list[dict[str, Any]], processing_time: float) -> None:
         """保存摘要信息到 JSON 文件"""
         summary = {
             "date": datetime.now(timezone.utc).isoformat(),
