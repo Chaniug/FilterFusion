@@ -1,0 +1,100 @@
+! AdSuper 规则文件
+! 生成时间: 2026-06-11 06:49:26
+! 规则总数: 61
+
+
+! EXCEPTION 规则 (13条)
+@@||3.jetbra.in^$important,document
+@@||aaaf.top^$important,document
+@@||aidi.tv^$important,document
+@@||cn.bing.com^$important,document
+@@||console.cloud.tencent.com^$important,document
+@@||console.volcengine.com^$important,document
+@@||creator.douyin.com^$important,document
+@@||mp.v.qq.com^$important,document
+@@||renzhen8.cn^$domain=ikandy2.fun
+@@||shuyu2001.cn^$domain=ikandy2.fun
+@@||ww1.gudanys.com^$important,document
+@@||www.btbdys.com^$important,document
+@@||www.volcengine.com^$important,document
+
+! DOMAIN 规则 (10条)
+||21888cdnyun2023.cyou^$important
+||cdn208888888.20288888yuncdn66668888.com/20240205.gif$image
+||g.fp.ps.netease.com^$app=com.lemurbrowser.exts
+||i0.hdslb.com/bfs/album/*.jpg$image
+||kmbopoie.com^
+||oqwfnqpo.xyz^
+||osdfs32dff.xyz^
+||qifjksdqwd.xyz^
+||qwcwnjk.com^
+||tutu.facaiimage.com/*960-*.gif$image
+
+! ELEMENT 规则 (38条)
+! 来源: issue #14
+55i6k1g3u0.shop##div.homepage > div.main:nth-child(7) > div.content > div.small-icon-container:nth-child(2)
+! 来源: issue #14
+55i6k1g3u0.shop##div.page.list > div.main:nth-child(7) > div.content > div.module:first-child > div.small-icon-container:nth-child(2)
+5drm5.com###6636d5018324b
+! 来源: issue #10
+5u7c8r8w8j0.shop##.small-icon-container, .is_pc
+! 来源: issue #10
+5u7c8r8w8j0.shop##div.homepage > div.main:nth-child(10) > div.content > div.small-icon-container:nth-child(2)
+! 来源: issue #9
+5u7c8r8w8j0.shop##div.homepage > div.main:nth-child(7) > div.content > div.small-icon-container:nth-child(2)
+! 来源: issue #9
+5u7c8r8w8j0.shop##div.page.list > div.main:nth-child(7) > div.content > div.module:first-child > div.small-icon-container:nth-child(2)
+! 来源: issue #9
+5u7c8r8w8j0.shop##div.page.player > div.main:nth-child(7) > div.content > div.module.module-player:first-child > div.small-icon-container.is_pc:first-child
+! 来源: issue #15
+aa3zz.com##*:matches-css(position:fixed):not(body):not(html)
+! 来源: issue #15
+aa3zz.com##*:matches-css(position:sticky):not(header):not(nav)
+! 来源: issue #15
+aa3zz.com##[class*="tj"],[id*="tj"],[class*="float"],[class*="sticky"],[class*="banner"]
+aa3zz.com##a:nth-child(3) > img, a:nth-child(4) > img, a:nth-child(5) > img, a:nth-child(6) > img, a:nth-child(7) > img
+! 来源: issue #13
+aa3zz.com##a:nth-child(8)
+! 来源: issue #12
+aa3zz.com##a:nth-child(8) > img
+! 来源: issue #15
+aa3zz.com##a[href^="http://115.126.116.108:1888/lucky.html"] > [src]
+! 来源: issue #15
+aa3zz.com##a[href^="http://115.126.116.108:1888/lucky.html"]:nth-of-type(1)
+! 来源: issue #15
+aa3zz.com##tjx
+apkmirror.com###bottom-slider > a.f-100.p-relative.d-flex.f-nowrap, ###aswift_1_host, ###content > div.ains.ains-43.ains-has-label.ains-apkm_search_page_top:first-child
+! 来源: issue #11
+apkmirror.com##a[href*="ads"]:upward(div.f-100)
+! 来源: issue #11
+apkmirror.com##div.ains.ains-43:first-child:has(> div.gooWidget)
+! 来源: issue #11
+apkmirror.com##div.ains:has(div.gooWidget)
+! 来源: issue #11
+apkmirror.com##div[class*="adslot"]
+! 来源: issue #11
+apkmirror.com##ins.adsbygoogle:if(div.ains)
+! 来源: issue #11
+apkmirror.com##script:contains(adConfig)
+! 来源: issue #11
+apkmirror.com##script:contains(adsbygoogle)
+bilibili.com##div.desktop-download-tip:nth-child(17)
+! 来源: issue #7
+godamh.com##.adshow:style(display: none !important;)
+! 来源: issue #7
+godamh.com##.bannerImg, .height-100
+! 来源: issue #7
+godamh.com##.banners > a:last-child > img.bannerImg
+! 来源: issue #7
+godamh.com##.flex.justify-center.space-x-4.py-8
+! 来源: issue #7
+godamh.com##div.adshow.height-1:first-child
+! 来源: issue #7
+godamh.com##div.adshow.height-2
+! 来源: issue #7
+godamh.com##div[class*="adshow"]:has(> .banners)
+hanime1.me###content-div > div.row.no-gutter.video-show-width:first-child > div.col-md-3.single-show-list:last-child > div.hidden-xs.hidden-sm:first-child
+m.2biqu.com###show_img-8225462100335650212-855, ###855
+vidhub.tv###main > div.content > div.adwap:nth-child(5)
+www.baidu.com###foot > div, .blank-frame, .ball-close__GWg4b > .c-icon, .news-list-wrapper, .square-banner-bgicon.index-banner
+www.zhihu.com##.DownloadGuide.Card, .OpenGuide-wrapper, .AnswerItem.ContentItem > .is-collapsed.RichContent > .RichContent-inner > .Button--plain.ContentItem-more.Button

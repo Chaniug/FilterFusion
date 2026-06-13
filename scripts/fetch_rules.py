@@ -4,19 +4,26 @@ import hashlib
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 class RuleFetcher:
     def __init__(self):
         # 获取项目根目录
         self.project_root = Path(__file__).resolve().parent.parent
-        
+
         # 打印调试信息
         print(f"项目根目录: {self.project_root}")
-        
+
         self.rules_dir = self.project_root / 'rules'
         self.rules_dir.mkdir(parents=True, exist_ok=True)
         self.meta_file = self.rules_dir / 'fetch_meta.json'
-        
+
+        # 创建 Session 连接池，复用 TCP 连接
+        self.session = requests.Session()
+        self.session.headers.update({
+            'User-Agent': 'FilterFusion/1.0 (+https://github.com/Chaniug/FilterFusion)'
+        })
+
         # 打印调试信息
         print(f"规则目录: {self.rules_dir}")
         
@@ -52,7 +59,7 @@ class RuleFetcher:
                 print(f"⬇️  抓取规则: {source['name']} (尝试 {attempt}/{retry_count})...", end=' ', flush=True)
                 # 增加超时时间
                 timeout = 10 + attempt * 5
-                response = requests.get(source['url'], timeout=timeout)
+                response = self.session.get(source['url'], timeout=timeout)
                 response.raise_for_status()
                 
                 # 生成安全的文件名
@@ -103,18 +110,38 @@ class RuleFetcher:
     def fetch_all_rules(self):
         sources = self.load_sources()
         results = []
-        
+
         print("\n" + "="*50)
         print("🔍 开始抓取广告过滤规则...")
         print(f"📡 共检测到 {len(sources)} 个规则源")
         print("="*50)
-        
-        for source in sources:
-            if not source.get('enabled', True):
-                print(f"⏭️  跳过禁用规则: {source['name']}")
-                continue
-            result = self.fetch_single_rule(source)
-            results.append(result)
+
+        # 过滤启用的源
+        enabled_sources = [s for s in sources if s.get('enabled', True)]
+        disabled_sources = [s for s in sources if not s.get('enabled', True)]
+
+        # 记录禁用的源
+        for source in disabled_sources:
+            print(f"⏭️  跳过禁用规则: {source['name']}")
+            results.append({
+                "name": source['name'],
+                "url": source['url'],
+                "status": "disabled"
+            })
+
+        # 并发下载启用的源
+        print(f"\n🚀 开始并发下载 {len(enabled_sources)} 个启用的规则源...")
+        with ThreadPoolExecutor(max_workers=len(enabled_sources)) as executor:
+            # 提交所有任务
+            future_to_source = {
+                executor.submit(self.fetch_single_rule, source): source
+                for source in enabled_sources
+            }
+
+            # 按完成顺序收集结果
+            for future in as_completed(future_to_source):
+                result = future.result()
+                results.append(result)
         
         # 保存元数据
         meta = {

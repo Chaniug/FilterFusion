@@ -137,9 +137,17 @@ class RuleMerger:
         # 注释
         if rule.startswith('!') or rule.startswith('#'):
             return ('comment', rule)
-        # 正则 (如 /adunion.*/ 或 /xxx/[flags])
-        if re.match(r"^\/.+\/[a-zA-Z0-9]*$", rule):
-            return ('regex', rule)
+        # 正则规则 (Adblock Plus 格式: /pattern/flags)
+        # 必须以 / 开头，且第二个字符不是 /（排除 // 注释）
+        # 必须包含至少一个中间的 /，结尾可以有正则标志（i, g, m）
+        if rule.startswith('/') and not rule.startswith('//'):
+            # 找到最后一个 / 的位置（分隔模式和标志）
+            last_slash = rule.rfind('/')
+            if last_slash > 0:  # 确保不是第一个字符
+                # 检查尾部标志是否有效（Adblock 支持 i, g, m）
+                flags = rule[last_slash + 1:]
+                if all(c in 'igm' for c in flags) or not flags:
+                    return ('regex', rule)
         # AdGuard扩展语法/HTML/scriptlet等
         if any(k in rule for k in [
             "#%#", "#@#", "#$#", "#@$#", "#?#",
