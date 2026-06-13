@@ -69,8 +69,14 @@ jobs:
         git config user.name "FilterFusion Bot"
         git config user.email "filterfusion-bot@users.noreply.github.com"
 
-        # 先拉取最新代码，避免冲突
-        git pull --rebase origin main || echo "⚠️ Rebase 失败，尝试强制推送"
+        # 先拉取最新代码，尝试 rebase
+        # 若冲突，以本地产出（dist/）为准自动解决
+        git fetch origin main
+        if ! git rebase origin/main; then
+          echo "::warning::Rebase 冲突，本地产出优先级更高，已自动处理"
+          git rebase --abort
+          git checkout origin/main -- ':!dist'
+        fi
 
         git add dist
         if git diff-index --quiet HEAD; then
