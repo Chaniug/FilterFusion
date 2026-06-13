@@ -205,7 +205,7 @@ python scripts/merge_rules.py
 |--------|------|
 | `{VERSION}` | 版本号（日期，如 `20260612`） |
 | `{TIMEUPDATED}` | 更新时间 |
-| `{CHECKSUM}` | 完整文件的 SHA256 校验和 |
+| `{CHECKSUM}` | MD5 + Base64 校验和（ABP 标准格式，24字符） |
 | `{HOMEPAGE}` | 项目 GitHub 主页 |
 | `{LICENSE}` | 许可证声明 |
 | `{SOURCE_COUNT}` | 成功抓取的规则源数量 |

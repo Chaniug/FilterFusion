@@ -4,6 +4,7 @@ import sys
 import shutil
 import re
 import unicodedata
+import base64
 from datetime import datetime, timezone
 from pathlib import Path
 from collections import defaultdict
@@ -283,9 +284,14 @@ class RuleMerger:
         content += f"! Repetitions: {self.initial_rule_count - self.final_rule_count}\n\n"
         content += "\n".join(rules)
 
-        # 计算校验和
-        print("步骤7: 计算校验和")
-        checksum = hashlib.sha256(content.encode('utf-8')).hexdigest()
+        # 计算校验和（ABP 标准：MD5 + Base64）
+        print("步骤7: 计算校验和（ABP 标准）")
+        content_for_checksum = "\n".join(
+            line for line in content.split("\n")
+            if not line.startswith("! Checksum:")
+        )
+        md5_hash = hashlib.md5(content_for_checksum.encode('utf-8')).digest()
+        checksum = base64.b64encode(md5_hash).decode('utf-8')
         content = content.replace('{CHECKSUM}', checksum)
 
         # 保存规则文件
@@ -314,7 +320,7 @@ class RuleMerger:
         print(f"🪄 合并后规则数量: {self.final_rule_count}")
         print(f"♻️  重复规则: {self.initial_rule_count - self.final_rule_count}")
         print(f"⏱️  处理时间: {processing_time:.2f}秒")
-        print(f"🔐 校验和: {checksum[:16]}...{checksum[-16:]}")
+        print(f"🔐 校验和: {checksum}")
         print(f"📄 合并规则文件: dist/{rule_filename}")
         print(f"📄 最新规则副本: dist/adblock-main.txt")
 

@@ -9,8 +9,7 @@
 ! Description: FilterFusion - High-quality ad blocking rules collection
 ! --------------------------------------
 ! Sources count: {SOURCE_COUNT}
-! Sources:
-{SOURCE_LIST}
+! Sources:{SOURCE_LIST}
 ! --------------------------------------
 ! Rule count: {RULE_COUNT}
 ! Format: Adblock Plus
