@@ -271,6 +271,7 @@ class RuleMerger:
         header = header_template \
             .replace('{VERSION}', version) \
             .replace('{TIMEUPDATED}', datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S UTC')) \
+            .replace('{TIMEUPDATED_ISO}', datetime.now(timezone.utc).isoformat()) \
             .replace('{SOURCE_COUNT}', str(len([s for s in sources if s.get('status') == 'success']))) \
             .replace('{SOURCE_LIST}', source_list) \
             .replace('{COMBINED_RULES}', str(self.final_rule_count)) \

@@ -1,12 +1,13 @@
 [Adblock Plus 2.0]
+! Checksum: {CHECKSUM}
 ! Title: FilterFusion Rules
 ! Description: FilterFusion - High-quality ad blocking rules, compatible with Adblock Plus / uBlock Origin / AdGuard / Brave
 ! Version: {VERSION}
 ! Last modified: {TIMEUPDATED}
-! Expires: 1 day
+! TimeUpdated: {TIMEUPDATED_ISO}
+! Expires: 1 day (update frequency)
 ! Homepage: {HOMEPAGE}
 ! License: {LICENSE}
-! Checksum: {CHECKSUM}
 ! --------------------------------------
 ! Sources: {SOURCE_COUNT} total
 ! Sources:{SOURCE_LIST}
