@@ -2,7 +2,6 @@ import json
 import hashlib
 import sys
 import shutil
-import re
 import unicodedata
 import base64
 from datetime import datetime, timezone
@@ -129,48 +128,91 @@ class RuleMerger:
     def process_rule(self, line):
         """
         对单条规则进行规范化、分组和兼容性处理，返回 (type, rule)。
-        type: normal/exception/html_filter/regex/special/comment
+        type: normal/exception/html_filter/regex/special/comment/element_hide
+
+        规则分类优先级（符合 AdGuard/ABP/uBlock 标准）:
+        1. 注释 (! 或 [Adblock Plus])
+        2. 例外规则 (@@)
+        3. 正则规则 (/pattern/flags)
+        4. HTML/脚本注入规则 (#%#, #$#, scriptlet 等)
+        5. 元素隐藏规则 (##, #@#)
+        6. 特殊参数规则 ($badfilter, $important 等)
+        7. 普通屏蔽规则
         """
         # 去除不可见字符和多余空白
         rule = unicodedata.normalize('NFKC', line.strip())
         if not rule:
             return (None, None)
-        # 注释：! 开头，或孤立的 #（不是 ##、#@#、#%#、#$#、#?# 等规则指令）
-        if rule.startswith('!'):
+
+        # 1. 注释规则
+        # Adblock Plus 标准: ! 或 # 开头的注释（不含规则指令）
+        # 排除：##, #@#, #%#, #$#, #?#, #+# 等规则指令
+        if rule.startswith('!') or rule.startswith('['):
             return ('comment', rule)
-        if rule.startswith('#') and (len(rule) < 2 or rule[1] not in '#@%$?'):
-            return ('comment', rule)
-        # 元素隐藏规则（##selector 或 domain##selector）
-        # 注意：不含 #@#、#%# 等已在 html_filter 中处理的模式
-        if '##' in rule:
-            return ('element_hide', rule)
-        # 正则规则 (Adblock Plus 格式: /pattern/flags)
-        # 必须以 / 开头，且第二个字符不是 /（排除 // 注释）
-        # 必须包含至少一个中间的 /，结尾可以有正则标志（i, g, m）
+
+        # 2. 例外规则 (@@) - 最高优先级（例外规则可能包含其他语法）
+        if rule.startswith('@@'):
+            return ('exception', rule)
+
+        # 3. 正则规则 (Adblock Plus 格式: /pattern/flags)
+        # 标准: 以 / 开头，以 / 结尾，中间是正则模式，尾部可有标志 (i, g, m)
         if rule.startswith('/') and not rule.startswith('//'):
             # 找到最后一个 / 的位置（分隔模式和标志）
             last_slash = rule.rfind('/')
-            if last_slash > 0:  # 确保不是第一个字符
+            if last_slash > 0:  # 确保不是第一个字符（已有 startswith('/') 保证）
                 # 检查尾部标志是否有效（Adblock 支持 i, g, m）
                 flags = rule[last_slash + 1:]
                 if all(c in 'igm' for c in flags) or not flags:
-                    return ('regex', rule)
-        # AdGuard扩展语法/HTML/scriptlet等
-        if any(k in rule for k in [
-            "#%#", "#@#", "#$#", "#@$#", "#?#",
-            "$removeparam=", "$cookie=", "$redirect=",
-            "$generichide", "scriptlet(", "jsinject"
-        ]):
+                    # 基本验证：确保不是简单的路径（如 /ads.html）
+                    # 正则规则的特征：包含正则特殊字符 或 长度 > 10（经验值）
+                    pattern = rule[1:last_slash]
+                    has_regex_chars = any(c in pattern for c in ['.', '*', '+', '?', '\\', '[', ']', '(', ')', '{', '}', '^', '$', '|'])
+                    if has_regex_chars or len(pattern) > 15:  # 放松限制，避免误判
+                        return ('regex', rule)
+
+        # 4. AdGuard/uBlock 扩展语法（必须在元素隐藏之前判断）
+        # 这些规则包含特殊指令，不应被识别为普通元素隐藏
+        html_filter_keywords = [
+            "#%#", "#@%#",      # AdGuard JS 注入
+            "#$#", "#@$#",      # AdGuard CSS 注入
+            "#?#", "#@?#",      # AdGuard 元素筛选
+            "#+js(", "#@#+js(", # uBlock scriptlet
+            "$removeparam",       # uBlock 参数移除
+            "$cookie=",           # AdGuard cookie 管理
+            "$redirect=",         # AdGuard 资源重定向
+            "$generichide",      # AdGuard 通用隐藏
+            "scriptlet(",         # AdGuard scriptlet
+            "jsinject"           # 旧版 JS 注入
+        ]
+        if any(k in rule for k in html_filter_keywords):
             return ('html_filter', rule)
-        # 例外规则 (@@)
-        if rule.startswith('@@'):
-            return ('exception', rule)
-        # uBlock/AdGuard特殊参数
-        if any(k in rule for k in [
-            "$badfilter", "$important", "$app=", "$domain=", "$csp=", "$replace="
-        ]):
-            return ('special', rule)
-        # 普通屏蔽
+
+        # 5. 元素隐藏规则
+        # 标准: domain##selector 或 ##selector（全局隐藏）
+        # 例外: @@## 不是元素隐藏，已在第 2 步处理
+        if '##' in rule:
+            return ('element_hide', rule)
+
+        # 6. 特殊参数规则（更严格的判断：确保在选项部分）
+        # 标准: 选项部分以 $ 开头，包含修饰符
+        if '$' in rule:
+            # 提取选项部分（第一个 $ 之后的内容）
+            option_part = rule.split('$', 1)[1]
+            special_keywords = [
+                'badfilter',     # 禁用规则
+                'important',     # 高优先级
+                'app=',          # AdGuard 应用过滤
+                'domain=',       # 域名限定
+                'csp=',          # 内容安全策略
+                'replace=',      # URL 替换
+                'popup',         # 弹窗拦截
+                'third-party'    # 第三方请求
+            ]
+            if any(kw in option_part for kw in special_keywords):
+                return ('special', rule)
+
+        # 7. 普通屏蔽规则
+        # 标准: ||domain^, |http://..., *ad.* 等
         return ('normal', rule)
 
     def collect_and_process_rules(self, sources, rule_counts):
@@ -201,11 +243,11 @@ class RuleMerger:
                 with open(source_path, 'r', encoding='utf-8', errors='replace') as f:
                     for line in f:
                         typ, rule = self.process_rule(line)
-                        if not rule or (typ == 'comment' and rule in groups['comment']):
+                        if not typ or not rule:
                             continue
                         # 注释只保留前10条
                         if typ == 'comment':
-                            if len(groups['comment']) < 10:
+                            if rule not in groups['comment'] and len(groups['comment']) < 10:
                                 groups['comment'].add(rule)
                             continue
                         # 其余类型做全局唯一去重
