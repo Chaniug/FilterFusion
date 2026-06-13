@@ -1,8 +1,8 @@
 ! Title: FilterFusion AdBlock Rules
 ! Version: 20260613
-! Updated: 2026-06-13 01:54:45 UTC
-! Last modified: 2026-06-13 01:54:45 UTC
-! Checksum: 7131c3fb5a8178ebf7869e28d269e284ad45181e30614c4302bbcba43a38f124
+! Updated: 2026-06-13 02:24:01 UTC
+! Last modified: 2026-06-13 02:24:01 UTC
+! Checksum: 7efb37466156b919115570d385c9f1efa2ab75640480fb1d35df23a851e6aff1
 ! Homepage: https://github.com/Chaniug/FilterFusion
 ! Expires: 1 day
 ! License: MIT License
@@ -10,9 +10,9 @@
 ! --------------------------------------
 ! Sources count: 4
 ! Sources:
-! - ✓ AdGuard Mobile (更新: 2026-06-13)
-! - ✓ AdGuard Chinese (更新: 2026-06-13)
 ! - ✓ Chaniug AdSuper (更新: 2026-06-13)
+! - ✓ AdGuard Chinese (更新: 2026-06-13)
+! - ✓ AdGuard Mobile (更新: 2026-06-13)
 ! - ✓ Adguard Extra (更新: 2026-06-13)
 ! --------------------------------------
 ! Rule count: 30131
