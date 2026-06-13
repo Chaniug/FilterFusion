@@ -19,10 +19,10 @@ jobs:
       with:
         fetch-depth: 0  # 获取完整历史，便于 rebase
 
-    - name: 🐍 设置 Python 3.10
-      uses: actions/setup-python@v4
+    - name: 🐍 设置 Python 3.12
+      uses: actions/setup-python@v5
       with:
-        python-version: '3.10'
+        python-version: '3.12'
 
     - name: 📦 安装依赖
       run: pip install -r requirements.txt
