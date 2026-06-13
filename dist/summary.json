@@ -1,5 +1,5 @@
 {
-  "date": "2026-06-13T05:43:18.404234+00:00",
+  "date": "2026-06-13T07:49:59.130768+00:00",
   "version": "20260613",
   "sources": [
     {
@@ -12,7 +12,7 @@
     },
     {
       "name": "AdGuard Chinese",
-      "rule_count": 21594
+      "rule_count": 21596
     },
     {
       "name": "Adguard Extra",
@@ -20,10 +20,10 @@
     }
   ],
   "stats": {
-    "initial_rules": 30178,
-    "final_rules": 30131,
-    "duplicates": 47,
-    "processing_time_sec": 0.141997,
-    "checksum": "I3Uo5Azc+DkeIEM9ly/elg=="
+    "initial_rules": 30180,
+    "final_rules": 31201,
+    "duplicates": -1021,
+    "processing_time_sec": 0.127439,
+    "checksum": "CufqjPruvqDjz9AaJI62GQ=="
   }
 }
