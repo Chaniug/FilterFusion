@@ -35,8 +35,8 @@ jobs:
     - name: 🚀 创建 Release 并上传资源
       uses: softprops/action-gh-release@v2
       with:
-        tag_name: "v${{ env.VERSION }}"
-        name: "每周规则集发布·稳定版 ${{ env.VERSION }}"
+        tag_name: "${{ env.VERSION }}"
+        name: "FilterFusion Weekly · ${{ env.VERSION }}"
         body: |
           🎉 **每周规则集自动发布** 🎉
           
