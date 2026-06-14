@@ -71,24 +71,19 @@ Whether you're a data engineer, ad-blocking enthusiast, or someone who wants to 
 
 Import any of the following links into your ad-blocking extension (uBlock Origin, AdGuard, etc.):
 
-- **GitHub Raw** (Available globally)  
-  ```
-  https://raw.githubusercontent.com/Chaniug/FilterFusion/main/dist/adblock-main.txt
-  ```
-
 - **jsDelivr CDN** (Recommended for mainland China)  
   ```
   https://cdn.jsdelivr.net/gh/Chaniug/FilterFusion@main/dist/adblock-main.txt
   ```
 
-- **FastGit Acceleration** (Partially available)  
+- **GitHub Raw** (Available globally)  
   ```
-  https://raw.fastgit.org/Chaniug/FilterFusion/main/dist/adblock-main.txt
+  https://raw.githubusercontent.com/Chaniug/FilterFusion/main/dist/adblock-main.txt
   ```
 
-- **GitHub Proxy** (Partially available)  
+- **gh.llkk.cc Acceleration** (Backup)  
   ```
-  https://ghproxy.com/https://raw.githubusercontent.com/Chaniug/FilterFusion/main/dist/adblock-main.txt
+  https://gh.llkk.cc/https://raw.githubusercontent.com/Chaniug/FilterFusion/main/dist/adblock-main.txt
   ```
 
 ### 📋 Report Filter Issues

@@ -316,9 +316,9 @@ python scripts/merge_rules.py
 
 | 线路 | 地址 | 适用场景 |
 |------|------|----------|
-| GitHub Raw | `https://raw.githubusercontent.com/Chaniug/FilterFusion/main/dist/adblock-main.txt` | 全球通用 |
 | jsDelivr CDN | `https://cdn.jsdelivr.net/gh/Chaniug/FilterFusion@main/dist/adblock-main.txt` | **推荐中国大陆用户** |
-| GitHub Proxy | `https://ghproxy.com/https://raw.githubusercontent.com/Chaniug/FilterFusion/main/dist/adblock-main.txt` | 备选加速 |
+| GitHub Raw | `https://raw.githubusercontent.com/Chaniug/FilterFusion/main/dist/adblock-main.txt` | 全球通用 |
+| gh.llkk.cc 加速 | `https://gh.llkk.cc/https://raw.githubusercontent.com/Chaniug/FilterFusion/main/dist/adblock-main.txt` | 备用加速 |
 
 ---
 
