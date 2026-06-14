@@ -1,7 +1,11 @@
 {
-  "date": "2026-06-13T11:33:43.979019+00:00",
-  "version": "20260613",
+  "date": "2026-06-14T03:36:50.057888+00:00",
+  "version": "20260614",
   "sources": [
+    {
+      "name": "AdGuard Chinese",
+      "rule_count": 21608
+    },
     {
       "name": "AdGuard Mobile",
       "rule_count": 8508
@@ -11,19 +15,15 @@
       "rule_count": 68
     },
     {
-      "name": "AdGuard Chinese",
-      "rule_count": 21598
-    },
-    {
       "name": "Adguard Extra",
       "rule_count": 15
     }
   ],
   "stats": {
-    "initial_rules": 30189,
-    "final_rules": 31189,
+    "initial_rules": 30199,
+    "final_rules": 31199,
     "duplicates": -1000,
-    "processing_time_sec": 0.127649,
-    "checksum": "GXT3BK2wqZn3agD5qcVuPw=="
+    "processing_time_sec": 0.145369,
+    "checksum": "xyoWPTpI/jj3iNeYctP7Kg=="
   }
 }
