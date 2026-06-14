@@ -29,26 +29,60 @@ class RuleFetcher:
         print(f"规则目录: {self.rules_dir}")
         
     def load_sources(self) -> list[dict[str, Any]]:
+        """
+        从 config/sources.txt 加载规则源配置
+        格式: 名称 > 订阅地址
+        行首加 # 表示禁用
+        """
+        config_path = self.project_root / 'config' / 'sources.txt'
+        print(f"配置文件路径: {config_path}")
+
+        if not config_path.exists():
+            print(f"❌ 错误：找不到配置文件 {config_path}")
+            sys.exit(1)
+
+        sources: list[dict[str, Any]] = []
         try:
-            config_path = self.project_root / 'config' / 'sources.json'
-            
-            # 打印调试信息
-            print(f"配置文件路径: {config_path}")
-            
-            if not config_path.exists():
-                print(f"❌ 错误：找不到配置文件 {config_path}")
-                sys.exit(1)
-                
-            with open(config_path, 'r') as f:
-                data = json.load(f)
-                print(f"加载了 {len(data['sources'])} 个规则源")
-                return data['sources']
-        except FileNotFoundError:
-            print("❌ 错误：找不到 sources.json 配置文件")
-            sys.exit(1)
-        except json.JSONDecodeError:
-            print("❌ 错误：sources.json 配置格式不正确")
-            sys.exit(1)
+            with open(config_path, 'r', encoding='utf-8') as f:
+                for line_num, line in enumerate(f, 1):
+                    raw = line.strip()
+                    if not raw:
+                        continue
+
+                    # 判断是否被禁用（行首 # 且包含 >）
+                    disabled = False
+                    if raw.startswith('#'):
+                        content = raw[1:].strip()
+                        if '>' not in content:
+                            continue  # 纯注释行，跳过
+                        disabled = True
+                        raw = content
+
+                    # 解析 名称 > URL
+                    if '>' not in raw:
+                        print(f"⚠️ 第 {line_num} 行格式错误（缺少 >）: {raw}")
+                        continue
+
+                    parts = raw.split('>', 1)
+                    name = parts[0].strip()
+                    url = parts[1].strip()
+
+                    if not name or not url:
+                        print(f"⚠️ 第 {line_num} 行名称或地址为空: {raw}")
+                        continue
+
+                    # 校验 URL 格式（必须以 http 开头）
+                    if not url.startswith('http'):
+                        continue  # 非有效 URL，视为纯注释行
+
+                    sources.append({
+                        "name": name,
+                        "url": url,
+                        "enabled": not disabled
+                    })
+
+            print(f"加载了 {len(sources)} 个规则源")
+            return sources
         except Exception as e:
             print(f"❌ 加载配置文件时出错: {str(e)}")
             sys.exit(1)
