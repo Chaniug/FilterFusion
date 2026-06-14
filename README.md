@@ -185,22 +185,26 @@ FilterFusion 的工作流程分为四个主要阶段：
 
 ### 第一步：配置规则源
 
-编辑 `config/sources.json` 文件，添加你需要聚合的规则源列表：
+编辑 `config/sources.txt` 文件，添加你需要聚合的规则源列表：
 
-```json
-{
-  "sources": [
-    {
-      "name": "EasyList",
-      "url": "https://easylist.to/easylist/easylist.txt"
-    },
-    {
-      "name": "AdGuard Base",
-      "url": "https://adguardteam.github.io/AdGuardSDNSFilter/Filters/filter.txt"
-    }
-  ]
-}
+```txt
+# FilterFusion 规则源配置
+# 格式: 名称 > 订阅地址
+# 开启: 直接写一行
+# 关闭: 行首加 #
+
+EasyList > https://easylist.to/easylist/easylist.txt
+AdGuard Base > https://adguardteam.github.io/AdGuardSDNSFilter/Filters/filter.txt
+
+# 下面是关闭的源（去掉行首 # 即可开启）：
+# My Custom Rules > https://example.com/my-rules.txt
 ```
+
+**格式说明**:
+- 一行一个规则源，用 `>` 分隔名称和订阅地址
+- 在行首加 `#` 可禁用该源（保留配置、暂不抓取）
+- 纯注释行（含 `#` 但不含 `>`）会被忽略
+- URL 必须以 `http` 开头
 
 ### 第二步：抓取规则
 
@@ -285,21 +289,19 @@ python scripts/merge_rules.py
 
 ### Q2: 如何自定义规则源？
 
-**A**: 编辑 `config/sources.json` 文件：
+**A**: 编辑 `config/sources.txt` 文件：
 
-```json
-{
-  "sources": [
-    {
-      "name": "你的规则名",
-      "url": "规则文件的 URL",
-      "enabled": true
-    }
-  ]
-}
+```txt
+# 添加新规则源（一行一个）
+你的规则名 > 规则文件的 URL
+
+# 禁用某个规则源（行首加 #）
+# 不需要的规则源 > https://example.com/filter.txt
 ```
 
-设置 `"enabled": false` 可禁用某个规则源而无需删除。
+- **启用**: 直接写一行 `名称 > URL`
+- **禁用**: 行首加 `#`，无需删除整行
+- **规则源 URL 要求**: 必须是可直接访问的纯文本规则文件（兼容 ABP/uBlock/AdGuard 格式）
 
 ### Q3: 规则支持哪些格式？
 

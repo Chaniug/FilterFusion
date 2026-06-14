@@ -186,22 +186,26 @@ Configure Sources → Fetch Rules → Merge & Deduplicate → Output Standard Fo
 
 ### Step 1: Configure Rule Sources
 
-Edit the `config/sources.json` file to add the rule sources you want to aggregate:
+Edit the `config/sources.txt` file to add the rule sources you want to aggregate:
 
-```json
-{
-  "sources": [
-    {
-      "name": "EasyList",
-      "url": "https://easylist.to/easylist/easylist.txt"
-    },
-    {
-      "name": "AdGuard Base",
-      "url": "https://adguardteam.github.io/AdGuardSDNSFilter/Filters/filter.txt"
-    }
-  ]
-}
+```txt
+# FilterFusion Rule Sources Configuration
+# Format: Name > Subscription URL
+# Enable: Write a line directly
+# Disable: Add # at the beginning of the line
+
+EasyList > https://easylist.to/easylist/easylist.txt
+AdGuard Base > https://adguardteam.github.io/AdGuardSDNSFilter/Filters/filter.txt
+
+# Below are disabled sources (remove the leading # to enable):
+# My Custom Rules > https://example.com/my-rules.txt
 ```
+
+**Format Notes**:
+- One rule source per line, separated by `>`
+- Add `#` at the beginning to disable a source (keep config, skip fetching)
+- Pure comment lines (with `#` but no `>`) are ignored
+- URL must start with `http`
 
 ### Step 2: Fetch Rules
 
@@ -286,21 +290,19 @@ We recommend using GitHub Actions or cron jobs to automatically run the script. 
 
 ### Q2: How do I customize rule sources?
 
-**A**: Edit the `config/sources.json` file:
+**A**: Edit the `config/sources.txt` file:
 
-```json
-{
-  "sources": [
-    {
-      "name": "Your Rule Name",
-      "url": "URL of the rule file",
-      "enabled": true
-    }
-  ]
-}
+```txt
+# Add a new rule source (one per line)
+Your Rule Name > URL of the rule file
+
+# Disable a rule source (add # at the beginning)
+# Unwanted Source > https://example.com/filter.txt
 ```
 
-Set `"enabled": false` to disable a rule source without deleting it.
+- **Enable**: Write `Name > URL` directly
+- **Disable**: Add `#` at the beginning of the line, no need to delete
+- **URL Requirements**: Must be a directly accessible plain-text rule file (ABP/uBlock/AdGuard format compatible)
 
 ### Q3: What rule formats are supported?
 

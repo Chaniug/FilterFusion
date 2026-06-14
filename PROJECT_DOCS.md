@@ -10,7 +10,7 @@
 - [2. 项目架构](#2-项目架构)
 - [3. 目录结构](#3-目录结构)
 - [4. 核心组件详解](#4-核心组件详解)
-  - [4.1 规则源配置 (`config/sources.json`)](#41-规则源配置-configsourcesjson)
+  - [4.1 规则源配置 (`config/sources.txt`)](#41-规则源配置-configsourcestxt)
   - [4.2 抓取脚本 (`scripts/fetch_rules.py`)](#42-抓取脚本-scriptsfetch_rulespy)
   - [4.3 合并脚本 (`scripts/merge_rules.py`)](#43-合并脚本-scriptsmerge_rulespy)
   - [4.4 输出头部模板 (`config/default.header`)](#44-输出头部模板-configdefaultheader)
@@ -54,7 +54,7 @@ FilterFusion 是一个**自动化广告过滤规则聚合工具**，由 [Chaniug
 
 ```
 ┌──────────────────┐
-│ config/sources.json │  ← 规则源 URL 配置
+│  config/sources.txt  │  ← 规则源 URL 配置
 └────────┬─────────┘
          │
          ▼
@@ -79,7 +79,7 @@ FilterFusion 是一个**自动化广告过滤规则聚合工具**，由 [Chaniug
 
 | 阶段 | 输入 | 处理 | 输出 |
 |------|------|------|------|
-| 配置 | `config/sources.json` | 定义规则源 URL、名称、启用状态 | — |
+| 配置 | `config/sources.txt` | 定义规则源 URL、名称、启用状态 | — |
 | 抓取 | 各源 URL | HTTP GET 下载，计算 SHA256 哈希 | `rules/*.txt`, `rules/fetch_meta.json` |
 | 合并 | 原始规则文件 + header 模板 | Unicode 规范化 → 分类 → 去重 → 排序 | `dist/adblock-YYYYMMDD.txt` |
 | 输出 | 合并结果 | 写入主文件、摘要文件 | `dist/adblock-main.txt`, `dist/summary.json` |
@@ -98,7 +98,7 @@ FilterFusion/
 │   └── preview.png            # 项目预览图
 ├── config/
 │   ├── default.header         # 输出规则文件头部模板
-│   └── sources.json           # 规则源配置
+│   └── sources.txt            # 规则源配置
 ├── dist/                      # 输出产物（自动生成）
 │   ├── adblock-main.txt       # 最新主规则文件
 │   ├── adblock-YYYYMMDD.txt   # 按日期归档的规则文件（保留近3天）
@@ -122,22 +122,32 @@ FilterFusion/
 
 ## 4. 核心组件详解
 
-### 4.1 规则源配置 (`config/sources.json`)
+### 4.1 规则源配置 (`config/sources.txt`)
 
-```jsonc
-{
-    "sources": [
-        {
-            "name": "AdGuard Mobile",        // 源名称
-            "url": ".../filter_11_Mobile.txt",// 规则文件直链
-            "enabled": true                   // 启用开关
-        },
-        // ... 更多源
-    ]
-}
+**文件格式**: 纯文本，一行一个规则源，格式为 `名称 > 订阅地址`。
+
+```txt
+# FilterFusion 规则源配置
+# 格式: 名称 > 订阅地址
+# 开启: 直接写一行
+# 关闭: 行首加 #
+
+AdGuard Mobile > https://raw.githubusercontent.com/AdguardTeam/FiltersRegistry/master/filters/filter_11_Mobile/filter.txt
+AdGuard Chinese > https://raw.githubusercontent.com/AdguardTeam/FiltersRegistry/master/filters/filter_224_Chinese/filter.txt
+Chaniug AdSuper > https://raw.githubusercontent.com/Chaniug/AdSuper/refs/heads/master/adnew.txt
+Adguard Extra > https://filters.adtidy.org/android/filters/5_optimized.txt
+
+# 下面是关闭的源（去掉行首 # 即可开启）：
+# EasyList > https://easylist.to/easylist.txt
 ```
 
-当前配置了 **4 个规则源**：
+**配置规则**：
+- **启用规则源**: 直接写一行 `名称 > 订阅地址`
+- **禁用规则源**: 在行首加 `#`（如 `# EasyList > https://...`）
+- **纯注释**: 以 `#` 开头且不含 `>` 的行会被忽略
+- **空行**: 会被自动跳过
+
+当前配置了 **4 个启用的规则源**：
 
 | 源名称 | 类型 | 规则量级 |
 |--------|------|----------|
@@ -151,7 +161,7 @@ FilterFusion/
 **类**: `RuleFetcher`
 
 **核心逻辑**：
-1. 读取 `config/sources.json`，获取所有已启用的规则源
+1. 读取 `config/sources.txt`，获取所有已启用的规则源
 2. 对每个源发起 HTTP GET 请求下载规则文件
 3. 计算下载内容的 SHA256 哈希值
 4. 保存到 `rules/` 目录（文件名由源名称安全转换而来）
@@ -316,27 +326,27 @@ python scripts/merge_rules.py
 
 ### 添加新规则源
 
-编辑 `config/sources.json`，添加新条目：
+编辑 `config/sources.txt`，在文件末尾新增一行：
 
-```jsonc
-{
-    "name": "新规则源名称",
-    "url": "https://example.com/filter.txt",
-    "enabled": true
-}
+```txt
+你的规则源名称 > https://example.com/filter.txt
 ```
+
+**格式要求**:
+- 一行一个规则源，使用 `>` 分隔名称和 URL
+- URL 必须以 `http` 开头
+- 名称可包含中文、英文、数字和空格
+- 支持 Adblock Plus、uBlock Origin、AdGuard 等主流格式的规则文件
 
 ### 禁用规则源
 
-将对应源的 `enabled` 设为 `false`：
+在对应行前面加 `#` 即可禁用，无需删除：
 
-```jsonc
-{
-    "name": "AdGuard Chinese",
-    "url": "...",
-    "enabled": false   // 禁用此源
-}
+```txt
+# AdGuard Chinese > https://...（已禁用）
 ```
+
+要重新启用，去掉行首的 `#` 即可。
 
 ### 修改输出头部
 
