@@ -134,7 +134,7 @@ class RuleFetcher:
 
         # 并发下载启用的源
         print(f"\n🚀 开始并发下载 {len(enabled_sources)} 个启用的规则源...")
-        with ThreadPoolExecutor(max_workers=len(enabled_sources)) as executor:
+        with ThreadPoolExecutor(max_workers=min(len(enabled_sources), 8)) as executor:
             # 提交所有任务
             future_to_source = {
                 executor.submit(self.fetch_single_rule, source): source

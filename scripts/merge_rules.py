@@ -6,7 +6,6 @@ import unicodedata
 import base64
 from datetime import datetime, timezone
 from pathlib import Path
-from collections import defaultdict
 from typing import Any
 
 class RuleMerger:
@@ -84,47 +83,6 @@ class RuleMerger:
             status_icon = "✓" if source.get('status') == 'success' else "✗"
             source_info.append(f"! - {status_icon} {source['name']} (更新: {source['timestamp'][:10]})")
         return "\n".join(source_info)
-
-    def calculate_source_stats(self, sources: list[dict[str, Any]]) -> tuple[list[dict[str, Any]], defaultdict[str, int]]:
-        """计算源规则统计数据"""
-        source_stats = []
-        rule_counts = defaultdict(int)
-
-        print("计算源规则统计:")
-        for source in sources:
-            if source.get('status') != 'success':
-                continue
-
-            source_path = self.rules_dir / source['file']
-            print(f"处理源: {source['name']}")
-            print(f"文件路径: {source_path}")
-
-            if not source_path.exists():
-                print(f"文件不存在: {source_path}")
-                continue
-
-            try:
-                with open(source_path, 'r', encoding='utf-8', errors='replace') as f:
-                    rule_count = 0
-                    for line in f:
-                        stripped = line.strip()
-                        if stripped and not stripped.startswith(('!', '#', '[Adblock')):
-                            rule_count += 1
-                    print(f"源 {source['name']} 规则数: {rule_count}")
-                    source_stats.append({
-                        "name": source['name'],
-                        "rule_count": rule_count
-                    })
-                    rule_counts[source['name']] = rule_count
-            except UnicodeDecodeError:
-                print(f"⚠️ 警告：规则文件 {source['file']} 编码问题")
-                source_stats.append({
-                    "name": source['name'],
-                    "rule_count": 0
-                })
-
-        print("源统计完成")
-        return source_stats, rule_counts
 
     def process_rule(self, line: str) -> tuple[str | None, str | None]:
         """
@@ -216,10 +174,10 @@ class RuleMerger:
         # 标准: ||domain^, |http://..., *ad.* 等
         return ('normal', rule)
 
-    def collect_and_process_rules(self, sources: list[dict[str, Any]], rule_counts: defaultdict[str, int]) -> tuple[list[str], dict[str, set[str]]]:
+    def collect_and_process_rules(self, sources: list[dict[str, Any]]) -> tuple[list[str], dict[str, set[str]], list[dict[str, Any]]]:
         """
-        收集并处理规则，语法分组、格式规范、扩展兼容
-        返回: merged_lines, groups
+        收集并处理规则，语法分组、格式规范、扩展兼容，同时统计每个源的规则数
+        返回: merged_lines, groups, source_stats
         """
         # 分组容器
         groups = {
@@ -232,14 +190,16 @@ class RuleMerger:
             'comment': set()
         }
         seen_rules = set()
+        source_stats = []
         print("收集和处理规则:")
         for source in sources:
-            if source.get('status') != 'success' or rule_counts.get(source['name'], 0) == 0:
+            if source.get('status') != 'success':
                 continue
             source_path = self.rules_dir / source['file']
             print(f"处理源文件: {source_path}")
             if not source_path.exists():
                 continue
+            source_rule_count = 0
             try:
                 with open(source_path, 'r', encoding='utf-8', errors='replace') as f:
                     for line in f:
@@ -257,8 +217,14 @@ class RuleMerger:
                             continue
                         seen_rules.add(rule_id)
                         groups[typ].add(rule)
+                        source_rule_count += 1
             except Exception as e:
                 print(f"⚠️ 警告：处理 {source['name']} 规则时出错: {str(e)}")
+            print(f"源 {source['name']} 有效规则数: {source_rule_count}")
+            source_stats.append({
+                "name": source['name'],
+                "rule_count": source_rule_count
+            })
 
         # 输出时按分组分类拼接（去掉注释分组）
         merged_lines = []
@@ -289,7 +255,7 @@ class RuleMerger:
             merged_lines.append("")
 
         print(f"收集了 {sum(len(v) for k, v in groups.items() if k != 'comment')} 条唯一规则")
-        return merged_lines, groups
+        return merged_lines, groups, source_stats
 
     def generate_version(self) -> str:
         """生成简单的语义化版本号"""
@@ -306,21 +272,24 @@ class RuleMerger:
         metadata = self.load_metadata()
         sources = metadata['sources']
 
+        # 检查是否有成功抓取的源
+        success_sources = [s for s in sources if s.get('status') == 'success']
+        if not success_sources:
+            print("❌ 错误：没有成功抓取的规则源，终止合并")
+            sys.exit(1)
+
         print("步骤2: 加载头部模板")
         header_template = self.load_header_template()
 
-        print("步骤3: 计算源规则统计")
-        source_stats, rule_counts = self.calculate_source_stats(sources)
-        self.initial_rule_count = sum(rule_counts.values())
-
-        print("步骤4: 收集和处理规则")
-        rules, groups = self.collect_and_process_rules(sources, rule_counts)
+        print("步骤3: 收集、处理和去重规则")
+        rules, groups, source_stats = self.collect_and_process_rules(sources)
+        self.initial_rule_count = sum(s['rule_count'] for s in source_stats)
         self.final_rule_count = sum(len(v) for k, v in groups.items() if k != 'comment')
 
-        print("步骤5: 生成版本号")
+        print("步骤4: 生成版本号")
         version = self.generate_version()
 
-        print("步骤6: 生成头部")
+        print("步骤5: 生成头部")
         source_list = self.generate_source_list(sources)
         header = header_template \
             .replace('{VERSION}', version) \
@@ -338,7 +307,7 @@ class RuleMerger:
         content = header.rstrip("\n") + "\n" + "\n".join(rules)
 
         # 计算校验和（ABP 标准：MD5 + Base64）
-        print("步骤7: 计算校验和（ABP 标准）")
+        print("步骤6: 计算校验和（ABP 标准）")
         content_for_checksum = "\n".join(
             line for line in content.split("\n")
             if not line.startswith("! Checksum:")
@@ -346,6 +315,11 @@ class RuleMerger:
         md5_hash = hashlib.md5(content_for_checksum.encode('utf-8')).digest()
         checksum = base64.b64encode(md5_hash).decode('utf-8')
         content = content.replace('{CHECKSUM}', checksum)
+
+        # 保存前检查规则数是否为0
+        if self.final_rule_count == 0:
+            print("⚠️ 警告：合并后规则数为 0，不覆盖现有文件")
+            return
 
         # 保存规则文件
         rule_filename = f"adblock-{version}.txt"
@@ -355,7 +329,7 @@ class RuleMerger:
             _ = f.write(content)
 
         # 保存最新规则副本（最佳实践：直接复制内容而非符号链接）
-        print("步骤8: 保存最新规则副本")
+        print("步骤7: 保存最新规则副本")
         main_path = self.dist_dir / "adblock-main.txt"
         if main_path.exists():
             main_path.unlink()
@@ -379,22 +353,20 @@ class RuleMerger:
         print(f"📄 最新规则副本: dist/adblock-main.txt")
 
         # 保存摘要信息
-        print("步骤9: 保存摘要信息")
+        print("步骤8: 保存摘要信息")
         self.save_summary(version, checksum, source_stats, processing_time)
 
     def save_summary(self, version: str, checksum: str, source_stats: list[dict[str, Any]], processing_time: float) -> None:
         """保存摘要信息到 JSON 文件"""
         summary = {
-            "date": datetime.now(timezone.utc).isoformat(),
             "version": version,
-            "sources": source_stats,
-            "stats": {
-                "initial_rules": self.initial_rule_count,
-                "final_rules": self.final_rule_count,
-                "duplicates": self.initial_rule_count - self.final_rule_count,
-                "processing_time_sec": processing_time,
-                "checksum": checksum
-            }
+            "date": datetime.now(timezone.utc).isoformat(),
+            "total_source_rules": self.initial_rule_count,
+            "unique_rules": self.final_rule_count,
+            "duplicates_removed": self.initial_rule_count - self.final_rule_count,
+            "merge_time_seconds": round(processing_time, 2),
+            "checksum": checksum,
+            "sources": source_stats
         }
 
         summary_path = self.dist_dir / "summary.json"

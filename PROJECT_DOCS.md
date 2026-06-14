@@ -93,7 +93,7 @@ FilterFusion/
 ├── .github/workflows/         # CI/CD 工作流
 │   ├── daily-update.yml       # 每日自动更新
 │   ├── weekly-release.yml     # 每周 Release 打包
-│   └── jekyll-gh-pages.yml    # GitHub Pages 部署
+│   └── static.yml             # GitHub Pages 部署
 ├── assets/
 │   └── preview.png            # 项目预览图
 ├── config/
@@ -263,7 +263,7 @@ python scripts/merge_rules.py
 |--------|----------|----------|
 | **daily-update** | 每天 UTC 0:00 定时 | 自动抓取 → 合并 → 清理过期文件 → 提交推送 |
 | **weekly-release** | 每周日 UTC 2:00 定时 | 打包 `dist/` 中所有 `adblock-*.txt` 为 ZIP → 创建 GitHub Release |
-| **jekyll-gh-pages** | main 分支 push 时 | 构建 Jekyll 站点 → 部署到 GitHub Pages |
+| **static** | main 分支 push 时 | 部署 dist/ 目录到 GitHub Pages |
 
 整个流水线**全自动运行**，无需人工干预。维护者只需确保规则源 URL 有效即可。
 

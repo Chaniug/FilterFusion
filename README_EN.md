@@ -315,7 +315,6 @@ Set `"enabled": false` to disable a rule source without deleting it.
 **A**: After running `merge_rules.py`, generated rule files are located in:
 ```
 dist/adblock-main.txt       # Main rule file
-dist/adblock-latest.txt     # Latest rule file (if configured)
 ```
 
 ### Q5: What's the file size and performance?

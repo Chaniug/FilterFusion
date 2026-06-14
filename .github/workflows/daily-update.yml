@@ -25,6 +25,8 @@ jobs:
       uses: actions/setup-python@v6
       with:
         python-version: '3.12'
+        cache: 'pip'
+        cache-dependency-path: 'requirements.txt'
 
     - name: 📦 安装依赖
       run: pip install -r requirements.txt
@@ -35,7 +37,6 @@ jobs:
 
     - name: 🧩 合并规则
       run: python -m scripts.merge_rules
-      continue-on-error: true  # 合并失败不立即终止
 
     - name: 🧹 清理旧的规则文件 (仅保留最近3天)
       run: |
@@ -63,6 +64,14 @@ jobs:
           fi
         done
         cd ..
+
+    - name: ✅ 校验规则文件
+      run: |
+        if [ ! -s dist/adblock-main.txt ]; then
+          echo "❌ 错误: dist/adblock-main.txt 不存在或为空，终止提交"
+          exit 1
+        fi
+        echo "✅ 规则文件校验通过: $(wc -l < dist/adblock-main.txt) 行"
 
     - name: 📤 提交变更
       env:
