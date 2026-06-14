@@ -80,8 +80,18 @@ class RuleMerger:
         """生成格式化的源列表信息"""
         source_info = []
         for source in sources:
-            status_icon = "✓" if source.get('status') == 'success' else "✗"
-            source_info.append(f"! - {status_icon} {source['name']} (更新: {source['timestamp'][:10]})")
+            status = source.get('status', 'unknown')
+            if status == 'success':
+                status_icon = "✓"
+                ts = source.get('timestamp', '')
+                update_info = f" (更新: {ts[:10]})" if ts else ""
+            elif status == 'disabled':
+                status_icon = "-"
+                update_info = " (已禁用)"
+            else:
+                status_icon = "✗"
+                update_info = ""
+            source_info.append(f"! - {status_icon} {source['name']}{update_info}")
         return "\n".join(source_info)
 
     def process_rule(self, line: str) -> tuple[str | None, str | None]:
