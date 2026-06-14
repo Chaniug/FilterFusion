@@ -6,7 +6,7 @@
 AdGuard Mobile > https://raw.githubusercontent.com/AdguardTeam/FiltersRegistry/master/filters/filter_11_Mobile/filter.txt
 AdGuard Chinese > https://raw.githubusercontent.com/AdguardTeam/FiltersRegistry/master/filters/filter_224_Chinese/filter.txt
 Chaniug AdSuper > https://raw.githubusercontent.com/Chaniug/AdSuper/refs/heads/master/adnew.txt
-Adguard Extra > https://filters.adtidy.org/android/filters/5_optimized.txt
+Adguard Extra > https://raw.githubusercontent.com/AdguardTeam/FiltersRegistry/master/filters/filter_5_Experimental/filter.txt
 
 # 下面是关闭的源（去掉行首 # 即可开启）：
 # EasyList > https://easylist.to/easylist.txt
