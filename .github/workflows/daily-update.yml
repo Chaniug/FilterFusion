@@ -33,7 +33,6 @@ jobs:
 
     - name: 📥 抓取广告规则
       run: python -m scripts.fetch_rules
-      continue-on-error: true  # 单个源失败不立即终止
 
     - name: 🧩 合并规则
       run: python -m scripts.merge_rules
