@@ -200,6 +200,7 @@ class RuleMerger:
             if not source_path.exists():
                 continue
             source_rule_count = 0
+            source_seen = set()  # 源内去重（独立于全局）
             try:
                 with open(source_path, 'r', encoding='utf-8', errors='replace') as f:
                     for line in f:
@@ -211,13 +212,17 @@ class RuleMerger:
                             if rule not in groups['comment'] and len(groups['comment']) < 10:
                                 groups['comment'].add(rule)
                             continue
-                        # 其余类型做全局唯一去重
+                        # 源内去重计数
                         rule_id = f"{typ}:{rule}"
+                        if rule_id in source_seen:
+                            continue
+                        source_seen.add(rule_id)
+                        source_rule_count += 1
+                        # 全局去重
                         if rule_id in seen_rules:
                             continue
                         seen_rules.add(rule_id)
                         groups[typ].add(rule)
-                        source_rule_count += 1
             except Exception as e:
                 print(f"⚠️ 警告：处理 {source['name']} 规则时出错: {str(e)}")
             print(f"源 {source['name']} 有效规则数: {source_rule_count}")

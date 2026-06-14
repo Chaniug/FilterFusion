@@ -1,0 +1,78 @@
+! AdSuper 规则文件
+! 生成时间: 2026-06-14 07:40:42
+! 规则总数: 68
+
+
+! EXCEPTION 规则 (13条)
+@@||3.jetbra.in^$important,document
+@@||aaaf.top^$important,document
+@@||aidi.tv^$important,document
+@@||cn.bing.com^$important,document
+@@||console.cloud.tencent.com^$important,document
+@@||console.volcengine.com^$important,document
+@@||creator.douyin.com^$important,document
+@@||mp.v.qq.com^$important,document
+@@||renzhen8.cn^$domain=ikandy2.fun
+@@||shuyu2001.cn^$domain=ikandy2.fun
+@@||ww1.gudanys.com^$important,document
+@@||www.btbdys.com^$important,document
+@@||www.volcengine.com^$important,document
+
+! DOMAIN 规则 (15条)
+||21888cdnyun2023.cyou^$important
+||buytsl.xyz
+||cdn208888888.20288888yuncdn66668888.com/20240205.gif$image
+||chromewebstore.google.com/*/ChromeWebStoreConsumerFeUi/web-reports?
+||g.fp.ps.netease.com^$app=com.lemurbrowser.exts
+||i0.hdslb.com/bfs/album/*.jpg$image
+||img.imgtupianaiguo.com/tu2020/uploads/allimg/202201/d70c5cd6542d8f37.jpg$image
+||kmbopoie.com^
+||oqwfnqpo.xyz^
+||osdfs32dff.xyz^
+||qifjksdqwd.xyz^
+||qwcwnjk.com^
+||tutu.facaiimage.com/*960-*.gif$image
+||tutu.facaiimage.com/vip/960-60max.gif$image
+||xsxsxs222.xn--id-ov2cb7n32b01yl6auun2bpzk4p2dgip.com/2026-05/6a0af34295863.gif$image
+
+! ELEMENT 规则 (40条)
+55i6k1g3u0.shop##div.homepage > div.main:nth-child(7) > div.content > div.small-icon-container:nth-child(2)
+55i6k1g3u0.shop##div.page.list > div.main:nth-child(7) > div.content > div.module:first-child > div.small-icon-container:nth-child(2)
+5drm5.com###6636d5018324b
+5u7c8r8w8j0.shop##.small-icon-container, .is_pc
+5u7c8r8w8j0.shop##div.homepage > div.main:nth-child(10) > div.content > div.small-icon-container:nth-child(2)
+5u7c8r8w8j0.shop##div.homepage > div.main:nth-child(7) > div.content > div.small-icon-container:nth-child(2)
+5u7c8r8w8j0.shop##div.page.list > div.main:nth-child(7) > div.content > div.module:first-child > div.small-icon-container:nth-child(2)
+5u7c8r8w8j0.shop##div.page.player > div.main:nth-child(7) > div.content > div.module.module-player:first-child > div.small-icon-container.is_pc:first-child
+aa3zz.com##*:matches-css(position:fixed):not(body):not(html)
+aa3zz.com##*:matches-css(position:sticky):not(header):not(nav)
+aa3zz.com##[class*="tj"],[id*="tj"],[class*="float"],[class*="sticky"],[class*="banner"]
+aa3zz.com##a:nth-child(10)
+aa3zz.com##a:nth-child(3) > img, a:nth-child(4) > img, a:nth-child(5) > img, a:nth-child(6) > img, a:nth-child(7) > img
+aa3zz.com##a:nth-child(8)
+aa3zz.com##a:nth-child(8) > img
+aa3zz.com##a:nth-child(9)
+aa3zz.com##a[href^="http://115.126.116.108:1888/lucky.html"] > [src]
+aa3zz.com##a[href^="http://115.126.116.108:1888/lucky.html"]:nth-of-type(1)
+aa3zz.com##tjx
+apkmirror.com###bottom-slider > a.f-100.p-relative.d-flex.f-nowrap, ###aswift_1_host, ###content > div.ains.ains-43.ains-has-label.ains-apkm_search_page_top:first-child
+apkmirror.com##a[href*="ads"]:upward(div.f-100)
+apkmirror.com##div.ains.ains-43:first-child:has(> div.gooWidget)
+apkmirror.com##div.ains:has(div.gooWidget)
+apkmirror.com##div[class*="adslot"]
+apkmirror.com##ins.adsbygoogle:if(div.ains)
+apkmirror.com##script:contains(adConfig)
+apkmirror.com##script:contains(adsbygoogle)
+bilibili.com##div.desktop-download-tip:nth-child(17)
+godamh.com##.adshow:style(display: none !important;)
+godamh.com##.bannerImg, .height-100
+godamh.com##.banners > a:last-child > img.bannerImg
+godamh.com##.flex.justify-center.space-x-4.py-8
+godamh.com##div.adshow.height-1:first-child
+godamh.com##div.adshow.height-2
+godamh.com##div[class*="adshow"]:has(> .banners)
+hanime1.me###content-div > div.row.no-gutter.video-show-width:first-child > div.col-md-3.single-show-list:last-child > div.hidden-xs.hidden-sm:first-child
+m.2biqu.com###show_img-8225462100335650212-855, ###855
+vidhub.tv###main > div.content > div.adwap:nth-child(5)
+www.baidu.com###foot > div, .blank-frame, .ball-close__GWg4b > .c-icon, .news-list-wrapper, .square-banner-bgicon.index-banner
+www.zhihu.com##.DownloadGuide.Card, .OpenGuide-wrapper, .AnswerItem.ContentItem > .is-collapsed.RichContent > .RichContent-inner > .Button--plain.ContentItem-more.Button
