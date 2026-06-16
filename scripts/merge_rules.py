@@ -1,5 +1,6 @@
 import json
 import hashlib
+import re
 import sys
 import shutil
 import unicodedata
@@ -9,6 +10,12 @@ from pathlib import Path
 from typing import Any
 
 class RuleMerger:
+    _HTML_FILTER_RE = re.compile(
+        r'#%#|#@%#|#\$#|#@\$#|#\?#|#@\?#|'
+        r'#\+js\(|#@#\+js\(|\$removeparam|\$cookie=|\$redirect=|\$generichide|'
+        r'scriptlet\(|jsinject'
+    )
+
     def __init__(self) -> None:
         # 获取项目根目录
         self.project_root: Path = Path(__file__).resolve().parent.parent
@@ -109,9 +116,11 @@ class RuleMerger:
         7. 普通屏蔽规则
         """
         # 去除不可见字符和多余空白
-        rule = unicodedata.normalize('NFKC', line.strip())
+        rule = line.strip()
         if not rule:
             return (None, None)
+        if not rule.isascii():
+            rule = unicodedata.normalize('NFKC', rule)
 
         # 1. 注释规则
         # Adblock Plus 标准: ! 或 # 开头的注释（不含规则指令）
@@ -136,24 +145,12 @@ class RuleMerger:
                     # 正则规则的特征：包含正则特殊字符 或 长度 > 10（经验值）
                     pattern = rule[1:last_slash]
                     has_regex_chars = any(c in pattern for c in ['.', '*', '+', '?', '\\', '[', ']', '(', ')', '{', '}', '^', '$', '|'])
-                    if has_regex_chars or len(pattern) > 15:  # 放松限制，避免误判
+                    if has_regex_chars:
                         return ('regex', rule)
 
         # 4. AdGuard/uBlock 扩展语法（必须在元素隐藏之前判断）
         # 这些规则包含特殊指令，不应被识别为普通元素隐藏
-        html_filter_keywords = [
-            "#%#", "#@%#",      # AdGuard JS 注入
-            "#$#", "#@$#",      # AdGuard CSS 注入
-            "#?#", "#@?#",      # AdGuard 元素筛选
-            "#+js(", "#@#+js(", # uBlock scriptlet
-            "$removeparam",       # uBlock 参数移除
-            "$cookie=",           # AdGuard cookie 管理
-            "$redirect=",         # AdGuard 资源重定向
-            "$generichide",      # AdGuard 通用隐藏
-            "scriptlet(",         # AdGuard scriptlet
-            "jsinject"           # 旧版 JS 注入
-        ]
-        if any(k in rule for k in html_filter_keywords):
+        if self._HTML_FILTER_RE.search(rule):
             return ('html_filter', rule)
 
         # 5. 元素隐藏规则
@@ -217,13 +214,11 @@ class RuleMerger:
                         typ, rule = self.process_rule(line)
                         if not typ or not rule:
                             continue
-                        # 注释只保留前10条
+                        # 跳过注释
                         if typ == 'comment':
-                            if rule not in groups['comment'] and len(groups['comment']) < 10:
-                                groups['comment'].add(rule)
                             continue
                         # 源内去重计数
-                        rule_id = f"{typ}:{rule}"
+                        rule_id = rule
                         if rule_id in source_seen:
                             continue
                         source_seen.add(rule_id)
@@ -341,7 +336,7 @@ class RuleMerger:
         rule_path = self.dist_dir / rule_filename
         print(f"保存规则文件到: {rule_path}")
         with open(rule_path, 'w', encoding='utf-8') as f:
-            _ = f.write(content)
+            f.write(content)
 
         # 保存最新规则副本（最佳实践：直接复制内容而非符号链接）
         print("步骤7: 保存最新规则副本")
@@ -349,7 +344,6 @@ class RuleMerger:
         if main_path.exists():
             main_path.unlink()
         shutil.copyfile(rule_path, main_path)  # 直接复制文件内容
-        _ = main_path.exists()  # 触发 Path 类型表达式
 
         # 计算处理时间
         processing_time = (datetime.now() - self.start_time).total_seconds()

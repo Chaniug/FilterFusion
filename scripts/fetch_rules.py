@@ -141,8 +141,6 @@ class RuleFetcher:
                         "error": str(e),
                         "timestamp": datetime.now(timezone.utc).isoformat()
                     }
-        # 理论上不会执行到这里（所有路径都有返回值），但帮助类型推断
-        raise RuntimeError("Unreachable code in fetch_single_rule")
     
     def fetch_all_rules(self) -> dict[str, Any]:
         sources = self.load_sources()
