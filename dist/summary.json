@@ -1,27 +1,27 @@
 {
-  "version": "20260615",
-  "date": "2026-06-15T03:51:15.946165+00:00",
-  "total_source_rules": 31232,
-  "unique_rules": 31205,
+  "version": "20260616",
+  "date": "2026-06-16T03:39:59.563234+00:00",
+  "total_source_rules": 31257,
+  "unique_rules": 31230,
   "duplicates_removed": 27,
-  "merge_time_seconds": 0.19,
-  "checksum": "56d/ywPH/2UTgbgTMIX3SA==",
+  "merge_time_seconds": 0.14,
+  "checksum": "ESto/l/axBPYTodhuOhGVQ==",
   "sources": [
     {
       "name": "Adguard Extra",
       "rule_count": 17
     },
     {
+      "name": "AdGuard Chinese",
+      "rule_count": 22646
+    },
+    {
       "name": "Chaniug AdSuper",
       "rule_count": 68
     },
     {
-      "name": "AdGuard Chinese",
-      "rule_count": 22626
-    },
-    {
       "name": "AdGuard Mobile",
-      "rule_count": 8521
+      "rule_count": 8526
     }
   ]
 }
