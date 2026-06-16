@@ -1,6 +1,6 @@
 # FilterFusion 项目文档
 
-> **版本**: 1.0 | **最后更新**: 2026-06-13 | **许可证**: MIT
+> **版本**: 1.1 | **最后更新**: 2026-06-16 | **许可证**: MIT
 
 ---
 
@@ -107,15 +107,23 @@ FilterFusion/
 │   ├── *.txt                  # 各源下载的原始规则文件
 │   └── fetch_meta.json        # 抓取元数据
 ├── scripts/
+│   ├── __init__.py             # Python 包标识
 │   ├── fetch_rules.py         # 规则抓取脚本
 │   └── merge_rules.py         # 规则合并去重脚本
+├── docs/                      # 项目文档
+│   ├── PROJECT_LOG.md         # 开发日志
+│   ├── merge_optimization_plan.md  # 优化方案
+│   └── plans/                 # 历史 plan 归档
 ├── .gitignore
 ├── _cdnauth.txt               # CDN 认证令牌
 ├── CNAME                      # 自定义域名: ad.valk.ccwu.cc
 ├── LICENSE                    # MIT 许可证
 ├── README.md                  # 中文说明文档
 ├── README_EN.md               # 英文说明文档
-└── requirements.txt           # Python 依赖
+├── PROJECT_DOCS.md            # 本文件 — 完整项目文档
+├── requirements.txt           # Python 依赖
+├── requirements-dev.txt       # 开发依赖
+└── pyproject.toml             # 现代 Python 项目配置
 ```
 
 ---
@@ -168,7 +176,8 @@ Adguard Extra > https://filters.adtidy.org/android/filters/5_optimized.txt
 5. 写入元数据到 `rules/fetch_meta.json`
 
 **关键特性**：
-- **重试机制**: 最多 3 次重试，递增超时（30s → 45s → 60s）
+- **并发下载**: 使用 `ThreadPoolExecutor` 并发抓取所有源，复用 `requests.Session` TCP 连接池
+- **重试机制**: 最多 3 次重试，递增超时（35s → 50s → 65s），适配大型规则文件
 - **增量更新**: 通过哈希对比可判断源是否有更新
 - **元数据记录**: 保存每次抓取的时间戳、状态、文件哈希
 
@@ -203,15 +212,15 @@ python scripts/fetch_rules.py
 
 **分类详细说明**:
 
-- **注释规则**: `!` 开头的注释行或 `[Adblock Plus ...]` 头部声明，仅保留前 10 条
+- **注释规则**: `!` 开头的注释行或 `[Adblock Plus ...]` 头部声明，直接跳过不存储
 - **例外规则**: `@@` 开头的例外规则，可能包含其他语法（如 `$elemhide`）
 - **正则规则**: Adblock Plus 格式的正则表达式，以 `/` 开头和结尾，支持标志 `i`, `g`, `m`
-- **HTML/脚本注入**: AdGuard/uBlock 扩展语法，包括 JS 注入（`#%#`）、CSS 注入（`#$#`）、元素筛选（`#?#`）、scriptlet（`#+js(`）
+- **HTML/脚本注入**: AdGuard/uBlock 扩展语法，通过类级别预编译正则一次性扫描（`#%#`、`#$#`、`#?#`、`scriptlet(` 等），替代逐关键词遍历
 - **元素隐藏**: 标准元素隐藏规则（`##`）或域限制隐藏（`domain##selector`）
 - **特殊参数**: 包含特殊修饰符的规则，如 `$badfilter`（禁用）、`$important`（高优先级）、`$csp=`（内容安全策略）
 - **普通屏蔽**: 其余有效的屏蔽规则，如 `\|\|domain^`, `\|http://...`, `*pattern*`
 
-5. **全局去重**: 使用 `Unicode NFKC 规范化` 后，以 `类型:规则文本` 为唯一键
+5. **全局去重**: 使用 `Unicode NFKC 规范化` 后，以规则文本自身为唯一键（同一条规则分类结果确定，无需类型前缀）
 6. 各组内**按字母排序**后合并输出
 7. 替换 `default.header` 模板中的占位符生成最终文件
 
@@ -368,10 +377,13 @@ find dist -name "adblock-*.txt" -mtime +3 -delete
 ### 去重算法
 
 ```
-输入规则 → Unicode NFKC 规范化 → 构建键值 "类型:规则文本" → 集合去重
+输入规则 → strip → isascii() 快速路径（99%+ 规则为纯 ASCII 跳过 NFKC）
+         → 非 ASCII 时 Unicode NFKC 规范化 → 规则文本为去重键 → 集合去重
 ```
 
 使用 `NFKC`（兼容性组合规范化）确保视觉等价但 Unicode 不同的规则被正确识别为重复。例如，全角字母会转换为半角后再比较。
+
+为减少 CPU 开销，对绝大多数纯 ASCII 规则使用 `str.isascii()` 快速跳过 NFKC 调用。
 
 ### 规则分类判断
 
@@ -381,7 +393,7 @@ find dist -name "adblock-*.txt" -mtime +3 -delete
 |------|--------|----------|
 | 注释 | 1 (最高) | 以 `!` 或 `[` 开头 |
 | 例外 | 2 | 以 `@@` 开头（例外规则可能包含其他语法） |
-| 正则 | 3 | 以 `/` 开头和结尾，含正则特殊字符（`.`, `*`, `+`, `?`, `\`, `[`, `]`, `(`, `)`, `{`, `}`, `^`, `$`, `\|`），支持标志 `i`, `g`, `m` |
+| 正则 | 3 | 以 `/` 开头和结尾，含正则特殊字符（`.`, `*`, `+`, `?`, `\`, `[`, `]`, `(`, `)`, `{`, `}`, `^`, `$`, `\|`），支持标志 `i`, `g`, `m`。仅依赖正则特殊字符判断，避免误判长 URL |
 | HTML过滤 | 4 | 包含 `#%#`, `#$#`, `#?#`, `#+js(`, `scriptlet(` 等 AdGuard/uBlock 扩展语法 |
 | 元素隐藏 | 5 | 包含 `##`（元素隐藏规则） |
 | 特殊 | 6 | 选项部分（`$` 之后）含 `badfilter`, `important`, `csp=` 等修饰符 |
@@ -389,8 +401,8 @@ find dist -name "adblock-*.txt" -mtime +3 -delete
 
 **注意事项**:
 - 分类优先级避免误判（如 `@@` 例外规则可能包含 `$elemhide`，应优先识别为例外）
-- 正则规则验证确保不是普通路径（如 `/ads.html`）
-- HTML 过滤规则必须在元素隐藏之前判断（如 `#%#` 不是元素隐藏）
+- 正则规则验证确保不是普通路径（如 `/ads.html`），仅依赖正则特殊字符判断
+- HTML 过滤规则使用预编译正则一次性扫描，必须在元素隐藏之前判断（如 `#%#` 不是元素隐藏）
 - 特殊参数判断限定在选项部分（`$` 之后），避免误判规则路径
 
 ### 文件哈希校验
