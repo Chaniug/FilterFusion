@@ -1,12 +1,16 @@
 {
-  "version": "20260616",
-  "date": "2026-06-16T08:19:01.657819+00:00",
-  "total_source_rules": 31259,
-  "unique_rules": 31232,
+  "version": "20260617",
+  "date": "2026-06-17T03:40:13.891933+00:00",
+  "total_source_rules": 31273,
+  "unique_rules": 31246,
   "duplicates_removed": 27,
-  "merge_time_seconds": 0.1,
-  "checksum": "heZrU4mikX58kOnA0+TBPQ==",
+  "merge_time_seconds": 0.09,
+  "checksum": "dFjz+e/FbFtHksjKEzbqqQ==",
   "sources": [
+    {
+      "name": "AdGuard Mobile",
+      "rule_count": 8528
+    },
     {
       "name": "Adguard Extra",
       "rule_count": 17
@@ -16,12 +20,8 @@
       "rule_count": 68
     },
     {
-      "name": "AdGuard Mobile",
-      "rule_count": 8526
-    },
-    {
       "name": "AdGuard Chinese",
-      "rule_count": 22648
+      "rule_count": 22660
     }
   ]
 }
