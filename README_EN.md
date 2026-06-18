@@ -363,10 +363,10 @@ This project is licensed under the **MIT License**. You may freely use, modify, 
 ---
 
 <p align="center">
-  <img src="https://github.githubassets.com/images/icons/emoji/unicorn.png" height="28" />
-  <img src="https://github.githubassets.com/images/icons/emoji/rocket.png" height="28" />
-  <img src="https://github.githubassets.com/images/icons/emoji/heart.png" height="28" />
-  <img src="https://github.githubassets.com/images/icons/emoji/octocat.png" height="28" />
+  <img src="https://github.githubassets.com/images/icons/emoji/unicode/1f984.png" height="28" />
+  <img src="https://github.githubassets.com/images/icons/emoji/unicode/1f680.png" height="28" />
+  <img src="https://github.githubassets.com/images/icons/emoji/unicode/2764.png" height="28" />
+  <img src="https://github.githubassets.com/images/icons/emoji/unicode/1f431.png" height="28" />
 </p>
 
 <p align="center">
