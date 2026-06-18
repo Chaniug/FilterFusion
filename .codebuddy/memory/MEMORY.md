@@ -5,8 +5,8 @@
 - 维护者：Chaniug，GitHub 仓库 Chaniug/FilterFusion
 - 订阅域名：ad.valk.ccwu.cc（GitHub Pages + CNAME）
 
-## 技术栈（2026-06-18 第二轮优化后）
-- Python >=3.13（CPython 3.13 specializing interpreter ~5-10% 性能提升）
+## 技术栈（2026-06-18 最终确定）
+- Python >=3.13（本地 3.14，CI 3.14）
 - 运行时依赖：`httpx[http2]>=0.27.0`（替代 requests，异步 + HTTP/2 多路复用）
 - CI 包管理：uv（`astral-sh/setup-uv@v8.2.0`，依赖安装 10-100 倍加速，node24 运行时）
 - 输出产物位置不变：`dist/adblock-main.txt`、`dist/adblock-YYYYMMDD.txt`、`dist/summary.json`
@@ -15,6 +15,7 @@
 - **依赖安装**: `uv venv && uv pip install -r requirements.txt`（不构建项目包，避免 setuptools 多目录冲突）
 - **脚本执行**: `uv run --no-project python -m scripts.xxx`（跳过项目构建，仅使用 venv）
 - **setup-uv 版本**: `@v8.2.0`（node24 运行时；注意 `@v8` 短标签不存在，必须用完整版本号）
+- **CI Python 版本**: `3.14`（与本地环境一致）
 - **pyproject.toml**: `[tool.setuptools.packages.find]` 配置 `include = ["scripts*"]`；`license = "MIT"` 字符串格式
 
 ## 优化历史
@@ -34,4 +35,4 @@
 - Windows 本地运行需 `$env:PYTHONIOENCODING='utf-8'`（已通过显式 encoding 缓解）
 - PowerShell 需禁用 Microsoft.WinGet.CommandNotFound 模块
 - 本地无 Python 3.13 + httpx 时，basedpyright 会报 UTC/StrEnum/httpx/type 语句解析错误，属环境问题非代码问题
-- 本地 Python 环境：3.14（`requires-python = ">=3.13"` 覆盖，无需调整约束；CI 仍锁定 3.13 以保证可重现性）
+- 本地 Python 环境：3.14，CI 也升级到 3.14（`requires-python = ">=3.13"` 覆盖，GitHub Actions 官方支持 3.14.6）
