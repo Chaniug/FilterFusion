@@ -31,7 +31,7 @@ jobs:
         cache-dependency-glob: 'requirements.txt'
 
     - name: 📥 安装依赖
-      run: uv pip install -r requirements.txt
+      run: uv sync --no-dev
 
     - name: 🔄 抓取并合并规则
       run: |
