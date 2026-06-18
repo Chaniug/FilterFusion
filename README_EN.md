@@ -69,6 +69,8 @@ Whether you're a data engineer, ad-blocking enthusiast, or someone who wants to 
 
 ## 📬 Subscription URLs
 
+### AdBlock Rules (Browser Ad-Blocking)
+
 Import any of the following links into your ad-blocking extension (uBlock Origin, AdGuard, etc.):
 
 - **jsDelivr CDN** (Recommended for mainland China)  
@@ -84,6 +86,25 @@ Import any of the following links into your ad-blocking extension (uBlock Origin
 - **gh.llkk.cc Acceleration** (Backup)  
   ```
   https://gh.llkk.cc/https://raw.githubusercontent.com/Chaniug/FilterFusion/main/dist/adblock-main.txt
+  ```
+
+### DNS Filtering Rules (Network-Level Ad-Blocking)
+
+Import any of the following links into your DNS filtering tool (AdGuard Home, Pi-hole, Clash, etc.):
+
+- **jsDelivr CDN** (Recommended for mainland China)  
+  ```
+  https://cdn.jsdelivr.net/gh/Chaniug/FilterFusion@main/dist/dns-blocklist.txt
+  ```
+
+- **GitHub Raw** (Available globally)  
+  ```
+  https://raw.githubusercontent.com/Chaniug/FilterFusion/main/dist/dns-blocklist.txt
+  ```
+
+- **gh.llkk.cc Acceleration** (Backup)  
+  ```
+  https://gh.llkk.cc/https://raw.githubusercontent.com/Chaniug/FilterFusion/main/dist/dns-blocklist.txt
   ```
 
 ### 📋 Report Filter Issues
@@ -135,9 +156,17 @@ pip install -r requirements.txt
 ```
 
 ### 3. Fetch and Merge Rules
+
+**AdBlock Rules**:
 ```bash
 python scripts/fetch_rules.py    # Fetch all rule sources
 python scripts/merge_rules.py    # Merge and deduplicate
+```
+
+**DNS Filtering Rules**:
+```bash
+python scripts/fetch_dns_rules.py    # Fetch DNS rule sources
+python scripts/merge_dns_rules.py    # Merge and deduplicate DNS rules
 ```
 
 ### 4. Use the Generated Rules
@@ -181,6 +210,8 @@ Configure Sources → Fetch Rules → Merge & Deduplicate → Output Standard Fo
 
 ### Step 1: Configure Rule Sources
 
+#### AdBlock Rule Sources
+
 Edit the `config/sources.txt` file to add the rule sources you want to aggregate:
 
 ```txt
@@ -196,6 +227,23 @@ AdGuard Base > https://adguardteam.github.io/AdGuardSDNSFilter/Filters/filter.tx
 # My Custom Rules > https://example.com/my-rules.txt
 ```
 
+#### DNS Filtering Rule Sources
+
+Edit the `config/dns_sources.txt` file to add the DNS filtering rule sources you want to aggregate:
+
+```txt
+# FilterFusion DNS Filtering Rule Sources Configuration
+# Format: Name > Subscription URL
+# Enable: Write a line directly
+# Disable: Add # at the beginning of the line
+
+AdGuard DNS > https://raw.githubusercontent.com/AdguardTeam/FiltersRegistry/master/filters/filter_15_DnsFilter/filter.txt
+HaGeZi DNS > https://raw.githubusercontent.com/hagezi/dns-blocklists/main/adblock/dns.txt
+
+# Below are disabled sources (remove the leading # to enable):
+# StevenBlack Hosts > https://raw.githubusercontent.com/StevenBlack/hosts/master/hosts
+```
+
 **Format Notes**:
 - One rule source per line, separated by `>`
 - Add `#` at the beginning to disable a source (keep config, skip fetching)
@@ -204,10 +252,14 @@ AdGuard Base > https://adguardteam.github.io/AdGuardSDNSFilter/Filters/filter.tx
 
 ### Step 2: Fetch Rules
 
-Automatically download rule files from all configured sources:
-
+**AdBlock Rules**:
 ```bash
 python scripts/fetch_rules.py
+```
+
+**DNS Filtering Rules**:
+```bash
+python scripts/fetch_dns_rules.py
 ```
 
 **Features**:
@@ -218,21 +270,27 @@ python scripts/fetch_rules.py
 
 ### Step 3: Merge and Deduplicate Rules
 
-Merge all rules and generate the final standard rule file:
-
+**AdBlock Rules**:
 ```bash
 python scripts/merge_rules.py
+```
+
+**DNS Filtering Rules**:
+```bash
+python scripts/merge_dns_rules.py
 ```
 
 **Features**:
 - Automatically remove duplicate rules
 - Delete invalid and comment lines
 - Merge all rules
-- Output in standard format: `dist/adblock-main.txt`
+- Output in standard format: `dist/adblock-main.txt` (AdBlock) or `dist/dns-blocklist.txt` (DNS)
 
-### Step 4: Use in Ad-Blocking Tools
+### Step 4: Use in Filtering Tools
 
-#### Import Method (Example: uBlock Origin)
+#### AdBlock Rules (Browser Ad-Blocking)
+
+**Import Method (Example: uBlock Origin)**:
 
 1. Open uBlock Origin extension options
 2. Go to the "Filter lists" tab
@@ -240,12 +298,30 @@ python scripts/merge_rules.py
 4. Click "Import"
 5. Save settings
 
-#### Supported Tools
+**Supported Tools**:
 - uBlock Origin
-- AdGuard
+- AdGuard (browser extension)
 - Adblock Plus
 - Brave Browser (Built-in)
 - Safari ad-blocking extensions
+
+#### DNS Filtering Rules (Network-Level Ad-Blocking)
+
+**Import Method (Example: AdGuard Home)**:
+
+1. Open AdGuard Home admin interface
+2. Go to "Filters" → "DNS blocklists"
+3. Click "Add a blocklist"
+4. Paste the DNS rule subscription link
+5. Click "Add"
+
+**Supported Tools**:
+- AdGuard Home
+- Pi-hole
+- Clash
+- Surge
+- Quantumult X
+- Any tool that supports DNS filtering rules
 
 ---
 
@@ -309,9 +385,18 @@ Your Rule Name > URL of the rule file
 
 ### Q4: Where are the generated rule files?
 
-**A**: After running `merge_rules.py`, generated rule files are located in:
+**A**: After running the merge scripts, generated rule files are located in:
+
+**AdBlock Rules**:
 ```
 dist/adblock-main.txt       # Main rule file
+dist/adblock-YYYYMMDD.txt   # Date-archived rule file
+```
+
+**DNS Filtering Rules**:
+```
+dist/dns-blocklist.txt       # Main rule file
+dist/dns-blocklist-YYYYMMDD.txt   # Date-archived rule file
 ```
 
 ### Q5: What's the file size and performance?

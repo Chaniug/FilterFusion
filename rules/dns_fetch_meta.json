@@ -1,0 +1,23 @@
+{
+  "fetch_date": "2026-06-18T10:22:35.418873+00:00",
+  "sources": [
+    {
+      "name": "HaGeZi DNS",
+      "url": "https://raw.githubusercontent.com/hagezi/dns-blocklists/main/dns-selective.txt",
+      "status": "disabled"
+    },
+    {
+      "name": "StevenBlack Hosts",
+      "url": "https://raw.githubusercontent.com/StevenBlack/hosts/master/hosts",
+      "status": "disabled"
+    },
+    {
+      "name": "AdGuard DNS",
+      "file": "dns_adguard_dns.txt",
+      "url": "https://raw.githubusercontent.com/AdguardTeam/FiltersRegistry/master/filters/filter_15_DnsFilter/filter.txt",
+      "timestamp": "2026-06-18T10:22:35.416193+00:00",
+      "hash": "52be8bfa540645101491394c24073df82a0faa3df61bf91b73b9f1943e235389",
+      "status": "success"
+    }
+  ]
+}

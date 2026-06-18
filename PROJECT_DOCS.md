@@ -32,19 +32,30 @@ FilterFusion 是一个**自动化广告过滤规则聚合工具**，由 [Chaniug
 
 | 能力 | 说明 |
 |------|------|
-| 多源聚合 | 自动从 AdGuard Mobile、AdGuard Chinese、Chaniug AdSuper 等多个源抓取规则 |
-| 智能去重 | 基于 Unicode NFKC 规范化 + 类型化键值实现全局去重 |
-| 分类输出 | 按规则语义（例外/HTML过滤/正则/特殊参数/普通屏蔽）分类组织 |
-| 自动更新 | GitHub Actions 每日自动抓取、合并、发布 |
+| 多源聚合 | 自动从 AdGuard Mobile、AdGuard Chinese、Chaniug AdSuper 等多个源抓取 AdBlock 规则 |
+| DNS 规则支持 | 自动从 AdGuard DNS、HaGeZi DNS 等多个源抓取 DNS 过滤规则 |
+| 智能去重 | 基于 Unicode NFKC 规范化 + 类型化键值实现全局去重（AdBlock 和 DNS 规则） |
+| 分类输出 | 按规则语义（例外/HTML过滤/正则/特殊参数/普通屏蔽）分类组织（AdBlock 规则） |
+| 简化合并 | DNS 规则合并简化（主要是域名去重，不需要复杂分类） |
+| 自动更新 | GitHub Actions 每日自动抓取、合并、发布（AdBlock + DNS） |
 | 多 CDN 分发 | 支持 GitHub Raw / jsDelivr / FastGit 等多条订阅线路 |
 
 ### 适用范围
 
+**AdBlock 规则**（浏览器广告拦截）：
 - **uBlock Origin** (桌面版/移动版)
 - **AdGuard** (桌面版/移动版/浏览器扩展)
 - **Adblock Plus** (ABP)
 - **Brave 浏览器**
-- 任何兼容 Adblock Plus 语法的广告拦截工具
+- 任何兼容 Adblock Plus 语法的的广告拦截工具
+
+**DNS 过滤规则**（网络级广告拦截）：
+- **AdGuard Home**
+- **Pi-hole**
+- **Clash**
+- **Surge**
+- **Quantumult X**
+- 任何支持 DNS 过滤规则的工具
 
 ---
 
@@ -52,9 +63,11 @@ FilterFusion 是一个**自动化广告过滤规则聚合工具**，由 [Chaniug
 
 ### 数据流图
 
+#### AdBlock 规则
+
 ```
 ┌──────────────────┐
-│  config/sources.txt  │  ← 规则源 URL 配置
+│  config/sources.txt  │  ← AdBlock 规则源 URL 配置
 └────────┬─────────┘
          │
          ▼
@@ -68,6 +81,27 @@ FilterFusion 是一个**自动化广告过滤规则聚合工具**，由 [Chaniug
 │  merge_rules.py  │ ──→ │ dist/adblock-YYYYMMDD.txt │
 │  (合并去重)       │     │ dist/adblock-main.txt     │
 │                  │     │ dist/summary.json         │
+└──────────────────┘     └───────────────────────────┘
+```
+
+#### DNS 过滤规则
+
+```
+┌──────────────────┐
+│  config/dns_sources.txt  │  ← DNS 规则源 URL 配置
+└────────┬─────────┘
+         │
+         ▼
+┌──────────────────┐     ┌──────────────────┐
+│  fetch_dns_rules.py  │ ──→ │  rules/dns_*.txt      │  ← 原始抓取文件
+│  (DNS 规则抓取)       │     │  rules/dns_fetch_meta │  ← 抓取元数据
+└──────────────────┘     └────────┬─────────┘
+                                  │
+                                  ▼
+┌──────────────────┐     ┌───────────────────────┐
+│  merge_dns_rules.py  │ ──→ │ dist/dns-blocklist-YYYYMMDD.txt │
+│  (DNS 规则合并去重)       │     │ dist/dns-blocklist.txt     │
+│                  │     │ dist/dns_summary.json         │
 └──────────────────┘     └───────────────────────────┘
 ```
 
@@ -97,19 +131,28 @@ FilterFusion/
 ├── assets/
 │   └── preview.png            # 项目预览图
 ├── config/
-│   ├── default.header         # 输出规则文件头部模板
-│   └── sources.txt            # 规则源配置
+│   ├── default.header         # AdBlock 规则输出头部模板
+│   ├── dns.header             # DNS 规则输出头部模板
+│   ├── sources.txt            # AdBlock 规则源配置
+│   └── dns_sources.txt       # DNS 规则源配置
 ├── dist/                      # 输出产物（自动生成）
-│   ├── adblock-main.txt       # 最新主规则文件
-│   ├── adblock-YYYYMMDD.txt   # 按日期归档的规则文件（保留近3天）
-│   └── summary.json           # 统计摘要
+│   ├── adblock-main.txt       # AdBlock 最新主规则文件
+│   ├── adblock-YYYYMMDD.txt   # AdBlock 按日期归档的规则文件（保留近3天）
+│   ├── dns-blocklist.txt      # DNS 最新主规则文件
+│   ├── dns-blocklist-YYYYMMDD.txt   # DNS 按日期归档的规则文件（保留近3天）
+│   ├── summary.json           # AdBlock 统计摘要
+│   └── dns_summary.json      # DNS 统计摘要
 ├── rules/                     # 抓取缓存（自动生成）
-│   ├── *.txt                  # 各源下载的原始规则文件
-│   └── fetch_meta.json        # 抓取元数据
+│   ├── *.txt                  # AdBlock 各源下载的原始规则文件
+│   ├── dns_*.txt              # DNS 各源下载的原始规则文件
+│   ├── fetch_meta.json        # AdBlock 抓取元数据
+│   └── dns_fetch_meta.json   # DNS 抓取元数据
 ├── scripts/
 │   ├── __init__.py             # Python 包标识
-│   ├── fetch_rules.py         # 规则抓取脚本
-│   └── merge_rules.py         # 规则合并去重脚本
+│   ├── fetch_rules.py         # AdBlock 规则抓取脚本
+│   ├── merge_rules.py         # AdBlock 规则合并去重脚本
+│   ├── fetch_dns_rules.py     # DNS 规则抓取脚本
+│   └── merge_dns_rules.py     # DNS 规则合并去重脚本
 ├── docs/                      # 项目文档
 │   ├── PROJECT_LOG.md         # 开发日志
 │   ├── merge_optimization_plan.md  # 优化方案
@@ -130,7 +173,7 @@ FilterFusion/
 
 ## 4. 核心组件详解
 
-### 4.1 规则源配置 (`config/sources.txt`)
+### 4.1 AdBlock 规则源配置 (`config/sources.txt`)
 
 **文件格式**: 纯文本，一行一个规则源，格式为 `名称 > 订阅地址`。
 
@@ -229,9 +272,9 @@ python scripts/fetch_rules.py
 python scripts/merge_rules.py
 ```
 
-### 4.4 输出头部模板 (`config/default.header`)
+### 4.4 AdBlock 输出头部模板 (`config/default.header`)
 
-定义最终规则文件的描述头部，使用以下占位符：
+定义最终 AdBlock 规则文件的描述头部，使用以下占位符：
 
 | 占位符 | 说明 |
 |--------|------|
@@ -240,17 +283,104 @@ python scripts/merge_rules.py
 | `{CHECKSUM}` | MD5 + Base64 校验和（ABP 标准格式，24字符） |
 | `{HOMEPAGE}` | 项目 GitHub 主页 |
 | `{LICENSE}` | 许可证声明 |
-| `{SOURCE_COUNT}` | 成功抓取的规则源数量 |
+| `{SOURCE_COUNT}` | 成功抓取的 AdBlock 规则源数量 |
 | `{SOURCE_LIST}` | 各源的详细描述列表 |
 | `{COMBINED_RULES}` | 合并去重后的规则总数 |
 | `{TOTAL_RULES}` | 源规则总数（去重前） |
 | `{DUPLICATES}` | 重复规则数量（已移除） |
+
+### 4.5 DNS 规则源配置 (`config/dns_sources.txt`)
+
+**文件格式**: 纯文本，一行一个 DNS 规则源，格式为 `名称 > 订阅地址`。
+
+```txt
+# FilterFusion DNS 过滤规则源配置
+# 格式: 名称 > 订阅地址
+# 开启: 直接写一行
+# 关闭: 行首加 #
+
+AdGuard DNS > https://raw.githubusercontent.com/AdguardTeam/FiltersRegistry/master/filters/filter_15_DnsFilter/filter.txt
+HaGeZi DNS > https://raw.githubusercontent.com/hagezi/dns-blocklists/main/adblock/dns.txt
+
+# 下面是关闭的源（去掉行首 # 即可开启）：
+# StevenBlack Hosts > https://raw.githubusercontent.com/StevenBlack/hosts/master/hosts
+```
+
+**配置规则**：
+- 与 `config/sources.txt` 格式保持一致
+- 支持启用/禁用规则源（行首 `#`）
+- URL 必须以 `http` 开头
+
+### 4.6 DNS 规则抓取脚本 (`scripts/fetch_dns_rules.py`)
+
+**类**: `DnsRuleFetcher`
+
+**核心逻辑**：
+1. 读取 `config/dns_sources.txt`，获取所有已启用的 DNS 规则源
+2. 对每个源发起异步 HTTP GET 请求下载规则文件（复用 `fetch_rules.py` 的异步抓取逻辑）
+3. 计算下载内容的 SHA256 哈希值
+4. 保存到 `rules/` 目录（文件名添加 `dns_` 前缀以区分 AdBlock 规则）
+5. 写入元数据到 `rules/dns_fetch_meta.json`
+
+**关键特性**：
+- 复用 `httpx.AsyncClient` + `asyncio.gather()` 异步并发下载
+- 重试机制：最多 3 次重试，递增超时
+- 文件名添加 `dns_` 前缀，避免与 AdBlock 规则文件冲突
+
+**命令行使用**:
+```bash
+python scripts/fetch_dns_rules.py
+```
+
+### 4.7 DNS 规则合并脚本 (`scripts/merge_dns_rules.py`)
+
+**类**: `DnsRuleMerger`
+
+**核心逻辑**：
+1. 读取 `rules/dns_fetch_meta.json` 获取成功抓取的 DNS 规则文件
+2. 读取 `config/dns.header` 获取输出模板
+3. 加载所有 DNS 规则文件内容
+4. 去重：例外规则（`@@` 开头）和普通规则
+
+**DNS 规则合并特点**：
+- DNS 规则是 AdBlock 规则的子集，不支持元素隐藏、HTML 过滤等浏览器专属语法
+- 不需要复杂的规则分类逻辑，主要是域名去重
+- 不需要 ABP 校验和计算
+- 输出格式：按例外规则、普通规则分组即可
+
+5. 去重：使用集合（set）数据结构，O(1) 查找
+6. 输出到 `dist/dns-blocklist.txt` 和按日期归档的文件
+7. 保存摘要到 `dist/dns_summary.json`
+
+**命令行使用**:
+```bash
+python scripts/merge_dns_rules.py
+```
+
+### 4.8 DNS 输出头部模板 (`config/dns.header`)
+
+定义最终 DNS 规则文件的描述头部，使用以下占位符：
+
+| 占位符 | 说明 |
+|--------|------|
+| `{VERSION}` | 版本号（日期，如 `20260612`） |
+| `{TIMEUPDATED}` | 更新时间 |
+| `{HOMEPAGE}` | 项目 GitHub 主页 |
+| `{LICENSE}` | 许可证声明 |
+| `{SOURCE_COUNT}` | 成功抓取的 DNS 规则源数量 |
+| `{SOURCE_LIST}` | 各源的详细描述列表 |
+| `{TOTAL_RULES}` | 源规则总数（去重前） |
+| `{DUPLICATES}` | 重复规则数量（已移除） |
+
+**注意**：DNS 规则头部模板不包含 `[Adblock Plus 2.0]` 声明和 `{CHECKSUM}` 占位符（DNS 规则不需要 ABP 校验和）。
 
 ---
 
 ## 5. 工作流程
 
 ### 5.1 本地使用
+
+#### AdBlock 规则
 
 ```bash
 # 1. 克隆仓库
@@ -260,14 +390,27 @@ cd FilterFusion
 # 2. 安装依赖（使用 uv 加速）
 uv pip install -r requirements.txt
 
-# 3. 抓取各源的最新规则
+# 3. 抓取各源的最新 AdBlock 规则
 python scripts/fetch_rules.py
 
-# 4. 合并去重，生成最终规则文件
+# 4. 合并去重，生成最终 AdBlock 规则文件
 python scripts/merge_rules.py
 
 # 5. 输出文件位于 dist/ 目录
 # dist/adblock-main.txt  → 可直接导入广告拦截工具
+```
+
+#### DNS 过滤规则
+
+```bash
+# 1. 抓取各源的最新 DNS 规则
+python scripts/fetch_dns_rules.py
+
+# 2. 合并去重，生成最终 DNS 规则文件
+python scripts/merge_dns_rules.py
+
+# 3. 输出文件位于 dist/ 目录
+# dist/dns-blocklist.txt  → 可直接导入 DNS 过滤工具
 ```
 
 **依赖要求**:
@@ -296,17 +439,19 @@ python scripts/merge_rules.py
 
 ## 6. 输出产物
 
-### `dist/adblock-main.txt`
+### AdBlock 规则
+
+#### `dist/adblock-main.txt`
 - 最终合并去重后的主规则文件
 - 兼容 Adblock Plus 语法（同时支持 uBlock Origin / AdGuard 扩展语法）
 - 按分类组织：例外规则 → HTML/脚本过滤 → 正则 → 特殊参数 → 普通屏蔽
 
-### `dist/adblock-YYYYMMDD.txt`
+#### `dist/adblock-YYYYMMDD.txt`
 - 按日期版本归档（保留近 3 天）
 - 内容与 `adblock-main.txt` 完全一致
 - 用于版本回溯和 Release 打包
 
-### `dist/summary.json`
+#### `dist/summary.json`
 ```json
 {
     "version": "20260612",
@@ -314,6 +459,30 @@ python scripts/merge_rules.py
     "unique_rules": 30112,
     "duplicates_removed": 47,
     "merge_time_seconds": 0.17,
+    "sources": [ /* 各源统计 */ ]
+}
+```
+
+### DNS 过滤规则
+
+#### `dist/dns-blocklist.txt`
+- 最终合并去重后的 DNS 过滤规则主文件
+- 兼容 AdGuard DNS 过滤语法
+- 按分类组织：例外规则 → 普通 DNS 过滤规则
+
+#### `dist/dns-blocklist-YYYYMMDD.txt`
+- 按日期版本归档（保留近 3 天）
+- 内容与 `dns-blocklist.txt` 完全一致
+- 用于版本回溯和 Release 打包
+
+#### `dist/dns_summary.json`
+```json
+{
+    "version": "20260612",
+    "total_source_rules": 50000,
+    "unique_rules": 45000,
+    "duplicates_removed": 5000,
+    "merge_time_seconds": 0.05,
     "sources": [ /* 各源统计 */ ]
 }
 ```
@@ -327,7 +496,9 @@ python scripts/merge_rules.py
 
 访问该域名将指向项目的 GitHub Pages 站点。
 
-### 订阅地址（可直接在广告拦截工具中使用）
+### 订阅地址
+
+#### AdBlock 规则（浏览器广告拦截）
 
 | 线路 | 地址 | 适用场景 |
 |------|------|----------|
@@ -335,11 +506,19 @@ python scripts/merge_rules.py
 | GitHub Raw | `https://raw.githubusercontent.com/Chaniug/FilterFusion/main/dist/adblock-main.txt` | 全球通用 |
 | gh.llkk.cc 加速 | `https://gh.llkk.cc/https://raw.githubusercontent.com/Chaniug/FilterFusion/main/dist/adblock-main.txt` | 备用加速 |
 
+#### DNS 过滤规则（网络级广告拦截）
+
+| 线路 | 地址 | 适用场景 |
+|------|------|----------|
+| jsDelivr CDN | `https://cdn.jsdelivr.net/gh/Chaniug/FilterFusion@main/dist/dns-blocklist.txt` | **推荐中国大陆用户** |
+| GitHub Raw | `https://raw.githubusercontent.com/Chaniug/FilterFusion/main/dist/dns-blocklist.txt` | 全球通用 |
+| gh.llkk.cc 加速 | `https://gh.llkk.cc/https://raw.githubusercontent.com/Chaniug/FilterFusion/main/dist/dns-blocklist.txt` | 备用加速 |
+
 ---
 
 ## 8. 维护与自定义
 
-### 添加新规则源
+### 添加新 AdBlock 规则源
 
 编辑 `config/sources.txt`，在文件末尾新增一行：
 
@@ -347,11 +526,20 @@ python scripts/merge_rules.py
 你的规则源名称 > https://example.com/filter.txt
 ```
 
+### 添加新 DNS 规则源
+
+编辑 `config/dns_sources.txt`，在文件末尾新增一行：
+
+```txt
+你的 DNS 规则源名称 > https://example.com/dns-filter.txt
+```
+
 **格式要求**:
 - 一行一个规则源，使用 `>` 分隔名称和 URL
 - URL 必须以 `http` 开头
 - 名称可包含中文、英文、数字和空格
-- 支持 Adblock Plus、uBlock Origin、AdGuard 等主流格式的规则文件
+- AdBlock 规则源支持 Adblock Plus、uBlock Origin、AdGuard 等主流格式
+- DNS 规则源支持 AdGuard DNS 过滤语法、Hosts 格式等
 
 ### 禁用规则源
 

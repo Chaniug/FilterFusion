@@ -35,21 +35,34 @@ jobs:
         uv venv
         uv pip install -r requirements.txt
 
-    - name: 🔄 抓取并合并规则
+    - name: 🔄 抓取并合并规则（AdBlock + DNS）
       run: |
+        # AdBlock 规则
         uv run --no-project python -m scripts.fetch_rules
         uv run --no-project python -m scripts.merge_rules
+        # DNS 规则
+        uv run --no-project python -m scripts.fetch_dns_rules
+        uv run --no-project python -m scripts.merge_dns_rules
 
     - name: 🧹 清理旧的规则文件 (仅保留最近3天)
-      run: find dist -name "adblock-[0-9]*.txt" -mtime +2 -delete
-
-    - name: ✅ 校验规则文件
       run: |
+        find dist -name "adblock-[0-9]*.txt" -mtime +2 -delete
+        find dist -name "dns-blocklist-[0-9]*.txt" -mtime +2 -delete
+
+    - name: ✅ 校验规则文件（AdBlock + DNS）
+      run: |
+        # 校验 AdBlock 规则
         if [ ! -s dist/adblock-main.txt ]; then
           echo "❌ 错误: dist/adblock-main.txt 不存在或为空，终止提交"
           exit 1
         fi
-        echo "✅ 规则文件校验通过: $(wc -l < dist/adblock-main.txt) 行"
+        echo "✅ AdBlock 规则文件校验通过: $(wc -l < dist/adblock-main.txt) 行"
+        # 校验 DNS 规则
+        if [ ! -s dist/dns-blocklist.txt ]; then
+          echo "❌ 错误: dist/dns-blocklist.txt 不存在或为空，终止提交"
+          exit 1
+        fi
+        echo "✅ DNS 规则文件校验通过: $(wc -l < dist/dns-blocklist.txt) 行"
 
     - name: 📤 提交变更
       env:
