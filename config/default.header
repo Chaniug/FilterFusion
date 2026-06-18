@@ -10,7 +10,7 @@
 ! License: {LICENSE}
 ! --------------------------------------
 ! Sources: {SOURCE_COUNT} total
-! Sources:{SOURCE_LIST}
+{SOURCE_LIST}
 ! --------------------------------------
 ! Combined rules: {COMBINED_RULES}
 ! Source rules: {TOTAL_RULES}

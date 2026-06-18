@@ -6,7 +6,7 @@
 ! License: {LICENSE}
 ! --------------------------------------
 ! Sources: {SOURCE_COUNT} total
-! Sources:{SOURCE_LIST}
+{SOURCE_LIST}
 ! --------------------------------------
 ! Blocked domains: {TOTAL_RULES}
 ! Duplicates removed: {DUPLICATES}
