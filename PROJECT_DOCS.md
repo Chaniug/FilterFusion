@@ -1,6 +1,6 @@
 # FilterFusion 项目文档
 
-> **版本**: 1.2 | **最后更新**: 2026-06-18 | **许可证**: MIT
+> **版本**: 1.3 | **最后更新**: 2026-06-18 | **许可证**: MIT
 
 ---
 
@@ -257,8 +257,8 @@ python scripts/merge_rules.py
 git clone https://github.com/Chaniug/FilterFusion.git
 cd FilterFusion
 
-# 2. 安装依赖（仅需 requests）
-pip install -r requirements.txt
+# 2. 安装依赖（使用 uv 加速）
+uv pip install -r requirements.txt
 
 # 3. 抓取各源的最新规则
 python scripts/fetch_rules.py
@@ -285,6 +285,12 @@ python scripts/merge_rules.py
 | **static** | main 分支 push 时 | 部署 dist/ 目录到 GitHub Pages |
 
 整个流水线**全自动运行**，无需人工干预。维护者只需确保规则源 URL 有效即可。
+
+**CI 技术细节**：
+- **包管理**: `astral-sh/setup-uv@v8.2.0` 安装 uv + Python 3.13
+- **依赖安装**: `uv venv && uv pip install -r requirements.txt`（轻量级，不构建项目包）
+- **脚本执行**: `uv run --no-project python -m scripts.xxx`
+- **缓存**: uv 缓存 + GitHub Actions cache 双重加速
 
 ---
 
