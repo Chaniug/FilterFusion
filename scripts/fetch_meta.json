@@ -1,5 +1,5 @@
 {
-  "fetch_date": "2026-06-14T09:39:28.597509+00:00",
+  "fetch_date": "2026-06-18T11:09:58.890711+00:00",
   "sources": [
     {
       "name": "EasyList",
@@ -7,35 +7,35 @@
       "status": "disabled"
     },
     {
-      "name": "Chaniug AdSuper",
-      "file": "chaniug_adsuper.txt",
-      "url": "https://raw.githubusercontent.com/Chaniug/AdSuper/refs/heads/master/adnew.txt",
-      "timestamp": "2026-06-14T09:39:27.202513+00:00",
-      "hash": "cec41c4c50c1b1bf5157ee92daf9304fd5b7b2478c2d63b62a7a3115b0fd6023",
-      "status": "success"
-    },
-    {
       "name": "AdGuard Mobile",
       "file": "adguard_mobile.txt",
       "url": "https://raw.githubusercontent.com/AdguardTeam/FiltersRegistry/master/filters/filter_11_Mobile/filter.txt",
-      "timestamp": "2026-06-14T09:39:27.543497+00:00",
-      "hash": "fc6bafad51ce03e31b413822ca648df646cb27f039917bcb5ebaade1afe345c4",
+      "timestamp": "2026-06-18T11:09:58.855647+00:00",
+      "hash": "bbbc04f39b7938221d9fb4190164daea2011297ea47c34fe832369f3d4127e89",
       "status": "success"
     },
     {
       "name": "AdGuard Chinese",
       "file": "adguard_chinese.txt",
       "url": "https://raw.githubusercontent.com/AdguardTeam/FiltersRegistry/master/filters/filter_224_Chinese/filter.txt",
-      "timestamp": "2026-06-14T09:39:27.992682+00:00",
-      "hash": "1ff995377dafc5f8d856fa14d6668a28c460be7e7a3c250989bac877f5ac4a26",
+      "timestamp": "2026-06-18T11:09:58.890457+00:00",
+      "hash": "62bef98f92b27ec11e72cf615e91f0bfe8c58502cc6e002bd6efc43cd3150443",
+      "status": "success"
+    },
+    {
+      "name": "Chaniug AdSuper",
+      "file": "chaniug_adsuper.txt",
+      "url": "https://raw.githubusercontent.com/Chaniug/AdSuper/refs/heads/master/adnew.txt",
+      "timestamp": "2026-06-18T11:09:58.856058+00:00",
+      "hash": "c0d4704586988751392dc719e52be2cc82d3fc03d6779a19047f09119a4c027a",
       "status": "success"
     },
     {
       "name": "Adguard Extra",
       "file": "adguard_extra.txt",
-      "url": "https://filters.adtidy.org/android/filters/5_optimized.txt",
-      "timestamp": "2026-06-14T09:39:28.596917+00:00",
-      "hash": "9c2622b9e959647d7d42e960a3d26e7b3c8369a39cf7d7610454a4a4bce3cf2f",
+      "url": "https://raw.githubusercontent.com/AdguardTeam/FiltersRegistry/master/filters/filter_5_Experimental/filter.txt",
+      "timestamp": "2026-06-18T11:09:58.817581+00:00",
+      "hash": "3a61406fb8cf8916a0e15cd01bb11978c4a32513f97bc6d23a8280c2a53bdf26",
       "status": "success"
     }
   ]
