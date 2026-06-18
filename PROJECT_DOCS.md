@@ -137,9 +137,9 @@ FilterFusion/
 │   └── dns_sources.txt       # DNS 规则源配置
 ├── dist/                      # 输出产物（自动生成）
 │   ├── adblock-main.txt       # AdBlock 最新主规则文件
-│   ├── adblock-YYYYMMDD.txt   # AdBlock 按日期归档的规则文件（保留近3天）
+│   ├── adblock-YYYYMMDD.txt   # AdBlock 按日期归档的规则文件（保留近1天）
 │   ├── dns-blocklist.txt      # DNS 最新主规则文件
-│   ├── dns-blocklist-YYYYMMDD.txt   # DNS 按日期归档的规则文件（保留近3天）
+│   ├── dns-blocklist-YYYYMMDD.txt   # DNS 按日期归档的规则文件（保留近1天）
 │   ├── summary.json           # AdBlock 统计摘要
 │   └── dns_summary.json      # DNS 统计摘要
 ├── rules/                     # 抓取缓存（自动生成）
@@ -447,7 +447,7 @@ python scripts/merge_dns_rules.py
 - 按分类组织：例外规则 → HTML/脚本过滤 → 正则 → 特殊参数 → 普通屏蔽
 
 #### `dist/adblock-YYYYMMDD.txt`
-- 按日期版本归档（保留近 3 天）
+- 按日期版本归档（保留近 1 天）
 - 内容与 `adblock-main.txt` 完全一致
 - 用于版本回溯和 Release 打包
 
@@ -471,7 +471,7 @@ python scripts/merge_dns_rules.py
 - 按分类组织：例外规则 → 普通 DNS 过滤规则
 
 #### `dist/dns-blocklist-YYYYMMDD.txt`
-- 按日期版本归档（保留近 3 天）
+- 按日期版本归档（保留近 1 天）
 - 内容与 `dns-blocklist.txt` 完全一致
 - 用于版本回溯和 Release 打包
 
@@ -560,8 +560,8 @@ python scripts/merge_dns_rules.py
 编辑 `.github/workflows/daily-update.yml`，修改以下行可调整保留天数和文件匹配模式：
 
 ```yaml
-# 默认：删除 3 天以前的 adblock-*.txt 文件
-find dist -name "adblock-*.txt" -mtime +3 -delete
+# 默认：删除 1 天以前的归档文件
+find dist -name "adblock-[0-9]*.txt" -mtime +0 -delete
 ```
 
 ---

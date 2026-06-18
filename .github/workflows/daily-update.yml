@@ -44,10 +44,10 @@ jobs:
         uv run --no-project python -m scripts.fetch_dns_rules
         uv run --no-project python -m scripts.merge_dns_rules
 
-    - name: 🧹 清理旧的规则文件 (仅保留最近3天)
+    - name: 🧹 清理旧的规则文件 (仅保留最近1天)
       run: |
-        find dist -name "adblock-[0-9]*.txt" -mtime +2 -delete
-        find dist -name "dns-blocklist-[0-9]*.txt" -mtime +2 -delete
+        find dist -name "adblock-[0-9]*.txt" -mtime +0 -delete
+        find dist -name "dns-blocklist-[0-9]*.txt" -mtime +0 -delete
 
     - name: ✅ 校验规则文件（AdBlock + DNS）
       run: |

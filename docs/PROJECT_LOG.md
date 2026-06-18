@@ -153,6 +153,18 @@ FilterFusion — 广告过滤规则聚合工具，从多源获取过滤规则，
 - `dist/adblock-main.txt`、`dist/adblock-YYYYMMDD.txt`、`dist/summary.json` 位置与格式完全不变
 - checksum 算法（ABP 标准 MD5 + Base64）、header 模板占位符行为保持一致
 
+### DNS 规则支持
+- 新增 `config/dns_sources.txt`（DNS 规则源配置）、`config/dns.header`（DNS 头部模板）
+- 新增 `scripts/fetch_dns_rules.py`（异步抓取 DNS 规则源）、`scripts/merge_dns_rules.py`（DNS 规则去重合并）
+- DNS 规则合并简化（无复杂分类逻辑，仅例外规则 + 普通规则去重）
+- CI `daily-update.yml` 新增 DNS 抓取/合并/校验步骤
+- 输出：`dist/dns-blocklist.txt`（主文件）、`dist/dns-blocklist-YYYYMMDD.txt`（日期归档）、`dist/dns_summary.json`
+
+### 历史归档策略调整
+- `dist/` 历史文件保留从 **3 天缩减到 1 天**（`-mtime +2` → `-mtime +0`）
+- 原因：DNS 规则引入后历史文件数量翻倍，保持 dist 目录清爽
+- 用户需回溯更早版本可通过 git 历史获取
+
 | 文件 | 用途 |
 |------|------|
 | `.github/workflows/daily-update.yml` | 每日自动更新工作流 |
