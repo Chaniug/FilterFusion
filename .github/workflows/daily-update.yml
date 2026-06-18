@@ -37,8 +37,8 @@ jobs:
 
     - name: 🔄 抓取并合并规则
       run: |
-        uv run python -m scripts.fetch_rules
-        uv run python -m scripts.merge_rules
+        uv run --no-project python -m scripts.fetch_rules
+        uv run --no-project python -m scripts.merge_rules
 
     - name: 🧹 清理旧的规则文件 (仅保留最近3天)
       run: find dist -name "adblock-[0-9]*.txt" -mtime +2 -delete
