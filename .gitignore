@@ -4,8 +4,6 @@ __pycache__/
 *.pyo
 *.pyd
 
-# Rules
-rules/  # 忽略原始规则文件
 logs/
 
 # Environment

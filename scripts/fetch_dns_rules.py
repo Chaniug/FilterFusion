@@ -37,8 +37,7 @@ class DnsRuleFetcher:
         self.project_root: Path = Path(__file__).resolve().parent.parent
         print(f"项目根目录: {self.project_root}")
 
-        self.rules_dir: Path = self.project_root / "rules"
-        self.rules_dir.mkdir(parents=True, exist_ok=True)
+        self.rules_dir: Path = self.project_root / "scripts"
         self.meta_file: Path = self.rules_dir / "dns_fetch_meta.json"
 
         print(f"规则目录: {self.rules_dir}")

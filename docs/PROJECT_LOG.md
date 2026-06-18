@@ -150,7 +150,7 @@ FilterFusion — 广告过滤规则聚合工具，从多源获取过滤规则，
 - `pyproject.toml`：`dependencies` 同步更新
 
 ### 输出不变性
-- `dist/adblock-main.txt`、`dist/adblock-YYYYMMDD.txt`、`dist/summary.json` 位置与格式完全不变
+- `dist/adblock-main.txt`、`dist/adblock-YYYYMMDD.txt`、`config/summary.json` 位置与格式完全不变
 - checksum 算法（ABP 标准 MD5 + Base64）、header 模板占位符行为保持一致
 
 ### DNS 规则支持
@@ -158,7 +158,7 @@ FilterFusion — 广告过滤规则聚合工具，从多源获取过滤规则，
 - 新增 `scripts/fetch_dns_rules.py`（异步抓取 DNS 规则源）、`scripts/merge_dns_rules.py`（DNS 规则去重合并）
 - DNS 规则合并简化（无复杂分类逻辑，仅例外规则 + 普通规则去重）
 - CI `daily-update.yml` 新增 DNS 抓取/合并/校验步骤
-- 输出：`dist/dns-blocklist.txt`（主文件）、`dist/dns-blocklist-YYYYMMDD.txt`（日期归档）、`dist/dns_summary.json`
+- 输出：`dist/dns-blocklist.txt`（主文件）、`dist/dns-blocklist-YYYYMMDD.txt`（日期归档）、`config/dns_summary.json`
 
 ### 历史归档策略调整
 - `dist/` 历史文件保留从 **3 天缩减到 1 天**（`-mtime +2` → `-mtime +0`）
@@ -174,10 +174,10 @@ FilterFusion — 广告过滤规则聚合工具，从多源获取过滤规则，
 | `scripts/merge_rules.py` | 规则合并去重（分类 + 去重 + 输出） |
 | `config/sources.txt` | 规则源配置（名称 > URL） |
 | `config/default.header` | 输出文件头部模板 |
-| `rules/fetch_meta.json` | 抓取元数据 |
+| `scripts/fetch_meta.json` | 抓取元数据 |
 | `dist/adblock-*.txt` | 生成的规则文件 |
-| `dist/summary.json` | 统计摘要 |
+| `config/summary.json` | 统计摘要 |
 | `docs/merge_optimization_plan.md` | 本次优化方案详情 |
 | `docs/PROJECT_LOG.md` | 本文件 — 开发日志 |
-| `PROJECT_DOCS.md` | 完整项目文档 |
+| `docs/PROJECT_DOCS.md` | 完整项目文档 |
 | `pyproject.toml` | 现代 Python 项目配置 |

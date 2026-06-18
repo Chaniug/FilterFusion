@@ -33,7 +33,7 @@ class DnsRuleMerger:
 
         self.dist_dir: Path = self.project_root / "dist"
         self.dist_dir.mkdir(parents=True, exist_ok=True)
-        self.rules_dir: Path = self.project_root / "rules"
+        self.rules_dir: Path = self.project_root / "scripts"
 
         print(f"分发目录: {self.dist_dir}")
         print(f"规则目录: {self.rules_dir}")
@@ -276,11 +276,11 @@ class DnsRuleMerger:
             "sources": source_stats,
         }
 
-        summary_path = self.dist_dir / "dns_summary.json"
+        summary_path = self.project_root / "config" / "dns_summary.json"
         print(f"保存 DNS 摘要到: {summary_path}")
         summary_path.write_text(json.dumps(summary, indent=2), encoding="utf-8")
 
-        print("📊 DNS 摘要信息已保存至: dist/dns_summary.json")
+        print("📊 DNS 摘要信息已保存至: config/dns_summary.json")
 
 
 if __name__ == "__main__":

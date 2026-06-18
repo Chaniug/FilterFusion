@@ -75,8 +75,8 @@ jobs:
         # 始终以 origin/main 为基础，保留本地生成的规则文件
         git fetch origin main
         git reset --soft origin/main
-        git checkout origin/main -- ':!dist'
-        git add dist
+        git checkout origin/main -- ':!dist' ':!config' ':!scripts'
+        git add dist config scripts
 
         if git diff-index --quiet HEAD; then
           echo "没有规则变更，跳过提交"

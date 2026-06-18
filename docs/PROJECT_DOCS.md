@@ -72,15 +72,15 @@ FilterFusion 是一个**自动化广告过滤规则聚合工具**，由 [Chaniug
          │
          ▼
 ┌──────────────────┐     ┌──────────────────┐
-│  fetch_rules.py  │ ──→ │  rules/*.txt      │  ← 原始抓取文件
-│  (规则抓取)       │     │  rules/fetch_meta │  ← 抓取元数据
+│  fetch_rules.py  │ ──→ │  scripts/*.txt    │  ← 原始抓取文件
+│  (规则抓取)       │     │  scripts/fetch_meta│  ← 抓取元数据
 └──────────────────┘     └────────┬─────────┘
                                   │
                                   ▼
 ┌──────────────────┐     ┌───────────────────────┐
 │  merge_rules.py  │ ──→ │ dist/adblock-YYYYMMDD.txt │
 │  (合并去重)       │     │ dist/adblock-main.txt     │
-│                  │     │ dist/summary.json         │
+│                  │     │ config/summary.json       │
 └──────────────────┘     └───────────────────────────┘
 ```
 
@@ -93,15 +93,15 @@ FilterFusion 是一个**自动化广告过滤规则聚合工具**，由 [Chaniug
          │
          ▼
 ┌──────────────────┐     ┌──────────────────┐
-│  fetch_dns_rules.py  │ ──→ │  rules/dns_*.txt      │  ← 原始抓取文件
-│  (DNS 规则抓取)       │     │  rules/dns_fetch_meta │  ← 抓取元数据
+│  fetch_dns_rules.py  │ ──→ │  scripts/dns_*.txt    │  ← 原始抓取文件
+│  (DNS 规则抓取)       │     │  scripts/dns_fetch_meta│  ← 抓取元数据
 └──────────────────┘     └────────┬─────────┘
                                   │
                                   ▼
 ┌──────────────────┐     ┌───────────────────────┐
 │  merge_dns_rules.py  │ ──→ │ dist/dns-blocklist-YYYYMMDD.txt │
 │  (DNS 规则合并去重)       │     │ dist/dns-blocklist.txt     │
-│                  │     │ dist/dns_summary.json         │
+│                  │     │ config/dns_summary.json         │
 └──────────────────┘     └───────────────────────────┘
 ```
 
@@ -114,9 +114,9 @@ FilterFusion 是一个**自动化广告过滤规则聚合工具**，由 [Chaniug
 | 阶段 | 输入 | 处理 | 输出 |
 |------|------|------|------|
 | 配置 | `config/sources.txt` | 定义规则源 URL、名称、启用状态 | — |
-| 抓取 | 各源 URL | HTTP GET 下载，计算 SHA256 哈希 | `rules/*.txt`, `rules/fetch_meta.json` |
+| 抓取 | 各源 URL | HTTP GET 下载，计算 SHA256 哈希 | `scripts/*.txt`, `scripts/fetch_meta.json` |
 | 合并 | 原始规则文件 + header 模板 | Unicode 规范化 → 分类 → 去重 → 排序 | `dist/adblock-YYYYMMDD.txt` |
-| 输出 | 合并结果 | 写入主文件、摘要文件 | `dist/adblock-main.txt`, `dist/summary.json` |
+| 输出 | 合并结果 | 写入主文件、摘要文件 | `dist/adblock-main.txt`, `config/summary.json` |
 
 ---
 
@@ -134,36 +134,35 @@ FilterFusion/
 │   ├── default.header         # AdBlock 规则输出头部模板
 │   ├── dns.header             # DNS 规则输出头部模板
 │   ├── sources.txt            # AdBlock 规则源配置
-│   └── dns_sources.txt       # DNS 规则源配置
+│   ├── dns_sources.txt        # DNS 规则源配置
+│   ├── _cdnauth.txt           # CDN 认证令牌
+│   ├── summary.json           # AdBlock 统计摘要
+│   └── dns_summary.json       # DNS 统计摘要
 ├── dist/                      # 输出产物（自动生成）
 │   ├── adblock-main.txt       # AdBlock 最新主规则文件
 │   ├── adblock-YYYYMMDD.txt   # AdBlock 按日期归档的规则文件（保留近1天）
 │   ├── dns-blocklist.txt      # DNS 最新主规则文件
-│   ├── dns-blocklist-YYYYMMDD.txt   # DNS 按日期归档的规则文件（保留近1天）
-│   ├── summary.json           # AdBlock 统计摘要
-│   └── dns_summary.json      # DNS 统计摘要
-├── rules/                     # 抓取缓存（自动生成）
-│   ├── *.txt                  # AdBlock 各源下载的原始规则文件
-│   ├── dns_*.txt              # DNS 各源下载的原始规则文件
-│   ├── fetch_meta.json        # AdBlock 抓取元数据
-│   └── dns_fetch_meta.json   # DNS 抓取元数据
+│   └── dns-blocklist-YYYYMMDD.txt   # DNS 按日期归档的规则文件（保留近1天）
 ├── scripts/
 │   ├── __init__.py             # Python 包标识
 │   ├── fetch_rules.py         # AdBlock 规则抓取脚本
 │   ├── merge_rules.py         # AdBlock 规则合并去重脚本
 │   ├── fetch_dns_rules.py     # DNS 规则抓取脚本
-│   └── merge_dns_rules.py     # DNS 规则合并去重脚本
+│   ├── merge_dns_rules.py     # DNS 规则合并去重脚本
+│   ├── fetch_meta.json        # AdBlock 抓取元数据
+│   ├── dns_fetch_meta.json    # DNS 抓取元数据
+│   ├── *.txt                  # AdBlock 各源下载的原始规则文件
+│   └── dns_*.txt              # DNS 各源下载的原始规则文件
 ├── docs/                      # 项目文档
+│   ├── PROJECT_DOCS.md        # 完整项目文档
 │   ├── PROJECT_LOG.md         # 开发日志
 │   ├── merge_optimization_plan.md  # 优化方案
 │   └── plans/                 # 历史 plan 归档
 ├── .gitignore
-├── _cdnauth.txt               # CDN 认证令牌
 ├── CNAME                      # 自定义域名: ad.valk.ccwu.cc
 ├── LICENSE                    # MIT 许可证
 ├── README.md                  # 中文说明文档
 ├── README_EN.md               # 英文说明文档
-├── PROJECT_DOCS.md            # 本文件 — 完整项目文档
 ├── requirements.txt           # Python 依赖
 ├── requirements-dev.txt       # 开发依赖
 └── pyproject.toml             # 现代 Python 项目配置
@@ -350,7 +349,7 @@ python scripts/fetch_dns_rules.py
 
 5. 去重：使用集合（set）数据结构，O(1) 查找
 6. 输出到 `dist/dns-blocklist.txt` 和按日期归档的文件
-7. 保存摘要到 `dist/dns_summary.json`
+7. 保存摘要到 `config/dns_summary.json`
 
 **命令行使用**:
 ```bash
@@ -451,7 +450,7 @@ python scripts/merge_dns_rules.py
 - 内容与 `adblock-main.txt` 完全一致
 - 用于版本回溯和 Release 打包
 
-#### `dist/summary.json`
+#### `config/summary.json`
 ```json
 {
     "version": "20260612",
@@ -475,7 +474,7 @@ python scripts/merge_dns_rules.py
 - 内容与 `dns-blocklist.txt` 完全一致
 - 用于版本回溯和 Release 打包
 
-#### `dist/dns_summary.json`
+#### `config/dns_summary.json`
 ```json
 {
     "version": "20260612",
