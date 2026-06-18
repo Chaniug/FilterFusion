@@ -8,6 +8,10 @@ on:
 permissions:
   contents: write  # 允许创建 Tag 和 Release
 
+concurrency:
+  group: weekly-release
+  cancel-in-progress: false
+
 jobs:
   release:
     runs-on: ubuntu-latest

@@ -107,9 +107,51 @@ FilterFusion — 广告过滤规则聚合工具，从多源获取过滤规则，
 - 移除 `_ = f.write(content)` 多余赋值
 - `fetch_rules.py`：清理不可达 `raise RuntimeError`
 
+## 关键文件索引
+
 ---
 
-## 关键文件索引
+## 2026-06-18（第二轮优化：Python 3.13 升级 + httpx 异步 + CI 加速）
+
+### Python 运行时升级
+- `requires-python` 从 `>=3.10` 提升到 `>=3.13`
+- 享受 CPython 3.13 specializing adaptive interpreter 带来的 ~5-10% 整体性能提升
+- 应用现代语法：`datetime.UTC`、`StrEnum`、`type` 语句、`__slots__`、`from __future__ import annotations`
+- mypy / basedpyright / black 工具链 target 版本同步升级到 3.13
+
+### 网络层重构（fetch_rules.py）
+- `requests.Session` + `ThreadPoolExecutor` → `httpx.AsyncClient` + `asyncio.gather()`
+- 启用 HTTP/2 多路复用，3 个同在 raw.githubusercontent.com 的源共享单条 TLS 连接
+- `FetchStatus(StrEnum)` 替代字符串字面量 `"success"` / `"failed"` / `"disabled"`
+- `__slots__` 减少实例字典开销
+- 修复所有 `open()` 的 `encoding='utf-8'`（Windows 本地运行隐患）
+- 用 `Path.read_text` / `write_text` / `write_bytes` 替代裸 `open()`
+- 入口改为 `asyncio.run(main())`
+
+### 合并热路径优化（merge_rules.py）
+- `special_keywords` 列表提升为类级 `_SPECIAL_RE` 预编译正则（单次 C 层扫描替代 8 次 `any(in)`）
+- 正则字符检测提升为类级 `_REGEX_CHAR_RE` 预编译正则（单次字符类扫描替代 14 次 `any(in)`）
+- `RuleType(StrEnum)` 枚举替代 groups 字典的字符串键
+- header 模板 11 次链式 `.replace()` → 单次 `format_map()` + `_SafeDict`（`__missing__` 保持 `{CHECKSUM}` 占位符）
+- 消除重复 `datetime.now(timezone.utc)` 调用（2 次合并为 1 次 `datetime.now(UTC)`）
+- `__slots__` 减少实例内存
+- 修复 3 处 `open()` 的 `encoding='utf-8'`
+
+### GitHub Actions CI 加速
+- `daily-update.yml` / `weekly-release.yml`：Python 3.12 → 3.13
+- `pip install` → `uv pip install --system`（配合 `astral-sh/setup-uv@v6` + `enable-cache`，依赖安装 10-100 倍加速）
+- `daily-update.yml`：抓取 + 合并合并为单个 step；26 行 bash 清理脚本简化为 `find dist -name "adblock-[0-9]*.txt" -mtime +2 -delete`
+- `weekly-release.yml`：添加 `concurrency` 控制（防并发竞态）
+- `static.yml`：添加 `paths` 过滤（`dist/**` + 工作流自身），避免脚本/文档/配置变更触发无意义 Pages 重新部署
+
+### 依赖变更
+- `requirements.txt`：`requests>=2.31.0` → `httpx[http2]>=0.27.0`
+- `requirements-dev.txt`：移除 `types-requests`（httpx 内置类型桩），升级开发依赖最低版本
+- `pyproject.toml`：`dependencies` 同步更新
+
+### 输出不变性
+- `dist/adblock-main.txt`、`dist/adblock-YYYYMMDD.txt`、`dist/summary.json` 位置与格式完全不变
+- checksum 算法（ABP 标准 MD5 + Base64）、header 模板占位符行为保持一致
 
 | 文件 | 用途 |
 |------|------|

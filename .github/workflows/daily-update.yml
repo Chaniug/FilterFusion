@@ -23,48 +23,23 @@ jobs:
       with:
         fetch-depth: 1
 
-    - name: 🐍 设置 Python 3.12
-      uses: actions/setup-python@v6
+    - name: 📦 安装 uv + Python 3.13
+      uses: astral-sh/setup-uv@v6
       with:
-        python-version: '3.12'
-        cache: 'pip'
-        cache-dependency-path: 'requirements.txt'
+        python-version: '3.13'
+        enable-cache: true
+        cache-dependency-glob: 'requirements.txt'
 
-    - name: 📦 安装依赖
-      run: pip install -r requirements.txt
+    - name: 📥 安装依赖
+      run: uv pip install --system -r requirements.txt
 
-    - name: 📥 抓取广告规则
-      run: python -m scripts.fetch_rules
-
-    - name: 🧩 合并规则
-      run: python -m scripts.merge_rules
+    - name: 🔄 抓取并合并规则
+      run: |
+        python -m scripts.fetch_rules
+        python -m scripts.merge_rules
 
     - name: 🧹 清理旧的规则文件 (仅保留最近3天)
-      run: |
-        cd dist
-        # 获取最近3天的日期
-        keep_dates=""
-        for i in 0 1 2; do
-          keep_dates="$keep_dates $(date -d "-$i day" +%Y%m%d)"
-        done
-        # 遍历所有 adblock-*.txt 文件，保留最近三天和 adblock-main.txt，删除其余
-        for file in adblock-*.txt; do
-          # 跳过 adblock-main.txt
-          if [ "$file" = "adblock-main.txt" ]; then
-            continue
-          fi
-          keep=false
-          for d in $keep_dates; do
-            if [[ "$file" == "adblock-$d.txt" ]]; then
-              keep=true
-              break
-            fi
-          done
-          if [ "$keep" = false ]; then
-            rm -f "$file"
-          fi
-        done
-        cd ..
+      run: find dist -name "adblock-[0-9]*.txt" -mtime +2 -delete
 
     - name: ✅ 校验规则文件
       run: |

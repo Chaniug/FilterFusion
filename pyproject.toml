@@ -6,19 +6,18 @@ authors = [
     {name = "Chaniug", email = "chaniug@example.com"}
 ]
 license = {text = "MIT"}
-requires-python = ">=3.10"
+requires-python = ">=3.13"
 dependencies = [
-    "requests>=2.31.0"
+    "httpx[http2]>=0.27.0"
 ]
 
 [project.optional-dependencies]
 dev = [
-    "mypy>=1.0.0",
-    "pytest>=7.0.0",
-    "basedpyright>=1.0.0",
-    "types-requests>=2.31.0",
-    "black>=23.0.0",
-    "isort>=5.0.0"
+    "mypy>=1.13.0",
+    "pytest>=8.0.0",
+    "basedpyright>=1.19.0",
+    "black>=24.10.0",
+    "isort>=5.13.0"
 ]
 
 [build-system]
@@ -50,7 +49,7 @@ python_classes = ["Test*"]
 
 [tool.black]
 line-length = 120
-target-version = ['py310']
+target-version = ['py313']
 
 [tool.isort]
 profile = "black"

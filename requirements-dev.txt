@@ -3,14 +3,13 @@
 
 -r requirements.txt
 
-# 类型检查
-basedpyright>=1.0.0
-mypy>=1.0.0
-types-requests>=2.31.0
+# 类型检查（httpx 内置类型桩，无需额外 stub 包）
+basedpyright>=1.19.0
+mypy>=1.13.0
 
 # 测试
-pytest>=7.0.0
+pytest>=8.0.0
 
 # 代码格式化
-black>=23.0.0
-isort>=5.0.0
+black>=24.10.0
+isort>=5.13.0

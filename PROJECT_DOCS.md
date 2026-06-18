@@ -1,6 +1,6 @@
 # FilterFusion 项目文档
 
-> **版本**: 1.1 | **最后更新**: 2026-06-16 | **许可证**: MIT
+> **版本**: 1.2 | **最后更新**: 2026-06-18 | **许可证**: MIT
 
 ---
 
@@ -170,13 +170,13 @@ Adguard Extra > https://filters.adtidy.org/android/filters/5_optimized.txt
 
 **核心逻辑**：
 1. 读取 `config/sources.txt`，获取所有已启用的规则源
-2. 对每个源发起 HTTP GET 请求下载规则文件
+2. 对每个源发起异步 HTTP GET 请求下载规则文件（`httpx.AsyncClient` + HTTP/2 多路复用）
 3. 计算下载内容的 SHA256 哈希值
 4. 保存到 `rules/` 目录（文件名由源名称安全转换而来）
 5. 写入元数据到 `rules/fetch_meta.json`
 
 **关键特性**：
-- **并发下载**: 使用 `ThreadPoolExecutor` 并发抓取所有源，复用 `requests.Session` TCP 连接池
+- **异步并发下载**: 使用 `httpx.AsyncClient` + `asyncio.gather()` 原生并发，HTTP/2 多路复用使同域源共享单条 TLS 连接
 - **重试机制**: 最多 3 次重试，递增超时（35s → 50s → 65s），适配大型规则文件
 - **增量更新**: 通过哈希对比可判断源是否有更新
 - **元数据记录**: 保存每次抓取的时间戳、状态、文件哈希
@@ -220,9 +220,9 @@ python scripts/fetch_rules.py
 - **特殊参数**: 包含特殊修饰符的规则，如 `$badfilter`（禁用）、`$important`（高优先级）、`$csp=`（内容安全策略）
 - **普通屏蔽**: 其余有效的屏蔽规则，如 `\|\|domain^`, `\|http://...`, `*pattern*`
 
-5. **全局去重**: 使用 `Unicode NFKC 规范化` 后，以规则文本自身为唯一键（同一条规则分类结果确定，无需类型前缀）
+5. **全局去重**: 使用 `Unicode NFKC 规范化` 后，以规则文本自身为唯一键（同一条规则分类结果确定，无需类型前缀）。ASCII 快速路径跳过 99%+ 规则的 NFKC 调用
 6. 各组内**按字母排序**后合并输出
-7. 替换 `default.header` 模板中的占位符生成最终文件
+7. 替换 `default.header` 模板中的占位符生成最终文件（单次 `format_map` + `SafeDict` 替代多次链式 `replace`）
 
 **命令行使用**:
 ```bash
@@ -271,8 +271,8 @@ python scripts/merge_rules.py
 ```
 
 **依赖要求**:
-- Python 3.10+
-- `requests >= 2.31.0`
+- Python 3.13+
+- `httpx[http2] >= 0.27.0`
 
 ### 5.2 自动流水线 (GitHub Actions)
 

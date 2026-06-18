@@ -103,13 +103,13 @@ If you find **false positives, false negatives**, or want to suggest new rules, 
 Before using FilterFusion, ensure your system meets the following requirements:
 
 ### Minimum Requirements
-- **Python**: 3.10 or higher
+- **Python**: 3.13 or higher
 - **Operating System**: Windows, macOS, Linux
 - **Network**: Internet connection required to fetch rule sources
 
 ### Dependencies
 ```
-requests>=2.28.0
+httpx[http2]>=0.27.0
 ```
 
 ### Check Python Version
