@@ -24,7 +24,7 @@ jobs:
         fetch-depth: 1
 
     - name: 📦 安装 uv + Python 3.13
-      uses: astral-sh/setup-uv@v8
+      uses: astral-sh/setup-uv@v8.2.0
       with:
         python-version: '3.13'
         enable-cache: true
