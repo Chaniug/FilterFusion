@@ -34,3 +34,4 @@
 - Windows 本地运行需 `$env:PYTHONIOENCODING='utf-8'`（已通过显式 encoding 缓解）
 - PowerShell 需禁用 Microsoft.WinGet.CommandNotFound 模块
 - 本地无 Python 3.13 + httpx 时，basedpyright 会报 UTC/StrEnum/httpx/type 语句解析错误，属环境问题非代码问题
+- 本地 Python 环境：3.14（`requires-python = ">=3.13"` 覆盖，无需调整约束；CI 仍锁定 3.13 以保证可重现性）

@@ -52,7 +52,7 @@ python_classes = ["Test*"]
 
 [tool.black]
 line-length = 120
-target-version = ['py313']
+target-version = ['py313', 'py314']
 
 [tool.isort]
 profile = "black"

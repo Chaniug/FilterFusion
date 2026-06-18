@@ -271,7 +271,7 @@ python scripts/merge_rules.py
 ```
 
 **依赖要求**:
-- Python 3.13+
+- Python 3.13+（本地开发可使用 3.14，CI 锁定 3.13 确保可重现性）
 - `httpx[http2] >= 0.27.0`
 
 ### 5.2 自动流水线 (GitHub Actions)
