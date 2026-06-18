@@ -1,6 +1,6 @@
 # FilterFusion 项目文档
 
-> **版本**: 1.3 | **最后更新**: 2026-06-18 | **许可证**: MIT
+> **版本**: 1.4 | **最后更新**: 2026-06-18 | **许可证**: MIT
 
 ---
 
@@ -63,52 +63,46 @@ FilterFusion 是一个**自动化广告过滤规则聚合工具**，由 [Chaniug
 
 ### 数据流图
 
-#### AdBlock 规则
+```mermaid
+flowchart LR
+    subgraph ADBLOCK["AdBlock 规则流水线"]
+        direction LR
+        A1[("config/<br/>sources.txt")] -->|配置源 URL| B1["fetch_rules.py<br/>异步并发下载<br/>httpx + HTTP/2"]
+        B1 --> C1[("scripts/*.txt<br/>原始规则")]
+        B1 --> M1[("scripts/<br/>fetch_meta.json")]
+        C1 --> D1["merge_rules.py<br/>分类 → 去重 → 排序<br/>NFKC + 预编译正则"]
+        D1 --> E1[("dist/<br/>adblock-main.txt<br/>adblock-YYYYMMDD.txt")]
+        D1 --> F1[("config/<br/>summary.json")]
+    end
 
-```
-┌──────────────────┐
-│  config/sources.txt  │  ← AdBlock 规则源 URL 配置
-└────────┬─────────┘
-         │
-         ▼
-┌──────────────────┐     ┌──────────────────┐
-│  fetch_rules.py  │ ──→ │  scripts/*.txt    │  ← 原始抓取文件
-│  (规则抓取)       │     │  scripts/fetch_meta│  ← 抓取元数据
-└──────────────────┘     └────────┬─────────┘
-                                  │
-                                  ▼
-┌──────────────────┐     ┌───────────────────────┐
-│  merge_rules.py  │ ──→ │ dist/adblock-YYYYMMDD.txt │
-│  (合并去重)       │     │ dist/adblock-main.txt     │
-│                  │     │ config/summary.json       │
-└──────────────────┘     └───────────────────────────┘
+    subgraph DNS["DNS 过滤规则流水线"]
+        direction LR
+        A2[("config/<br/>dns_sources.txt")] -->|配置源 URL| B2["fetch_dns_rules.py<br/>异步并发下载<br/>httpx + HTTP/2"]
+        B2 --> C2[("scripts/dns_*.txt<br/>DNS 原始规则")]
+        B2 --> M2[("scripts/<br/>dns_fetch_meta.json")]
+        C2 --> D2["merge_dns_rules.py<br/>去重合并<br/>简化处理"]
+        D2 --> E2[("dist/<br/>dns-blocklist.txt<br/>dns-blocklist-YYYYMMDD.txt")]
+        D2 --> F2[("config/<br/>dns_summary.json")]
+    end
+
+    style ADBLOCK fill:#ebf5ff,stroke:#2196f3
+    style DNS fill:#f3e5f5,stroke:#9c27b0
 ```
 
-#### DNS 过滤规则
-
-```
-┌──────────────────┐
-│  config/dns_sources.txt  │  ← DNS 规则源 URL 配置
-└────────┬─────────┘
-         │
-         ▼
-┌──────────────────┐     ┌──────────────────┐
-│  fetch_dns_rules.py  │ ──→ │  scripts/dns_*.txt    │  ← 原始抓取文件
-│  (DNS 规则抓取)       │     │  scripts/dns_fetch_meta│  ← 抓取元数据
-└──────────────────┘     └────────┬─────────┘
-                                  │
-                                  ▼
-┌──────────────────┐     ┌───────────────────────┐
-│  merge_dns_rules.py  │ ──→ │ dist/dns-blocklist-YYYYMMDD.txt │
-│  (DNS 规则合并去重)       │     │ dist/dns-blocklist.txt     │
-│                  │     │ config/dns_summary.json         │
-└──────────────────┘     └───────────────────────────┘
-```
+> **图上**: AdBlock 规则和 DNS 过滤规则两条流水线并行独立运行，共享 `scripts/`、`dist/`、`config/` 三个目录。
 
 ### 四阶段流水线
 
-```
-阶段 1: 配置 ──→ 阶段 2: 抓取 ──→ 阶段 3: 合并去重 ──→ 阶段 4: 输出发布
+```mermaid
+flowchart LR
+    S1["📋 阶段 1<br/>配置"] -->|sources.txt<br/>dns_sources.txt| S2["⬇️ 阶段 2<br/>抓取"]
+    S2 -->|原始规则 + 元数据| S3["🔀 阶段 3<br/>合并去重"]
+    S3 -->|主文件 + 归档| S4["📤 阶段 4<br/>输出发布"]
+
+    style S1 fill:#e3f2fd,stroke:#1976d2
+    style S2 fill:#fff3e0,stroke:#f57c00
+    style S3 fill:#e8f5e9,stroke:#388e3c
+    style S4 fill:#fce4ec,stroke:#c62828
 ```
 
 | 阶段 | 输入 | 处理 | 输出 |
@@ -420,6 +414,35 @@ python scripts/merge_dns_rules.py
 
 项目配置了 3 个自动化工作流：
 
+```mermaid
+flowchart TB
+    subgraph TRIGGERS["触发条件"]
+        T1["⏰ 每日 UTC 0:00"]
+        T2["📅 每周日 UTC 2:00"]
+        T3["🔄 main 分支 push"]
+    end
+
+    subgraph WORKFLOWS["GitHub Actions 工作流"]
+        W1["daily-update.yml"]
+        W2["weekly-release.yml"]
+        W3["static.yml"]
+    end
+
+    subgraph ACTIONS["执行动作"]
+        A1["抓取 + 合并<br/>清理过期文件<br/>git commit & push"]
+        A2["打包 dist/ 为 ZIP<br/>创建 GitHub Release<br/>Tag: YYYY.MM.DD"]
+        A3["部署 GitHub Pages<br/>自定义域名:<br/>ad.valk.ccwu.cc"]
+    end
+
+    T1 --> W1 --> A1
+    T2 --> W2 --> A2
+    T3 --> W3 --> A3
+
+    style TRIGGERS fill:#fff8e1,stroke:#f9a825
+    style WORKFLOWS fill:#e1f5fe,stroke:#0288d1
+    style ACTIONS fill:#e8f5e9,stroke:#2e7d32
+```
+
 | 工作流 | 触发条件 | 功能说明 |
 |--------|----------|----------|
 | **daily-update** | 每天 UTC 0:00 定时 | 自动抓取 → 合并 → 清理过期文件 → 提交推送 |
@@ -569,18 +592,60 @@ find dist -name "adblock-[0-9]*.txt" -mtime +0 -delete
 
 ### 去重算法
 
-```
-输入规则 → strip → isascii() 快速路径（99%+ 规则为纯 ASCII 跳过 NFKC）
-         → 非 ASCII 时 Unicode NFKC 规范化 → 规则文本为去重键 → 集合去重
+```mermaid
+flowchart TD
+    INPUT["输入规则列表<br/>(多条规则)"] --> LOOP["遍历每条规则"]
+    LOOP --> STRIP["strip() 去除首尾空白"]
+    STRIP --> ASCII{"isascii()？"}
+    ASCII -->|是<br/>99%+ 规则| SKIP["跳过 NFKC<br/>(零开销)"]
+    ASCII -->|否<br/>含中文等| NFKC["Unicode NFKC<br/>兼容性规范化"]
+    SKIP --> SET{"规则已在<br/>seen 集合中？"}
+    NFKC --> SET
+    SET -->|否| ADD["加入 seen<br/>追加到结果"]
+    SET -->|是| SKIP_DUP["⏭️ 跳过<br/>(重复规则)"]
+    ADD --> NEXT{"还有规则？"}
+    SKIP_DUP --> NEXT
+    NEXT -->|是| LOOP
+    NEXT -->|否| OUTPUT["✅ 输出去重结果"]
+
+    style ASCII fill:#fff9c4,stroke:#f9a825
+    style SKIP fill:#e8f5e9,stroke:#43a047
+    style NFKC fill:#fff3e0,stroke:#f57c00
+    style SKIP_DUP fill:#f5f5f5,stroke:#bdbdbd,color:#9e9e9e
+    style OUTPUT fill:#e3f2fd,stroke:#1976d2
 ```
 
-使用 `NFKC`（兼容性组合规范化）确保视觉等价但 Unicode 不同的规则被正确识别为重复。例如，全角字母会转换为半角后再比较。
-
-为减少 CPU 开销，对绝大多数纯 ASCII 规则使用 `str.isascii()` 快速跳过 NFKC 调用。
+> **优化要点**: 绝大多数规则为纯 ASCII，`str.isascii()` 直接跳过昂贵的 NFKC 规范化调用。仅非 ASCII 字符的规则（如含中文注释的源）才触发 NFKC。NFKC 确保视觉等价但 Unicode 不同的规则被正确识别为重复——例如全角字母会转换为半角后再比较。
 
 ### 规则分类判断
 
 规则按以下优先级分类（符合 AdGuard/ABP/uBlock 标准）:
+
+```mermaid
+flowchart TD
+    START["输入一条规则"] --> strip["strip() 清理空白"]
+    strip --> C1{"以 ! 或 [ 开头？"}
+    C1 -->|是| COMMENT["🗑️ 注释<br/>跳过不存储"]
+    C1 -->|否| C2{"以 @@ 开头？"}
+    C2 -->|是| EXCEPTION["🔓 例外规则<br/>白名单/放行"]
+    C2 -->|否| C3{"以 / 开头结尾<br/>含正则特殊字符？"}
+    C3 -->|是| REGEX["🔍 正则规则<br/>支持 i/g/m 标志"]
+    C3 -->|否| C4{"含 #%# / #$# / scriptlet( 等？"}
+    C4 -->|是| HTML["⚡ HTML/脚本注入<br/>AdGuard/uBlock 扩展"]
+    C4 -->|否| C5{"含 ##？"}
+    C5 -->|是| HIDE["👁️ 元素隐藏<br/>## 选择器"]
+    C5 -->|否| C6{"选项部分含<br/>badfilter/important/csp=？"}
+    C6 -->|是| SPECIAL["⚠️ 特殊参数<br/>badfilter/important/csp="]
+    C6 -->|否| NORMAL["✅ 普通屏蔽<br/>||domain^ 等"]
+
+    style COMMENT fill:#f5f5f5,stroke:#9e9e9e,color:#757575
+    style EXCEPTION fill:#e8f5e9,stroke:#4caf50
+    style REGEX fill:#fff3e0,stroke:#ff9800
+    style HTML fill:#fce4ec,stroke:#e91e63
+    style HIDE fill:#e3f2fd,stroke:#2196f3
+    style SPECIAL fill:#f3e5f5,stroke:#9c27b0
+    style NORMAL fill:#e0f2f1,stroke:#00897b
+```
 
 | 分类 | 优先级 | 判断逻辑 |
 |------|--------|----------|
