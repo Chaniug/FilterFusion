@@ -214,8 +214,8 @@ Adguard Extra > https://filters.adtidy.org/android/filters/5_optimized.txt
 1. 读取 `config/sources.txt`，获取所有已启用的规则源
 2. 对每个源发起异步 HTTP GET 请求下载规则文件（`httpx.AsyncClient` + HTTP/2 多路复用）
 3. 计算下载内容的 SHA256 哈希值
-4. 保存到 `rules/` 目录（文件名由源名称安全转换而来）
-5. 写入元数据到 `rules/fetch_meta.json`
+4. 保存到 `scripts/` 目录（文件名由源名称安全转换而来）
+5. 写入元数据到 `scripts/fetch_meta.json`
 
 **关键特性**：
 - **异步并发下载**: 使用 `httpx.AsyncClient` + `asyncio.gather()` 原生并发，HTTP/2 多路复用使同域源共享单条 TLS 连接
@@ -233,7 +233,7 @@ python scripts/fetch_rules.py
 **类**: `RuleMerger`
 
 **核心逻辑**：
-1. 读取 `rules/fetch_meta.json` 获取成功抓取的规则文件
+1. 读取 `scripts/fetch_meta.json` 获取成功抓取的规则文件
 2. 读取 `config/default.header` 获取输出模板
 3. 加载所有规则文件内容
 4. 按语义对规则**分类分组**
@@ -318,8 +318,8 @@ HaGeZi DNS > https://raw.githubusercontent.com/hagezi/dns-blocklists/main/adbloc
 1. 读取 `config/dns_sources.txt`，获取所有已启用的 DNS 规则源
 2. 对每个源发起异步 HTTP GET 请求下载规则文件（复用 `fetch_rules.py` 的异步抓取逻辑）
 3. 计算下载内容的 SHA256 哈希值
-4. 保存到 `rules/` 目录（文件名添加 `dns_` 前缀以区分 AdBlock 规则）
-5. 写入元数据到 `rules/dns_fetch_meta.json`
+4. 保存到 `scripts/` 目录（文件名添加 `dns_` 前缀以区分 AdBlock 规则）
+5. 写入元数据到 `scripts/dns_fetch_meta.json`
 
 **关键特性**：
 - 复用 `httpx.AsyncClient` + `asyncio.gather()` 异步并发下载
@@ -336,7 +336,7 @@ python scripts/fetch_dns_rules.py
 **类**: `DnsRuleMerger`
 
 **核心逻辑**：
-1. 读取 `rules/dns_fetch_meta.json` 获取成功抓取的 DNS 规则文件
+1. 读取 `scripts/dns_fetch_meta.json` 获取成功抓取的 DNS 规则文件
 2. 读取 `config/dns.header` 获取输出模板
 3. 加载所有 DNS 规则文件内容
 4. 去重：例外规则（`@@` 开头）和普通规则

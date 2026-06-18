@@ -225,4 +225,4 @@ concurrency:
 - [ ] GitHub Actions `daily-update` workflow_dispatch 触发成功
 - [ ] `weekly-release` workflow_dispatch 触发成功
 - [ ] 同时触发两次 `daily-update`，concurrency 生效（后一个排队）
-- [ ] `dist/summary.json` 统计数字正确
+- [ ] `config/summary.json` 统计数字正确

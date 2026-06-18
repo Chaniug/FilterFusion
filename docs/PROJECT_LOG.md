@@ -111,7 +111,7 @@ FilterFusion — 广告过滤规则聚合工具，从多源获取过滤规则，
 
 ---
 
-## 2026-06-18（第二轮优化：Python 3.13 升级 + httpx 异步 + CI 加速）
+## 2026-06-18（第二轮优化：Python 3.13 升级 + httpx 异步 + CI 加速 + 目录整理）
 
 ### Python 运行时升级
 - `requires-python` 从 `>=3.10` 提升到 `>=3.13`
@@ -164,6 +164,14 @@ FilterFusion — 广告过滤规则聚合工具，从多源获取过滤规则，
 - `dist/` 历史文件保留从 **3 天缩减到 1 天**（`-mtime +2` → `-mtime +0`）
 - 原因：DNS 规则引入后历史文件数量翻倍，保持 dist 目录清爽
 - 用户需回溯更早版本可通过 git 历史获取
+
+### 目录整理
+- **动机**：`dist/` 下混入 `summary.json` 和 `dns_summary.json` 体感不好，`rules/` 目录名不副实（里面只存抓取元数据而非规则）
+- **删除 `rules/` 目录**：`fetch_meta.json` 和 `dns_fetch_meta.json` 移入 `scripts/`，它们是脚本的运行时缓存
+- **净化 `dist/`**：`summary.json` 和 `dns_summary.json` 移入 `config/`，`dist/` 只保留纯规则 `.txt` 文件
+- **根目录零散文件归位**：`_cdnauth.txt` 移入 `config/`，`PROJECT_DOCS.md` 移入 `docs/`
+- **同步更新**：4 个脚本的 `rules_dir` → `scripts`、summary JSON 路径 → `config/`；`.gitignore` 移除 `rules/` 忽略规则；`daily-update.yml` 的 git checkout/add 覆盖 `config` 和 `scripts`；`PROJECT_DOCS.md` 全量路径更新
+- **最终架构**：5 个文件夹（`assets/` `config/` `dist/` `docs/` `scripts/`），净减少 1 个
 
 | 文件 | 用途 |
 |------|------|
