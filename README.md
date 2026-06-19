@@ -254,6 +254,7 @@ flowchart LR
     end
     subgraph S4["🛠️ 工具集成"]
         D1["API 获取规则"] --> D2["嵌入自有产品"]
+    end
 
     style S1 fill:#e3f2fd,stroke:#1976d2
     style S2 fill:#e8f5e9,stroke:#388e3c
