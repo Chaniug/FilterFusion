@@ -14,6 +14,18 @@ FilterFusion — 广告过滤规则聚合工具，从多源获取过滤规则，
 - Python ≥ 3.10
 - GitHub Actions 权限 `contents: write`
 
+
+---
+
+## 2026-06-19（文档修复）
+
+### README 多语言文档修复
+- **修复问题**：
+  - `README.md`「应用场景」Mermaid 图表 `subgraph S4` 缺少 `end` 闭合标签，导致图表无法渲染
+  - 中文/英文/日文/韩文四语言 README 目录（Table of Contents）均缺少 `系统要求` 和 `联系方式` 条目
+  - 中文 README 目录顺序与文档实际结构不符（`联系方式`被错误插入到中间位置）
+- **影响文件**：`README.md`、`README_EN.md`、`README_JP.md`、`README_KO.md`
+
 ---
 
 ## 2026-06-13（项目密集开发日）

@@ -26,6 +26,7 @@
 
 - [About](#about)
 - [Subscription URLs](#subscription-urls)
+- [System Requirements](#system-requirements)
 - [Quick Start](#quick-start)
 - [How It Works](#how-it-works)
 - [Usage Guide](#usage-guide)
@@ -33,6 +34,7 @@
 - [FAQ](#faq)
 - [How to Contribute](#how-to-contribute)
 - [License](#license)
+- [Contact](#contact)
 
 ## About
 
