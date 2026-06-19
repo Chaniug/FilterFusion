@@ -1,5 +1,5 @@
 {
-  "fetch_date": "2026-06-18T11:09:58.890711+00:00",
+  "fetch_date": "2026-06-19T03:54:33.563243+00:00",
   "sources": [
     {
       "name": "EasyList",
@@ -10,23 +10,23 @@
       "name": "AdGuard Mobile",
       "file": "adguard_mobile.txt",
       "url": "https://raw.githubusercontent.com/AdguardTeam/FiltersRegistry/master/filters/filter_11_Mobile/filter.txt",
-      "timestamp": "2026-06-18T11:09:58.855647+00:00",
-      "hash": "bbbc04f39b7938221d9fb4190164daea2011297ea47c34fe832369f3d4127e89",
+      "timestamp": "2026-06-19T03:54:33.546572+00:00",
+      "hash": "c01b02b389b4becbb576dc250573eaa88e545d52915007d78b093efe2d01efcd",
       "status": "success"
     },
     {
       "name": "AdGuard Chinese",
       "file": "adguard_chinese.txt",
       "url": "https://raw.githubusercontent.com/AdguardTeam/FiltersRegistry/master/filters/filter_224_Chinese/filter.txt",
-      "timestamp": "2026-06-18T11:09:58.890457+00:00",
-      "hash": "62bef98f92b27ec11e72cf615e91f0bfe8c58502cc6e002bd6efc43cd3150443",
+      "timestamp": "2026-06-19T03:54:33.529936+00:00",
+      "hash": "96f4414611179b49f5dffa5816bdbade027a7428bd13a03efae80f8199a81275",
       "status": "success"
     },
     {
       "name": "Chaniug AdSuper",
       "file": "chaniug_adsuper.txt",
       "url": "https://raw.githubusercontent.com/Chaniug/AdSuper/refs/heads/master/adnew.txt",
-      "timestamp": "2026-06-18T11:09:58.856058+00:00",
+      "timestamp": "2026-06-19T03:54:33.562990+00:00",
       "hash": "c0d4704586988751392dc719e52be2cc82d3fc03d6779a19047f09119a4c027a",
       "status": "success"
     },
@@ -34,7 +34,7 @@
       "name": "Adguard Extra",
       "file": "adguard_extra.txt",
       "url": "https://raw.githubusercontent.com/AdguardTeam/FiltersRegistry/master/filters/filter_5_Experimental/filter.txt",
-      "timestamp": "2026-06-18T11:09:58.817581+00:00",
+      "timestamp": "2026-06-19T03:54:33.545460+00:00",
       "hash": "3a61406fb8cf8916a0e15cd01bb11978c4a32513f97bc6d23a8280c2a53bdf26",
       "status": "success"
     }
