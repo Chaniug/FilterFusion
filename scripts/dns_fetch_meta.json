@@ -1,5 +1,5 @@
 {
-  "fetch_date": "2026-06-19T03:54:34.084724+00:00",
+  "fetch_date": "2026-06-20T02:56:01.923938+00:00",
   "sources": [
     {
       "name": "HaGeZi DNS",
@@ -15,8 +15,8 @@
       "name": "AdGuard DNS",
       "file": "dns_adguard_dns.txt",
       "url": "https://raw.githubusercontent.com/AdguardTeam/FiltersRegistry/master/filters/filter_15_DnsFilter/filter.txt",
-      "timestamp": "2026-06-19T03:54:34.084285+00:00",
-      "hash": "4e298e5bd61bd861d61a2f4eb3c985e3b8ca3b64b93d6d88f67ca017afdf4abe",
+      "timestamp": "2026-06-20T02:56:01.923712+00:00",
+      "hash": "e4e18d64f45793ea11c6e11a355dd12fe91eb8b86853384681bb2d36251f9d7c",
       "status": "success"
     }
   ]
