@@ -22,20 +22,23 @@ jobs:
       with:
         fetch-depth: 1
 
-    - name: 📦 打包 adblock 文件
+    - name: 📦 打包规则文件
       run: |
         cd dist
-        zip ../adblock-weekly.zip adblock-*.txt
+        zip ../weekly-rules.zip adblock-main.txt adblock-*.txt dns-blocklist.txt dns-blocklist-*.txt
         cd ..
 
     - name: 📊 统计规则文件数量
       id: stats
       run: |
-        FILE_COUNT=$(ls -1 dist/adblock-*.txt 2>/dev/null | wc -l)
-        # 只统计实际规则行（排除注释、空行、分类分隔行）
-        RULE_COUNT=$(cat dist/adblock-*.txt 2>/dev/null | grep -vcE '^\s*(!|\[|$)' || echo 0)
+        FILE_COUNT=$(ls -1 dist/adblock-*.txt dist/dns-blocklist-*.txt 2>/dev/null | wc -l)
+        ADBLOCK_COUNT=$(cat dist/adblock-*.txt dist/adblock-main.txt 2>/dev/null | grep -vcE '^\s*(!|\[|$)' || echo 0)
+        DNS_COUNT=$(cat dist/dns-blocklist-*.txt dist/dns-blocklist.txt 2>/dev/null | grep -vcE '^\s*(!|\[|$)' || echo 0)
+        TOTAL_COUNT=$(( ADBLOCK_COUNT + DNS_COUNT ))
         echo "FILE_COUNT=$FILE_COUNT" >> $GITHUB_ENV
-        echo "LINE_COUNT=$RULE_COUNT" >> $GITHUB_ENV
+        echo "ADBLOCK_COUNT=$ADBLOCK_COUNT" >> $GITHUB_ENV
+        echo "DNS_COUNT=$DNS_COUNT" >> $GITHUB_ENV
+        echo "LINE_COUNT=$TOTAL_COUNT" >> $GITHUB_ENV
 
     - name: 🏷️ 自动生成版本号并创建 Tag
       id: version
@@ -71,17 +74,19 @@ jobs:
 
           ## 📋 本周更新内容
           - ✨ 新增/更新多套广告拦截规则
-          - 🔥 包含所有 dist 目录下以 `adblock-` 开头的规则文件
-          - 🛡️ 适用于各类主流广告拦截器
+          - 🔥 包含 AdBlock 和 DNS 双管道规则集
+          - 🛡️ 适用于各类主流广告拦截器和 DNS 过滤工具
 
           ## 📊 规则统计
           - 📁 **规则文件数：** ${{ env.FILE_COUNT }} 个
-          - 📝 **规则条数：** ${{ env.LINE_COUNT }} 条
+          - 🟦 **AdBlock 规则条数：** ${{ env.ADBLOCK_COUNT }} 条
+          - 🟪 **DNS 规则条数：** ${{ env.DNS_COUNT }} 条
+          - 📝 **总规则条数：** ${{ env.LINE_COUNT }} 条
           - 🎯 这周规则库又壮大了！不断进化中... ⚡
 
           ## 🎯 快速开始
-          1. 下载 `adblock-weekly.zip`
-          2. 解压后将 `.txt` 文件导入你的广告拦截器
+          1. 下载 `weekly-rules.zip`
+          2. 解压后将 `.txt` 文件导入你的广告拦截器或 DNS 过滤工具
           3. 享受无广告的清爽上网体验！
 
           ---
@@ -92,6 +97,6 @@ jobs:
 
           **感谢您的支持！** 🌟
         files: |
-          adblock-weekly.zip
+          weekly-rules.zip
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
