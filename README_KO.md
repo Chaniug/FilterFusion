@@ -197,6 +197,20 @@ example.com##.ad-banner         # 요소 숨김
 @@||whitelist.com^$document     # 화이트리스트
 ```
 
+### 규칙 분류 체계
+
+병합 엔진은 규칙을 다음 7단계로 자동 분류합니다:
+
+| 레벨 | 유형 | 예시 | 설명 |
+|:---:|------|------|------|
+| 🟢 1 | 도메인 차단 | `\|\|doubleclick.net^` | 알려진 광고 도메인 차단 |
+| 🔵 2 | 서드파티 차단 | `\|\|adservice.google.com^$third-party` | 서드파티 광고 요청만 차단 |
+| 🟡 3 | 요소 숨김 | `example.com##.ad-banner` | 페이지 내 광고 요소 숨김 |
+| 🟠 4 | 화이트리스트 | `@@\|\|trusted.com^$document` | 오차단 도메인 허용 |
+| 🔴 5 | 정규식 | `/ads\.example\.com/` | 고급 패턴 매칭 |
+| 🟣 6 | DNS 레벨 | `0.0.0.0 ad.example.com` | 네트워크 레벨 차단 |
+| ⚪ 7 | 기타/미분류 | — | 분류 불가능한 특수 규칙 |
+
 ---
 
 ## 사용 가이드
@@ -238,6 +252,18 @@ python scripts/merge_dns_rules.py    # DNS 규칙
 **AdBlock**(uBlock Origin / AdGuard / Brave 등): 확장 설정 → 필터 목록 → 구독 링크 붙여넣기 → 가져오기.
 
 **DNS**(AdGuard Home / Pi-hole / Clash 등): 관리 패널 → DNS 차단 목록 → 구독 링크 추가.
+
+### 호환 도구 한눈에 보기
+
+| 도구 | 플랫폼 | AdBlock 규칙 | DNS 규칙 |
+|------|--------|:---:|:---:|
+| uBlock Origin | 브라우저 확장 | ✅ | ❌ |
+| AdGuard 브라우저 확장 | 브라우저 확장 | ✅ | ❌ |
+| Brave Shields | 브라우저 | ✅ | ❌ |
+| AdGuard Home | DNS 서버 | ❌ | ✅ |
+| Pi-hole | DNS 서버 | ❌ | ✅ |
+| AdGuard for Windows/Mac | 데스크톱 앱 | ✅ | ✅ |
+| Clash / Sing-Box / Surge | 프록시 클라이언트 | ❌ | ✅ |
 
 ## 활용 사례
 
@@ -289,12 +315,13 @@ Adblock Plus(ABP), uBlock Origin, EasyList 등 호환 형식을 지원합니다.
 
 ### Q4: 생성된 규칙 파일 위치는?
 
-```
-dist/adblock-main.txt              # AdBlock 메인 규칙
-dist/adblock-YYYYMMDD.txt          # AdBlock 날짜별 아카이브
-dist/dns-blocklist.txt             # DNS 메인 규칙
-dist/dns-blocklist-YYYYMMDD.txt    # DNS 날짜별 아카이브
-```
+| 파일 | 유형 | 설명 |
+|------|:---:|------|
+| `dist/adblock-main.txt` | AdBlock | 최신 병합 메인 규칙, **구독 권장** |
+| `dist/adblock-YYYYMMDD.txt` | AdBlock | 일별 스냅샷 아카이브 |
+| `dist/dns-blocklist.txt` | DNS | 최신 병합 DNS 규칙, **구독 권장** |
+| `dist/dns-blocklist-YYYYMMDD.txt` | DNS | 일별 스냅샷 아카이브 |
+| `dist/summary.json` | 메타데이터 | 수집 시간·라인 수 등 통계 요약 |
 
 ### Q5: 파일 크기와 성능은?
 

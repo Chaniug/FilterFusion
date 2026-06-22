@@ -197,6 +197,20 @@ example.com##.ad-banner         # Element hiding
 @@||whitelist.com^$document     # Whitelist
 ```
 
+### Rule Classification System
+
+The merge engine automatically sorts rules into the following 7-tier classification:
+
+| Level | Type | Example | Description |
+|:---:|------|---------|-------------|
+| 🟢 1 | Domain Blocking | `\|\|doubleclick.net^` | Block known ad domains |
+| 🔵 2 | Third-party Blocking | `\|\|adservice.google.com^$third-party` | Block only third-party ad requests |
+| 🟡 3 | Element Hiding | `example.com##.ad-banner` | Hide ad elements on pages |
+| 🟠 4 | Whitelist | `@@\|\|trusted.com^$document` | Allow falsely blocked domains |
+| 🔴 5 | Regex Rules | `/ads\.example\.com/` | Advanced pattern matching |
+| 🟣 6 | DNS Level | `0.0.0.0 ad.example.com` | Network-level blocking |
+| ⚪ 7 | Other / Unclassified | — | Non-standard rules |
+
 ---
 
 ## Usage Guide
@@ -238,6 +252,18 @@ Auto-classification → NFKC normalization dedup → output to `dist/`.
 **AdBlock** (uBlock Origin / AdGuard / Brave etc.): Open extension settings → Filter lists → Paste subscription link → Import.
 
 **DNS** (AdGuard Home / Pi-hole / Clash etc.): Admin panel → DNS blocklists → Add subscription link.
+
+### Compatible Tools at a Glance
+
+| Tool | Platform | AdBlock Rules | DNS Rules |
+|------|----------|:---:|:---:|
+| uBlock Origin | Browser extension | ✅ | ❌ |
+| AdGuard Browser Extension | Browser extension | ✅ | ❌ |
+| Brave Shields | Browser | ✅ | ❌ |
+| AdGuard Home | DNS server | ❌ | ✅ |
+| Pi-hole | DNS server | ❌ | ✅ |
+| AdGuard for Windows/Mac | Desktop app | ✅ | ✅ |
+| Clash / Sing-Box / Surge | Proxy client | ❌ | ✅ |
 
 ## Use Cases
 
@@ -289,12 +315,13 @@ Common reasons rules don't take effect: format incompatibility, tool rule-count 
 
 ### Q4: Where are the generated rule files?
 
-```
-dist/adblock-main.txt              # AdBlock main rules
-dist/adblock-YYYYMMDD.txt          # AdBlock date-archived
-dist/dns-blocklist.txt             # DNS main rules
-dist/dns-blocklist-YYYYMMDD.txt    # DNS date-archived
-```
+| File | Type | Description |
+|------|:---:|-------------|
+| `dist/adblock-main.txt` | AdBlock | Latest merged rules, **recommended for subscription** |
+| `dist/adblock-YYYYMMDD.txt` | AdBlock | Daily snapshot archive |
+| `dist/dns-blocklist.txt` | DNS | Latest merged DNS rules, **recommended for subscription** |
+| `dist/dns-blocklist-YYYYMMDD.txt` | DNS | Daily snapshot archive |
+| `dist/summary.json` | Metadata | Stats summary (fetch time, line counts, etc.) |
 
 ### Q5: How large are the files? What about performance?
 
