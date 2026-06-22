@@ -56,24 +56,22 @@ FilterFusion is a toolkit for automatically aggregating and merging multi-source
 - **One-Click Automation** — A single command covers fetch, merge, and publish
 - **Dual Pipelines** — AdBlock browser-level + DNS network-level filtering, running independently
 
-## 📬 Subscription URLs
+## Subscription URLs
 
 ### AdBlock Rules (Browser Ad-Blocking)
 
 Import any of the following links into your ad-blocking extension (uBlock Origin, AdGuard, etc.):
 
-- **jsDelivr CDN** (Recommended for mainland China)  
-  ```
+- **jsDelivr CDN** (Recommended for mainland China)
+  ```text
   https://cdn.jsdelivr.net/gh/Chaniug/FilterFusion@main/dist/adblock-main.txt
   ```
-
-- **GitHub Raw** (Available globally)  
-  ```
+- **GitHub Raw** (Available globally)
+  ```text
   https://raw.githubusercontent.com/Chaniug/FilterFusion/main/dist/adblock-main.txt
   ```
-
-- **gh.llkk.cc Acceleration** (Backup)  
-  ```
+- **gh.llkk.cc Acceleration** (Backup)
+  ```text
   https://gh.llkk.cc/https://raw.githubusercontent.com/Chaniug/FilterFusion/main/dist/adblock-main.txt
   ```
 
@@ -81,18 +79,16 @@ Import any of the following links into your ad-blocking extension (uBlock Origin
 
 Import any of the following links into your DNS filtering tool (AdGuard Home, Pi-hole, Clash, etc.):
 
-- **jsDelivr CDN** (Recommended for mainland China)  
-  ```
+- **jsDelivr CDN** (Recommended for mainland China)
+  ```text
   https://cdn.jsdelivr.net/gh/Chaniug/FilterFusion@main/dist/dns-blocklist.txt
   ```
-
-- **GitHub Raw** (Available globally)  
-  ```
+- **GitHub Raw** (Available globally)
+  ```text
   https://raw.githubusercontent.com/Chaniug/FilterFusion/main/dist/dns-blocklist.txt
   ```
-
-- **gh.llkk.cc Acceleration** (Backup)  
-  ```
+- **gh.llkk.cc Acceleration** (Backup)
+  ```text
   https://gh.llkk.cc/https://raw.githubusercontent.com/Chaniug/FilterFusion/main/dist/dns-blocklist.txt
   ```
 
@@ -110,23 +106,18 @@ If you find **false positives, false negatives**, or want to suggest new rules, 
 
 ## System Requirements
 
-Before using FilterFusion, ensure your system meets the following requirements:
-
 ### Minimum Requirements
-- **Python**: 3.13 or higher (local development can use 3.14)
-- **Operating System**: Windows, macOS, Linux
-- **Network**: Internet connection required to fetch rule sources
 
-### Dependencies
-```
-httpx[http2]>=0.27.0
-```
+| Item | Requirement |
+|------|-------------|
+| 🐍 **Python** | 3.13+ (local development can use 3.14) |
+| 💻 **OS** | Windows / macOS / Linux |
+| 🌐 **Network** | Internet connection required to fetch rule sources |
+| 📦 **Dependency** | `httpx[http2]>=0.27.0` (only one) |
 
-### Check Python Version
 ```bash
+# Check Python version
 python --version
-# or
-python3 --version
 ```
 
 ## 🚀 Quick Start
@@ -134,34 +125,27 @@ python3 --version
 ### **Clone the Repository**
 ```bash
 git clone https://github.com/Chaniug/FilterFusion.git
+cd Quick Start
+
+### 1. Clone the Repository
+```bash
+git clone https://github.com/Chaniug/FilterFusion.git
 cd FilterFusion
 ```
 
-### **Install Dependencies**
+### 2. Install Dependencies
 ```bash
 pip install -r requirements.txt
 ```
 
-### **Fetch and Merge Rules**
+### 3. Fetch and Merge Rules
 
-**AdBlock Rules**:
-```bash
-python scripts/fetch_rules.py    # Fetch AdBlock rule sources
-python scripts/merge_rules.py    # Merge and deduplicate AdBlock rules
-```
+| Pipeline | Fetch | Merge & Dedup |
+|----------|-------|---------------|
+| 🟦 **AdBlock** | `python scripts/fetch_rules.py` | `python scripts/merge_rules.py` |
+| 🟪 **DNS** | `python scripts/fetch_dns_rules.py` | `python scripts/merge_dns_rules.py` |
 
-**DNS Filtering Rules**:
-```bash
-python scripts/fetch_dns_rules.py    # Fetch DNS rule sources
-python scripts/merge_dns_rules.py    # Merge and deduplicate DNS rules
-```
-
-### **Use the Generated Rules**
-- Generated rule files are located in the `dist/` directory
-- Import directly into ad-blocking tools that support custom rules
-
----
-
+### 4. Use the Generated Rules
 ## How It Works
 
 FilterFusion operates in four stages through two independent pipelines running in parallel:
