@@ -1,10 +1,10 @@
 [Adblock Plus 2.0]
-! Checksum: /5OPdNvHrh6oEM5R1ollqw==
+! Checksum: KQidXBYsLcMig0+yam8YLg==
 ! Title: FilterFusion Rules
 ! Description: FilterFusion - Merged ad blocking rules
 ! Version: 20260622
-! Last modified: 2026-06-22 16:44:20 UTC
-! TimeUpdated: 2026-06-22T16:44:20.661617+00:00
+! Last modified: 2026-06-22 16:47:35 UTC
+! TimeUpdated: 2026-06-22T16:47:35.690865+00:00
 ! Expires: 1 day (update frequency)
 ! Homepage: https://github.com/Chaniug/FilterFusion
 ! License: MIT License

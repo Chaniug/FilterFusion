@@ -1,5 +1,5 @@
 {
-  "fetch_date": "2026-06-22T16:44:20.518909+00:00",
+  "fetch_date": "2026-06-22T16:47:35.551809+00:00",
   "sources": [
     {
       "name": "EasyList",
@@ -10,7 +10,7 @@
       "name": "AdGuard Mobile",
       "file": "adguard_mobile.txt",
       "url": "https://raw.githubusercontent.com/AdguardTeam/FiltersRegistry/master/filters/filter_11_Mobile/filter.txt",
-      "timestamp": "2026-06-22T16:44:20.446804+00:00",
+      "timestamp": "2026-06-22T16:47:35.513775+00:00",
       "hash": "8913c41718205a25b6fa2505fb46b38d1395993edf158e3884458af1f113fcaf",
       "status": "success"
     },
@@ -18,7 +18,7 @@
       "name": "AdGuard Chinese",
       "file": "adguard_chinese.txt",
       "url": "https://raw.githubusercontent.com/AdguardTeam/FiltersRegistry/master/filters/filter_224_Chinese/filter.txt",
-      "timestamp": "2026-06-22T16:44:20.518636+00:00",
+      "timestamp": "2026-06-22T16:47:35.521612+00:00",
       "hash": "b28510962e0d6ae39fe38eebc4b0cf12b750ba695ffe8a7d5f3d4658e57e1224",
       "status": "success"
     },
@@ -26,7 +26,7 @@
       "name": "Chaniug AdSuper",
       "file": "chaniug_adsuper.txt",
       "url": "https://raw.githubusercontent.com/Chaniug/AdSuper/refs/heads/master/adnew.txt",
-      "timestamp": "2026-06-22T16:44:20.500879+00:00",
+      "timestamp": "2026-06-22T16:47:35.551547+00:00",
       "hash": "c0d4704586988751392dc719e52be2cc82d3fc03d6779a19047f09119a4c027a",
       "status": "success"
     },
@@ -34,7 +34,7 @@
       "name": "Adguard Extra",
       "file": "adguard_extra.txt",
       "url": "https://raw.githubusercontent.com/AdguardTeam/FiltersRegistry/master/filters/filter_5_Experimental/filter.txt",
-      "timestamp": "2026-06-22T16:44:20.460248+00:00",
+      "timestamp": "2026-06-22T16:47:35.543089+00:00",
       "hash": "a711d73ee54861ff0f1801bb779abfc44072538a6cc71ed6c1470f4dcabd44f0",
       "status": "success"
     }
