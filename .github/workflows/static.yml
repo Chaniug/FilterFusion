@@ -29,19 +29,19 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # ✅ 1. 浅克隆（大幅提速）
+      # ✅ 1. 浅克隆（提速）
       - name: Checkout
         uses: actions/checkout@v6
         with:
           fetch-depth: 1
 
-      # ✅ 2. 配置 Pages（修复 TypeError）
+      # ✅ 2. 配置 Pages（已修复 TypeError）
       - name: Setup Pages
         uses: actions/configure-pages@v6
         with:
           static_site_generator: none   # ✅ 不加 enablement
 
-      # ✅ 3. 清理无用文件（减小上传体积）
+      # ✅ 3. 清理无用文件（减小体积）
       - name: Clean dist
         run: |
           find dist -name "*.map" -delete || true
