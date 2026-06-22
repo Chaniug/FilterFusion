@@ -1,34 +1,34 @@
-name: 每周自动打包发布
+name: 🔄 每周自动打包发布 — FilterFusion 规则更新
 
 on:
   schedule:
-    - cron: '0 2 * * 0'  # 每周日（UTC 2点，北京时间10点）自动触发
-  workflow_dispatch:
+    - cron: '0 2 * * 0'  # 每周日 UTC 时间 02:00（北京时间 10:00）自动触发更新流程
+  workflow_dispatch:      # 同时支持手动触发，方便临时发布
 
 permissions:
-  contents: write  # 允许创建 Tag 和 Release
+  contents: write  # 授予创建 Tag 和 Release 的权限
 
 concurrency:
   group: weekly-release
-  cancel-in-progress: false
+  cancel-in-progress: false  # 避免并发执行导致冲突
 
 jobs:
   release:
     runs-on: ubuntu-latest
 
     steps:
-    - name: 🛠️ 检出仓库
+    - name: 🛠️ 检出仓库代码
       uses: actions/checkout@v6
       with:
-        fetch-depth: 1
+        fetch-depth: 1  # 仅拉取最新提交，加快检出速度
 
-    - name: 📦 打包规则文件
+    - name: 📦 打包所有规则文件为 ZIP 压缩包
       run: |
         cd dist
         zip ../weekly-rules.zip adblock-main.txt adblock-*.txt dns-blocklist.txt dns-blocklist-*.txt
         cd ..
 
-    - name: 📊 统计规则文件数量
+    - name: 📊 统计规则文件数量与拦截规则条目数
       id: stats
       run: |
         FILE_COUNT=$(ls -1 dist/adblock-*.txt dist/dns-blocklist-*.txt 2>/dev/null | wc -l)
@@ -36,7 +36,7 @@ jobs:
         DNS_COUNT=$(cat dist/dns-blocklist-*.txt dist/dns-blocklist.txt 2>/dev/null | grep -vcE '^\s*(!|\[|$)' || echo 0)
         TOTAL_COUNT=$(( ADBLOCK_COUNT + DNS_COUNT ))
 
-        # 千位分隔格式（方便 Release 展示）
+        # 格式化为千位分隔的数字，方便 Release 页面展示
         ADBLOCK_FMT=$(printf "%'d" $ADBLOCK_COUNT)
         DNS_FMT=$(printf "%'d" $DNS_COUNT)
         TOTAL_FMT=$(printf "%'d" $TOTAL_COUNT)
@@ -49,7 +49,7 @@ jobs:
         echo "DNS_FMT=$DNS_FMT" >> $GITHUB_ENV
         echo "TOTAL_FMT=$TOTAL_FMT" >> $GITHUB_ENV
 
-    - name: 🏷️ 自动生成版本号、截止日期和引语
+    - name: 🏷️ 自动生成版本号与 Git 标签
       id: version
       run: |
         DATE=$(date +'%Y.%m.%d')
@@ -58,24 +58,28 @@ jobs:
         echo "VERSION=$DATE" >> $GITHUB_ENV
         echo "WEEK_START=$WEEK_START" >> $GITHUB_ENV
         echo "WEEK_END=$WEEK_END" >> $GITHUB_ENV
-        # 配置 Git 身份
+
+        # 配置 Git 提交身份信息
         git config user.name "github-actions[bot]"
         git config user.email "github-actions[bot]@users.noreply.github.com"
-        # 先拉取最新代码
+
+        # 拉取最新代码，确保标签基于最新提交
         git pull origin main
-        # 如果 tag 已存在，先删除本地和远程的旧 tag
+
+        # 若同名标签已存在，则先删除再重建，保证版本覆盖正确
         if git rev-parse "$DATE" >/dev/null 2>&1; then
-          echo "⚠️ Tag $DATE 已存在，删除旧 tag 并重建..."
+          echo "⚠️ 检测到 Tag $DATE 已存在，正在删除旧标签并重建..."
           git tag -d "$DATE"
           git push origin ":refs/tags/$DATE"
         fi
-        # 创建新 Tag
+
+        # 创建并推送新标签
         git tag "$DATE"
         git push origin "$DATE"
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: 🚀 创建 Release 并上传资源
+    - name: 🚀 创建 GitHub Release 并上传附件
       uses: softprops/action-gh-release@v3
       with:
         tag_name: "${{ env.VERSION }}"
@@ -83,43 +87,61 @@ jobs:
         body: |
           🎉 **FilterFusion Weekly · ${{ env.VERSION }}** 🎉
 
-          > 📅 覆盖周期：**${{ env.WEEK_START }} — ${{ env.WEEK_END }}** · 自动抓取 + 合并去重 + 分发
+          欢迎来到本周的 FilterFusion 规则更新！本期的规则数据已经过全自动抓取、智能合并和精准去重处理，现正式发布，供大家订阅使用。
 
-          ## 📋 本周更新内容
-          - � **AdBlock 规则** `${{ env.ADBLOCK_FMT }}` 条 — 浏览器广告拦截
-          - 🌍 **DNS 过滤规则** `${{ env.DNS_FMT }}` 条 — 网络级广告拦截
-          - ⚡ 双管道规则集，累计 **${{ env.TOTAL_FMT }}** 条拦截规则
+          > 📅 **覆盖周期：** ${{ env.WEEK_START }} — ${{ env.WEEK_END }}
+          > ⚙️ **处理流程：** 自动抓取上游源 → 智能合并去重 → 多格式分发
 
-          ## 📊 本周统计
+          ---
+
+          ## 📋 本周更新概要
+
+          本周共整理了两大管道的规则数据，全面覆盖浏览器端和网络端的广告拦截场景：
+
+          | 管道 | 规则数量 | 适用场景 |
+          |------|:-------:|----------|
+          | 🚫 **AdBlock 规则** | `${{ env.ADBLOCK_FMT }}` 条 | 浏览器扩展广告拦截（如 uBlock Origin、AdGuard 等） |
+          | 🌍 **DNS 过滤规则** | `${{ env.DNS_FMT }}` 条 | 网络级广告拦截（路由器、AdGuard Home、Pi‑hole 等） |
+          | ⚡ **双管道合计** | **${{ env.TOTAL_FMT }}** 条 | 全方位立体拦截 |
+
+          ## 📊 详细统计
+
           | 指标 | 数值 |
           |------|:---:|
-          | 📁 规则文件数 | ${{ env.FILE_COUNT }} 个 |
-          | 🚫 AdBlock 规则 | ${{ env.ADBLOCK_FMT }} 条 |
-          | 🌍 DNS 规则 | ${{ env.DNS_FMT }} 条 |
-          | 📝 合计 | **${{ env.TOTAL_FMT }}** 条 |
+          | 📁 规则文件总数 | ${{ env.FILE_COUNT }} 个 |
+          | 🚫 AdBlock 拦截规则 | ${{ env.ADBLOCK_FMT }} 条 |
+          | 🌍 DNS 拦截规则 | ${{ env.DNS_FMT }} 条 |
+          | 📝 **累计拦截规则** | **${{ env.TOTAL_FMT }}** 条 |
 
-          ## 🎯 快速订阅
+          ## 🎯 快速订阅链接
 
-          **AdBlock（浏览器）**
+          将以下链接添加到您的广告拦截工具中即可自动获取更新，推荐首选订阅方式，无需手动下载：
+
+          **🚫 AdBlock（浏览器端 — uBlock Origin / AdGuard 浏览器扩展）**
           ```
           https://cdn.jsdelivr.net/gh/Chaniug/FilterFusion@main/dist/adblock-main.txt
           ```
 
-          **DNS（网络级）**
+          **🌍 DNS 过滤（网络级 — AdGuard Home / Pi‑hole 等）**
           ```
           https://cdn.jsdelivr.net/gh/Chaniug/FilterFusion@main/dist/dns-blocklist.txt
           ```
 
           ## 📦 附件说明
-          - `weekly-rules.zip` — 包含所有 AdBlock 和 DNS 规则文件，解压即用
+
+          | 文件 | 说明 |
+          |------|------|
+          | `weekly-rules.zip` | 包含本周所有 AdBlock 和 DNS 规则文件，解压即用，适合离线部署或批量导入 |
 
           ---
 
-          💡 **小贴士：** 推荐使用上方订阅链接自动更新，无需手动下载。
+          💡 **小贴士：** 推荐使用上方的在线订阅链接实现自动更新，这样每次发布新版本后，您的工具会自动拉取最新规则，无需手动下载替换。
 
-          🙏 发现误杀或漏拦截？[提交 Issue](https://github.com/Chaniug/FilterFusion/issues) 告诉我们！
+          🙏 **发现误杀或漏拦截？** 欢迎[提交 Issue](https://github.com/Chaniug/FilterFusion/issues) 反馈问题，我们会及时排查处理！
 
-          **感谢您的支持！** 🌟
+          ---
+
+          🌟 **感谢您对 FilterFusion 的支持！** 如果这个项目对您有帮助，欢迎点个 ⭐，让更多朋友发现它！
         files: |
           weekly-rules.zip
       env:
