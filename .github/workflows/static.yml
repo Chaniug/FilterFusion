@@ -1,3 +1,4 @@
+# 网页部署（GitHub Pages）
 name: ⚗️网页部署
 
 on:
@@ -8,11 +9,13 @@ on:
       - '.github/workflows/static.yml'
   workflow_dispatch:
 
+# Pages 所需权限
 permissions:
   contents: read
   pages: write
   id-token: write
 
+# 防止并发冲突
 concurrency:
   group: "pages"
   cancel-in-progress: false
@@ -22,28 +25,37 @@ jobs:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
+
     runs-on: ubuntu-latest
 
     steps:
+      # ✅ 1. 浅克隆（大幅提速）
       - name: Checkout
         uses: actions/checkout@v6
         with:
-          fetch-depth: 1   # ✅ 加速
+          fetch-depth: 1
 
+      # ✅ 2. 配置 Pages（修复 TypeError）
       - name: Setup Pages
         uses: actions/configure-pages@v6
         with:
-          static_site_generator: none   # ✅ 避免探测
+          static_site_generator: none   # ✅ 不加 enablement
 
+      # ✅ 3. 清理无用文件（减小上传体积）
       - name: Clean dist
         run: |
           find dist -name "*.map" -delete || true
+          find dist -name "__pycache__" -exec rm -rf {} + || true
+          echo "Dist size:"
+          du -sh dist
 
+      # ✅ 4. 上传 Pages 产物
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v5
         with:
           path: 'dist'
 
+      # ✅ 5. 正式部署
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v5
