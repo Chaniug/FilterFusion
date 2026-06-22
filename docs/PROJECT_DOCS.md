@@ -1,6 +1,6 @@
 # FilterFusion 项目文档
 
-> **版本**: 1.4 | **最后更新**: 2026-06-18 | **许可证**: MIT
+> **版本**: 1.5 | **最后更新**: 2026-06-22 | **许可证**: MIT
 
 ---
 
@@ -376,20 +376,13 @@ python scripts/merge_dns_rules.py
 #### AdBlock 规则
 
 ```bash
-# 1. 克隆仓库
-git clone https://github.com/Chaniug/FilterFusion.git
-cd FilterFusion
-
-# 2. 安装依赖（使用 uv 加速）
-uv pip install -r requirements.txt
-
-# 3. 抓取各源的最新 AdBlock 规则
+# 1. 抓取各源的最新 AdBlock 规则
 python scripts/fetch_rules.py
 
-# 4. 合并去重，生成最终 AdBlock 规则文件
+# 2. 合并去重，生成最终 AdBlock 规则文件
 python scripts/merge_rules.py
 
-# 5. 输出文件位于 dist/ 目录
+# 3. 输出文件位于 dist/ 目录
 # dist/adblock-main.txt  → 可直接导入广告拦截工具
 ```
 
@@ -405,6 +398,11 @@ python scripts/merge_dns_rules.py
 # 3. 输出文件位于 dist/ 目录
 # dist/dns-blocklist.txt  → 可直接导入 DNS 过滤工具
 ```
+
+| 管道 | 抓取 | 合并去重 |
+|------|------|---------|
+| 🟦 **AdBlock** | `python scripts/fetch_rules.py` | `python scripts/merge_rules.py` |
+| 🟪 **DNS** | `python scripts/fetch_dns_rules.py` | `python scripts/merge_dns_rules.py` |
 
 **依赖要求**:
 - Python 3.13+（本地开发可使用 3.14，CI 锁定 3.13 确保可重现性）
@@ -520,21 +518,35 @@ flowchart TB
 
 ### 订阅地址
 
-#### AdBlock 规则（浏览器广告拦截）
+#### 🟦 AdBlock 规则（浏览器广告拦截）
 
-| 线路 | 地址 | 适用场景 |
-|------|------|----------|
-| jsDelivr CDN | `https://cdn.jsdelivr.net/gh/Chaniug/FilterFusion@main/dist/adblock-main.txt` | **推荐中国大陆用户** |
-| GitHub Raw | `https://raw.githubusercontent.com/Chaniug/FilterFusion/main/dist/adblock-main.txt` | 全球通用 |
-| gh.llkk.cc 加速 | `https://gh.llkk.cc/https://raw.githubusercontent.com/Chaniug/FilterFusion/main/dist/adblock-main.txt` | 备用加速 |
+- **jsDelivr CDN**（中国大陆推荐）
+  ```text
+  https://cdn.jsdelivr.net/gh/Chaniug/FilterFusion@main/dist/adblock-main.txt
+  ```
+- **GitHub Raw**（全球）
+  ```text
+  https://raw.githubusercontent.com/Chaniug/FilterFusion/main/dist/adblock-main.txt
+  ```
+- **gh.llkk.cc 加速**（备用）
+  ```text
+  https://gh.llkk.cc/https://raw.githubusercontent.com/Chaniug/FilterFusion/main/dist/adblock-main.txt
+  ```
 
-#### DNS 过滤规则（网络级广告拦截）
+#### 🟪 DNS 过滤规则（网络级广告拦截）
 
-| 线路 | 地址 | 适用场景 |
-|------|------|----------|
-| jsDelivr CDN | `https://cdn.jsdelivr.net/gh/Chaniug/FilterFusion@main/dist/dns-blocklist.txt` | **推荐中国大陆用户** |
-| GitHub Raw | `https://raw.githubusercontent.com/Chaniug/FilterFusion/main/dist/dns-blocklist.txt` | 全球通用 |
-| gh.llkk.cc 加速 | `https://gh.llkk.cc/https://raw.githubusercontent.com/Chaniug/FilterFusion/main/dist/dns-blocklist.txt` | 备用加速 |
+- **jsDelivr CDN**（中国大陆推荐）
+  ```text
+  https://cdn.jsdelivr.net/gh/Chaniug/FilterFusion@main/dist/dns-blocklist.txt
+  ```
+- **GitHub Raw**（全球）
+  ```text
+  https://raw.githubusercontent.com/Chaniug/FilterFusion/main/dist/dns-blocklist.txt
+  ```
+- **gh.llkk.cc 加速**（备用）
+  ```text
+  https://gh.llkk.cc/https://raw.githubusercontent.com/Chaniug/FilterFusion/main/dist/dns-blocklist.txt
+  ```
 
 ---
 
