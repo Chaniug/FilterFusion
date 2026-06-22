@@ -1,14 +1,14 @@
 {
   "version": "20260622",
-  "date": "2026-06-22T00:50:15.360470+00:00",
-  "total_source_rules": 158659,
-  "unique_rules": 158659,
+  "date": "2026-06-22T16:44:21.254651+00:00",
+  "total_source_rules": 158225,
+  "unique_rules": 158225,
   "duplicates_removed": 0,
-  "merge_time_seconds": 0.17,
+  "merge_time_seconds": 0.18,
   "sources": [
     {
       "name": "AdGuard DNS",
-      "rule_count": 158659
+      "rule_count": 158225
     }
   ]
 }
