@@ -35,10 +35,19 @@ jobs:
         ADBLOCK_COUNT=$(cat dist/adblock-*.txt dist/adblock-main.txt 2>/dev/null | grep -vcE '^\s*(!|\[|$)' || echo 0)
         DNS_COUNT=$(cat dist/dns-blocklist-*.txt dist/dns-blocklist.txt 2>/dev/null | grep -vcE '^\s*(!|\[|$)' || echo 0)
         TOTAL_COUNT=$(( ADBLOCK_COUNT + DNS_COUNT ))
+
+        # 千位分隔格式（方便 Release 展示）
+        ADBLOCK_FMT=$(printf "%'d" $ADBLOCK_COUNT)
+        DNS_FMT=$(printf "%'d" $DNS_COUNT)
+        TOTAL_FMT=$(printf "%'d" $TOTAL_COUNT)
+
         echo "FILE_COUNT=$FILE_COUNT" >> $GITHUB_ENV
         echo "ADBLOCK_COUNT=$ADBLOCK_COUNT" >> $GITHUB_ENV
         echo "DNS_COUNT=$DNS_COUNT" >> $GITHUB_ENV
         echo "LINE_COUNT=$TOTAL_COUNT" >> $GITHUB_ENV
+        echo "ADBLOCK_FMT=$ADBLOCK_FMT" >> $GITHUB_ENV
+        echo "DNS_FMT=$DNS_FMT" >> $GITHUB_ENV
+        echo "TOTAL_FMT=$TOTAL_FMT" >> $GITHUB_ENV
 
     - name: 🏷️ 自动生成版本号、截止日期和引语
       id: version
@@ -77,17 +86,17 @@ jobs:
           > 📅 覆盖周期：**${{ env.WEEK_START }} — ${{ env.WEEK_END }}** · 自动抓取 + 合并去重 + 分发
 
           ## 📋 本周更新内容
-          - 🟦 **AdBlock 规则** `${{ env.ADBLOCK_COUNT }}` 条 — 浏览器广告拦截
-          - 🟪 **DNS 过滤规则** `${{ env.DNS_COUNT }}` 条 — 网络级广告拦截
-          - 🔥 双管道规则集，适用于各类主流广告拦截器和 DNS 过滤工具
+          - 🛡️ **AdBlock 规则** `${{ env.ADBLOCK_FMT }}` 条 — 浏览器广告拦截
+          - 🌐 **DNS 过滤规则** `${{ env.DNS_FMT }}` 条 — 网络级广告拦截
+          - ⚡ 双管道规则集，累计 **${{ env.TOTAL_FMT }}** 条拦截规则
 
           ## 📊 本周统计
           | 指标 | 数值 |
           |------|:---:|
           | 📁 规则文件数 | ${{ env.FILE_COUNT }} 个 |
-          | 🟦 AdBlock 规则 | ${{ env.ADBLOCK_COUNT }} 条 |
-          | 🟪 DNS 规则 | ${{ env.DNS_COUNT }} 条 |
-          | 📝 合计 | ${{ env.LINE_COUNT }} 条 |
+          | �️ AdBlock 规则 | ${{ env.ADBLOCK_FMT }} 条 |
+          | 🌐 DNS 规则 | ${{ env.DNS_FMT }} 条 |
+          | 📝 合计 | **${{ env.TOTAL_FMT }}** 条 |
 
           ## 🎯 快速订阅
 
