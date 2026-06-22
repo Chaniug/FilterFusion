@@ -86,16 +86,16 @@ jobs:
           > 📅 覆盖周期：**${{ env.WEEK_START }} — ${{ env.WEEK_END }}** · 自动抓取 + 合并去重 + 分发
 
           ## 📋 本周更新内容
-          - 🛡️ **AdBlock 规则** `${{ env.ADBLOCK_FMT }}` 条 — 浏览器广告拦截
-          - 🌐 **DNS 过滤规则** `${{ env.DNS_FMT }}` 条 — 网络级广告拦截
+          - � **AdBlock 规则** `${{ env.ADBLOCK_FMT }}` 条 — 浏览器广告拦截
+          - 🌍 **DNS 过滤规则** `${{ env.DNS_FMT }}` 条 — 网络级广告拦截
           - ⚡ 双管道规则集，累计 **${{ env.TOTAL_FMT }}** 条拦截规则
 
           ## 📊 本周统计
           | 指标 | 数值 |
           |------|:---:|
           | 📁 规则文件数 | ${{ env.FILE_COUNT }} 个 |
-          | �️ AdBlock 规则 | ${{ env.ADBLOCK_FMT }} 条 |
-          | 🌐 DNS 规则 | ${{ env.DNS_FMT }} 条 |
+          | 🚫 AdBlock 规则 | ${{ env.ADBLOCK_FMT }} 条 |
+          | 🌍 DNS 规则 | ${{ env.DNS_FMT }} 条 |
           | 📝 合计 | **${{ env.TOTAL_FMT }}** 条 |
 
           ## 🎯 快速订阅
