@@ -304,6 +304,12 @@ dist/dns-blocklist-YYYYMMDD.txt    # DNS 日期归档
 
 前往 [AdSuper 项目](https://github.com/Chaniug/AdSuper) 提交 Issue，描述具体网址和拦截情况，我们会及时处理并更新规则。
 
+### Q7: 为什么每日更新工作流使用 `secrets.PAT`？
+
+因为 GitHub Actions 默认的 `GITHUB_TOKEN` 触发的推送**不会触发其他工作流**（包括 Pages 部署）。为了让 `.github/workflows/static.yml` 在规则文件更新后自动重新部署 GitHub Pages，`daily-update.yaml` 使用 Personal Access Token（PAT）进行检出和推送。
+
+如果你要 Fork 本项目自行部署，需要在仓库 **Settings → Secrets and variables → Actions** 中创建名为 `PAT` 的 Secret，并确保该 Token 至少拥有当前仓库的 `contents:write` 权限。
+
 ---
 
 ## 如何参与

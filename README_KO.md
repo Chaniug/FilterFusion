@@ -304,6 +304,12 @@ dist/dns-blocklist-YYYYMMDD.txt    # DNS 날짜별 아카이브
 
 [AdSuper 프로젝트](https://github.com/Chaniug/AdSuper)에 Issue를 제출하고, 해당 URL과 차단 상황을 자세히 기술해 주세요. 신속히 처리하여 규칙을 업데이트하겠습니다.
 
+### Q7: 왜 매일 업데이트 워크플로우에서 `secrets.PAT`를 사용하나요?
+
+GitHub Actions의 기본 `GITHUB_TOKEN`으로 수행한 푸시는, **다른 워크플로우(包括 Pages 배포)를 트리거하지 않습니다**. 따라서 `daily-update.yaml`은 규칙 파일이 업데이트된 후 `.github/workflows/static.yml`이 GitHub Pages를 자동으로 재배포할 수 있도록 체크아웃과 푸시에 Personal Access Token(PAT)을 사용합니다.
+
+이 프로젝트를 Fork하여 직접 배포하려면, 저장소의 **Settings → Secrets and variables → Actions**에 `PAT`라는 이름의 Secret을 생성하고, 최소한 현재 저장소에 대한 `contents:write` 권한이 있는지 확인하세요.
+
 ---
 
 ## 기여 방법

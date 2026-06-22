@@ -1,5 +1,5 @@
 # Simple workflow for deploying static content to GitHub Pages
-name: Deploy static content to Pages
+name: 网页部署
 
 on:
   # 仅在 dist/ 或工作流自身变更时触发部署，避免无关推送（脚本/文档/配置）触发无意义重新部署

@@ -304,6 +304,12 @@ Typically 2–5 MB (depending on source count). Modern browsers and DNS tools ha
 
 Submit an Issue to the [AdSuper project](https://github.com/Chaniug/AdSuper) with the specific URL and blocking details. We'll address and update rules promptly.
 
+### Q7: Why does the daily update workflow use `secrets.PAT`?
+
+Because pushes triggered by the default `GITHUB_TOKEN` in GitHub Actions **do not trigger other workflows** (including Pages deployment). To make `.github/workflows/static.yml` redeploy GitHub Pages automatically after rule files are updated, `daily-update.yaml` uses a Personal Access Token (PAT) for checkout and push.
+
+If you fork this project to deploy it yourself, create a secret named `PAT` in **Settings → Secrets and variables → Actions** and ensure the token has at least `contents:write` permission for the repository.
+
 ---
 
 ## How to Contribute
