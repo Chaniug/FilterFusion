@@ -40,11 +40,15 @@ jobs:
         echo "DNS_COUNT=$DNS_COUNT" >> $GITHUB_ENV
         echo "LINE_COUNT=$TOTAL_COUNT" >> $GITHUB_ENV
 
-    - name: 🏷️ 自动生成版本号并创建 Tag
+    - name: 🏷️ 自动生成版本号、截止日期和引语
       id: version
       run: |
         DATE=$(date +'%Y.%m.%d')
+        WEEK_END=$(date -u +'%Y-%m-%d')
+        WEEK_START=$(date -u -d '6 days ago' +'%m/%d')
         echo "VERSION=$DATE" >> $GITHUB_ENV
+        echo "WEEK_START=$WEEK_START" >> $GITHUB_ENV
+        echo "WEEK_END=$WEEK_END" >> $GITHUB_ENV
         # 配置 Git 身份
         git config user.name "github-actions[bot]"
         git config user.email "github-actions[bot]@users.noreply.github.com"
@@ -68,32 +72,43 @@ jobs:
         tag_name: "${{ env.VERSION }}"
         name: "FilterFusion Weekly · ${{ env.VERSION }}"
         body: |
-          🎉 **每周规则集自动发布** 🎉
+          🎉 **FilterFusion Weekly · ${{ env.VERSION }}** 🎉
 
-          > 又是崭新的一周，FilterFusion 为您带来最新鲜的广告拦截规则！
+          > 📅 覆盖周期：**${{ env.WEEK_START }} — ${{ env.WEEK_END }}** · 自动抓取 + 合并去重 + 分发
 
           ## 📋 本周更新内容
-          - ✨ 新增/更新多套广告拦截规则
-          - 🔥 包含 AdBlock 和 DNS 双管道规则集
-          - 🛡️ 适用于各类主流广告拦截器和 DNS 过滤工具
+          - 🟦 **AdBlock 规则** `${{ env.ADBLOCK_COUNT }}` 条 — 浏览器广告拦截
+          - 🟪 **DNS 过滤规则** `${{ env.DNS_COUNT }}` 条 — 网络级广告拦截
+          - 🔥 双管道规则集，适用于各类主流广告拦截器和 DNS 过滤工具
 
-          ## 📊 规则统计
-          - 📁 **规则文件数：** ${{ env.FILE_COUNT }} 个
-          - 🟦 **AdBlock 规则条数：** ${{ env.ADBLOCK_COUNT }} 条
-          - 🟪 **DNS 规则条数：** ${{ env.DNS_COUNT }} 条
-          - 📝 **总规则条数：** ${{ env.LINE_COUNT }} 条
-          - 🎯 这周规则库又壮大了！不断进化中... ⚡
+          ## 📊 本周统计
+          | 指标 | 数值 |
+          |------|:---:|
+          | 📁 规则文件数 | ${{ env.FILE_COUNT }} 个 |
+          | 🟦 AdBlock 规则 | ${{ env.ADBLOCK_COUNT }} 条 |
+          | 🟪 DNS 规则 | ${{ env.DNS_COUNT }} 条 |
+          | 📝 合计 | ${{ env.LINE_COUNT }} 条 |
 
-          ## 🎯 快速开始
-          1. 下载 `weekly-rules.zip`
-          2. 解压后将 `.txt` 文件导入你的广告拦截器或 DNS 过滤工具
-          3. 享受无广告的清爽上网体验！
+          ## 🎯 快速订阅
+
+          **AdBlock（浏览器）**
+          ```
+          https://cdn.jsdelivr.net/gh/Chaniug/FilterFusion@main/dist/adblock-main.txt
+          ```
+
+          **DNS（网络级）**
+          ```
+          https://cdn.jsdelivr.net/gh/Chaniug/FilterFusion@main/dist/dns-blocklist.txt
+          ```
+
+          ## 📦 附件说明
+          - `weekly-rules.zip` — 包含所有 AdBlock 和 DNS 规则文件，解压即用
 
           ---
 
-          💡 **小贴士：** 定期更新规则集能获得更好的拦截效果！
+          💡 **小贴士：** 推荐使用上方订阅链接自动更新，无需手动下载。
 
-          🙏 如果对规则有建议或发现误杀，欢迎提交 Issue 或 PR！
+          🙏 发现误杀或漏拦截？[提交 Issue](https://github.com/Chaniug/FilterFusion/issues) 告诉我们！
 
           **感谢您的支持！** 🌟
         files: |
