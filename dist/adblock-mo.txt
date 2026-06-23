@@ -1,19 +1,19 @@
 [Adblock Plus 2.0]
-! Checksum: B5cZ0Qafo/h/DvsGOnqjXA==
+! Checksum: jp/p1xuWTXnS37NQpGeh2g==
 ! Title: FilterFusion Rules
 ! Description: FilterFusion - Ad blocking rules (Mobile)
 ! Version: 20260623
-! Last modified: 2026-06-23 10:41:17 UTC
-! TimeUpdated: 2026-06-23T10:41:17.867745+00:00
+! Last modified: 2026-06-23 11:26:10 UTC
+! TimeUpdated: 2026-06-23T11:26:10.844672+00:00
 ! Expires: 1 day (update frequency)
 ! Homepage: https://github.com/Chaniug/FilterFusion
 ! License: MIT License
 ! --------------------------------------
 ! Sources: 4 total
 ! - ✓ AdGuard Mobile (更新: 2026-06-23)
+! - ✓ Adguard Extra (更新: 2026-06-23)
 ! - ✓ AdGuard Chinese (更新: 2026-06-23)
 ! - ✓ Chaniug AdSuper (更新: 2026-06-23)
-! - ✓ Adguard Extra (更新: 2026-06-23)
 ! --------------------------------------
 ! Combined rules: 31340
 ! Source rules: 31367
