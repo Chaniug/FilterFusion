@@ -10,6 +10,7 @@
 # ===== 移动端 (Mobile) =====
 M|AdGuard Mobile|https://raw.githubusercontent.com/AdguardTeam/FiltersRegistry/master/filters/filter_11_Mobile/filter.txt
 M|Adguard Extra|https://raw.githubusercontent.com/AdguardTeam/FiltersRegistry/master/filters/filter_5_Experimental/filter.txt
+M|Adguard Mobilestandard|https://filters.adtidy.org/android/filters/2_optimized.txt
 
 # ===== 两端共用 (Both) =====
 B|AdGuard Chinese|https://raw.githubusercontent.com/AdguardTeam/FiltersRegistry/master/filters/filter_224_Chinese/filter.txt
@@ -17,5 +18,3 @@ B|Chaniug AdSuper|https://raw.githubusercontent.com/Chaniug/AdSuper/refs/heads/m
 
 # ===== 电脑端 (PC) =====
 P|AdGuard Base|https://raw.githubusercontent.com/AdguardTeam/FiltersRegistry/master/filters/filter_2_Base/filter.txt
-#P|EasyList|https://raw.githubusercontent.com/easylist/easylist/master/easylist.txt
-#P|uniartisan|https://raw.githubusercontent.com/uniartisan/adblock_list/master/adblock.txt
