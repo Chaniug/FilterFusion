@@ -8,6 +8,7 @@ import json
 import re
 import shutil
 import sys
+import tempfile
 import unicodedata
 from datetime import UTC, datetime
 from enum import StrEnum
@@ -81,7 +82,7 @@ class RuleMerger:
         self.start_time: datetime = datetime.now()
 
     def load_metadata(self) -> dict[str, Any]:
-        meta_path = self.rules_dir / "fetch_meta.json"
+        meta_path = Path(tempfile.gettempdir()) / "filterfusion" / "fetch_meta.json"
         print(f"尝试加载元数据: {meta_path}")
 
         if not meta_path.exists():

@@ -69,7 +69,7 @@ flowchart LR
         direction LR
         A1[("config/<br/>sources.txt")] -->|配置源 URL| B1["fetch_rules.py<br/>异步并发下载<br/>httpx + HTTP/2"]
         B1 --> C1[("scripts/*.txt<br/>原始规则")]
-        B1 --> M1[("scripts/<br/>fetch_meta.json")]
+        B1 --> M1[("临时目录/<br/>fetch_meta.json<br/>运行后自动消失")]
         C1 --> D1["merge_rules.py<br/>分类 → 去重 → 排序<br/>NFKC + 预编译正则"]
         D1 --> E1[("dist/<br/>adblock-main.txt<br/>adblock-YYYYMMDD.txt")]
         D1 -->|控制台输出| F1["📊 合并摘要<br/>(打印至 CI 日志)"]
@@ -79,7 +79,7 @@ flowchart LR
         direction LR
         A2[("config/<br/>dns_sources.txt")] -->|配置源 URL| B2["fetch_dns_rules.py<br/>异步并发下载<br/>httpx + HTTP/2"]
         B2 --> C2[("scripts/dns_*.txt<br/>DNS 原始规则")]
-        B2 --> M2[("scripts/<br/>dns_fetch_meta.json")]
+        B2 --> M2[("临时目录/<br/>dns_fetch_meta.json<br/>运行后自动消失")]
         C2 --> D2["merge_dns_rules.py<br/>去重合并<br/>简化处理"]
         D2 --> E2[("dist/<br/>dns-blocklist.txt<br/>dns-blocklist-YYYYMMDD.txt")]
         D2 -->|控制台输出| F2["📊 DNS 合并摘要<br/>(打印至 CI 日志)"]
@@ -108,7 +108,7 @@ flowchart LR
 | 阶段 | 输入 | 处理 | 输出 |
 |------|------|------|------|
 | 配置 | `config/sources.txt` | 定义规则源 URL、名称、启用状态 | — |
-| 抓取 | 各源 URL | HTTP GET 下载，计算 SHA256 哈希 | `scripts/*.txt`, `scripts/fetch_meta.json` |
+| 抓取 | 各源 URL | HTTP GET 下载，计算 SHA256 哈希 | `scripts/*.txt`（临时文件，运行后清理） |
 | 合并 | 原始规则文件 + header 模板 | Unicode 规范化 → 分类 → 去重 → 排序 | `dist/adblock-YYYYMMDD.txt` |
 | 输出 | 合并结果 | 写入主文件、摘要打印至控制台 | `dist/adblock-main.txt` |
 
@@ -141,8 +141,6 @@ FilterFusion/
 │   ├── merge_rules.py         # AdBlock 规则合并去重脚本
 │   ├── fetch_dns_rules.py     # DNS 规则抓取脚本
 │   ├── merge_dns_rules.py     # DNS 规则合并去重脚本
-│   ├── fetch_meta.json        # AdBlock 抓取元数据
-│   ├── dns_fetch_meta.json    # DNS 抓取元数据
 │   ├── *.txt                  # 各源下载的原始规则文件（CI 运行后自动清理）
 │   ├── dns_*.txt              # DNS 各源下载的原始规则文件（CI 运行后自动清理）
 │   └── __pycache__/           # Python 字节码缓存（CI 运行后自动清理）
@@ -205,7 +203,7 @@ Adguard Extra > https://filters.adtidy.org/android/filters/5_optimized.txt
 2. 对每个源发起异步 HTTP GET 请求下载规则文件（`httpx.AsyncClient` + HTTP/2 多路复用）
 3. 计算下载内容的 SHA256 哈希值
 4. 保存到 `scripts/` 目录（文件名由源名称安全转换而来）
-5. 写入元数据到 `scripts/fetch_meta.json`
+5. 写入元数据到系统临时目录（`fetch_meta.json`，运行后自动消失）
 
 **关键特性**：
 - **异步并发下载**: 使用 `httpx.AsyncClient` + `asyncio.gather()` 原生并发，HTTP/2 多路复用使同域源共享单条 TLS 连接
@@ -225,7 +223,7 @@ python scripts/fetch_rules.py
 **类**: `RuleMerger`
 
 **核心逻辑**：
-1. 读取 `scripts/fetch_meta.json` 获取成功抓取的规则文件
+1. 读取系统临时目录中的 `fetch_meta.json` 获取成功抓取的规则文件
 2. 读取 `config/default.header` 获取输出模板
 3. 加载所有规则文件内容
 4. 按语义对规则**分类分组**
@@ -311,7 +309,7 @@ HaGeZi DNS > https://raw.githubusercontent.com/hagezi/dns-blocklists/main/adbloc
 2. 对每个源发起异步 HTTP GET 请求下载规则文件（复用 `fetch_rules.py` 的异步抓取逻辑）
 3. 计算下载内容的 SHA256 哈希值
 4. 保存到 `scripts/` 目录（文件名添加 `dns_` 前缀以区分 AdBlock 规则）
-5. 写入元数据到 `scripts/dns_fetch_meta.json`
+5. 写入元数据到系统临时目录（`dns_fetch_meta.json`，运行后自动消失）
 
 **关键特性**：
 - 复用 `httpx.AsyncClient` + `asyncio.gather()` 异步并发下载
@@ -328,7 +326,7 @@ python scripts/fetch_dns_rules.py
 **类**: `DnsRuleMerger`
 
 **核心逻辑**：
-1. 读取 `scripts/dns_fetch_meta.json` 获取成功抓取的 DNS 规则文件
+1. 读取系统临时目录中的 `dns_fetch_meta.json` 获取成功抓取的 DNS 规则文件
 2. 读取 `config/dns.header` 获取输出模板
 3. 加载所有 DNS 规则文件内容
 4. 去重：例外规则（`@@` 开头）和普通规则
@@ -658,7 +656,7 @@ flowchart TD
 
 ### 文件哈希校验
 
-- 每个源下载后计算 **SHA256** 哈希，存入 `fetch_meta.json`
+- 每个源下载后计算 **SHA256** 哈希，存入系统临时目录的 `fetch_meta.json`（运行后自动消失）
 - 用于增量判断源是否有更新
 - 最终合并文件整体计算 SHA256 校验和，写入文件头部，方便用户验证文件完整性
 

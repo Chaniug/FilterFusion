@@ -24,9 +24,9 @@ Thumbs.db
 *.log
 *.tmp
 
-# Auto-generated merge summaries (regenerated on each run)
-/scripts/summary.json
-/scripts/dns_summary.json
+# Auto-generated fetch metadata (regenerated on each CI run, stored in temp dir)
+/scripts/fetch_meta.json
+/scripts/dns_fetch_meta.json
 
 # Don't ignore dist/ directory - we want to track generated files
 !dist/

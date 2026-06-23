@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import sys
+import tempfile
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
@@ -45,7 +46,7 @@ class DnsRuleMerger:
 
     def load_metadata(self) -> dict[str, Any]:
         """加载 DNS 规则抓取元数据。"""
-        meta_path = self.rules_dir / "dns_fetch_meta.json"
+        meta_path = Path(tempfile.gettempdir()) / "filterfusion" / "dns_fetch_meta.json"
         print(f"尝试加载 DNS 元数据: {meta_path}")
 
         if not meta_path.exists():

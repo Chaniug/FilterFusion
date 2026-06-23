@@ -6,6 +6,7 @@ import asyncio
 import hashlib
 import json
 import sys
+import tempfile
 from datetime import UTC, datetime
 from enum import StrEnum
 from pathlib import Path
@@ -38,9 +39,11 @@ class RuleFetcher:
         print(f"项目根目录: {self.project_root}")
 
         self.rules_dir: Path = self.project_root / "scripts"
-        self.meta_file: Path = self.rules_dir / "fetch_meta.json"
+        self.meta_file: Path = Path(tempfile.gettempdir()) / "filterfusion" / "fetch_meta.json"
+        self.meta_file.parent.mkdir(parents=True, exist_ok=True)
 
         print(f"规则目录: {self.rules_dir}")
+        print(f"元数据文件: {self.meta_file}")
 
     def load_sources(self) -> list[SourceInfo]:
         """从 config/sources.txt 加载规则源配置。
