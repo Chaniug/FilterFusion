@@ -1,7 +1,7 @@
 ! Title: FilterFusion DNS Blocklist
 ! Description: FilterFusion - Merged DNS filtering rules
 ! Version: 20260623
-! Last modified: 2026-06-23 11:36:08 UTC
+! Last modified: 2026-06-23 11:57:23 UTC
 ! Homepage: https://github.com/Chaniug/FilterFusion
 ! License: MIT License
 ! --------------------------------------
