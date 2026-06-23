@@ -18,7 +18,7 @@ jobs:
 
     steps:
     - name: 🛠️ 检出仓库代码
-      uses: actions/checkout@v6
+      uses: actions/checkout@v7.0.0
       with:
         fetch-depth: 1  # 仅拉取最新提交，加快检出速度
 

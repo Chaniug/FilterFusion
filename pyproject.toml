@@ -6,7 +6,7 @@ authors = [
     {name = "Chaniug", email = "chaniug@example.com"}
 ]
 license = "MIT"
-requires-python = ">=3.13"
+requires-python = ">=3.14"
 dependencies = [
     "httpx[http2]>=0.27.0"
 ]

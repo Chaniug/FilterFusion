@@ -19,15 +19,15 @@ jobs:
 
     steps:
     - name: 🛠️ 检出仓库
-      uses: actions/checkout@v4
+      uses: actions/checkout@v7.0.0
       with:
         fetch-depth: 1
         token: ${{ secrets.PAT }}   # ✅ 使用 PAT 触发 Pages
 
-    - name: 📦 安装 uv + Python 3.13
-      uses: astral-sh/setup-uv@v5
+    - name: 📦 安装 uv + Python 3.14
+      uses: astral-sh/setup-uv@v8.2.0
       with:
-        python-version: '3.13'
+        python-version: '3.14'
         enable-cache: true
         cache-dependency-glob: |
           requirements.txt
