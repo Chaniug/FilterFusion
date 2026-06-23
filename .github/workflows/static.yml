@@ -32,8 +32,9 @@ jobs:
 
       - name: Setup Pages
         uses: actions/configure-pages@v6
-        with:
-          static_site_generator: none   # ✅ 纯静态 .txt 文件，无需 Jekyll
+
+      - name: Create .nojekyll
+        run: touch dist/.nojekyll    # ✅ 禁止 Jekyll 处理，纯静态文件提速
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v5
