@@ -377,7 +377,7 @@ class RuleMerger:
             return
 
         # 步骤7: 保存规则文件（直接写入规范文件名，不生成日期快照）
-        suffix = "main" if self.category == "mobile" else "pc"
+        suffix = "mo" if self.category == "mobile" else "pc"
         rule_filename = f"adblock-{suffix}.txt"
         rule_path = self.dist_dir / rule_filename
         print(f"保存规则文件到: {rule_path}")

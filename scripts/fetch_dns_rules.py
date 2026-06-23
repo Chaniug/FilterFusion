@@ -20,7 +20,7 @@ class DnsRuleFetcher(BaseFetcher):
     def load_sources(self) -> list[SourceInfo]:
         """从 config/dns_sources.txt 加载 DNS 规则源配置。
 
-        格式: 名称 > 订阅地址；行首加 # 表示禁用。
+        格式: 名称|订阅地址
         """
         config_path = self.project_root / "config" / "dns_sources.txt"
         print(f"DNS 配置文件路径: {config_path}")
@@ -36,21 +36,21 @@ class DnsRuleFetcher(BaseFetcher):
                 if not raw:
                     continue
 
-                # 判断是否被禁用（行首 # 且包含 >）
+                # 判断是否被禁用（行首 # 且包含 |）
                 disabled = False
                 if raw.startswith("#"):
                     content = raw[1:].strip()
-                    if ">" not in content:
+                    if "|" not in content:
                         continue  # 纯注释行，跳过
                     disabled = True
                     raw = content
 
-                # 解析 名称 > URL
-                if ">" not in raw:
-                    print(f"⚠️ 第 {line_num} 行格式错误（缺少 >）: {raw}")
+                # 解析 名称|URL
+                if "|" not in raw:
+                    print(f"⚠️ 第 {line_num} 行格式错误（缺少 |）: {raw}")
                     continue
 
-                name, url = (part.strip() for part in raw.split(">", 1))
+                name, url = (part.strip() for part in raw.split("|", 1))
                 if not name or not url:
                     print(f"⚠️ 第 {line_num} 行名称或地址为空: {raw}")
                     continue

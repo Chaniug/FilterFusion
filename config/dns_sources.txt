@@ -1,10 +1,10 @@
 # FilterFusion DNS 过滤规则源配置
-# 格式: 名称 > 订阅地址
+# 格式: 名称|订阅地址
 # 开启: 直接写一行
 # 关闭: 行首加 #
 
-AdGuard DNS > https://raw.githubusercontent.com/AdguardTeam/FiltersRegistry/master/filters/filter_15_DnsFilter/filter.txt
-# HaGeZi DNS > https://raw.githubusercontent.com/hagezi/dns-blocklists/main/dns-selective.txt
+AdGuard DNS|https://raw.githubusercontent.com/AdguardTeam/FiltersRegistry/master/filters/filter_15_DnsFilter/filter.txt
+# HaGeZi DNS|https://raw.githubusercontent.com/hagezi/dns-blocklists/main/dns-selective.txt
 
 # 下面是关闭的源（去掉行首 # 即可开启）：
-# StevenBlack Hosts > https://raw.githubusercontent.com/StevenBlack/hosts/master/hosts
+# StevenBlack Hosts|https://raw.githubusercontent.com/StevenBlack/hosts/master/hosts

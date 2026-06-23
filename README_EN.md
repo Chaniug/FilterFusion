@@ -47,7 +47,7 @@ FilterFusion is a toolkit for automatically aggregating and merging multi-source
 | Rule classification | Manual sorting | Auto-classified by ABP 7-tier standard |
 | Continuous updates | Update when you remember | GitHub Actions daily automation |
 | Distribution | Manual upload | jsDelivr + GitHub Raw multi-CDN |
-| Metadata/Stats | None | Auto-generated summary.json |
+| Metadata/Stats | None | Auto-generated console summary |
 
 ### Key Features
 
@@ -64,15 +64,15 @@ Import any of the following links into your ad-blocking extension (uBlock Origin
 
 - **jsDelivr CDN** (Recommended for mainland China)
   ```text
-  https://cdn.jsdelivr.net/gh/Chaniug/FilterFusion@main/dist/adblock-main.txt
+  https://cdn.jsdelivr.net/gh/Chaniug/FilterFusion@main/dist/adblock-mo.txt
   ```
 - **GitHub Raw** (Available globally)
   ```text
-  https://raw.githubusercontent.com/Chaniug/FilterFusion/main/dist/adblock-main.txt
+  https://raw.githubusercontent.com/Chaniug/FilterFusion/main/dist/adblock-mo.txt
   ```
 - **gh.llkk.cc Acceleration** (Backup)
   ```text
-  https://gh.llkk.cc/https://raw.githubusercontent.com/Chaniug/FilterFusion/main/dist/adblock-main.txt
+  https://gh.llkk.cc/https://raw.githubusercontent.com/Chaniug/FilterFusion/main/dist/adblock-mo.txt
   ```
 
 ### DNS Filtering Rules (Network-Level Ad-Blocking)
@@ -159,7 +159,7 @@ flowchart LR
             A1["📋 Config<br/>sources.txt"] --> A2["⬇️ Fetch<br/>fetch_rules.py"]
             A2 --> A3a["🔀 Merge Mobile<br/>merge_rules.py --category mobile"]
             A2 --> A3b["🔀 Merge PC<br/>merge_rules.py --category pc"]
-            A3a --> A4a["📤 Output<br/>adblock-main.txt"]
+            A3a --> A4a["📤 Output<br/>adblock-mo.txt"]
             A3b --> A4b["📤 Output<br/>adblock-pc.txt"]
         end
         subgraph DNS["DNS Pipeline"]
@@ -208,14 +208,16 @@ The merge engine automatically sorts rules into the following 7-tier classificat
 Edit `config/sources.txt` (AdBlock) or `config/dns_sources.txt` (DNS):
 
 ```txt
-# Format: Name > URL (leading # disables)
-EasyList > https://easylist.to/easylist/easylist.txt
-AdGuard Base > https://adguardteam.github.io/AdGuardSDNSFilter/Filters/filter.txt
-# My Rules > https://example.com/my-rules.txt
+# Format: [M|P|B]|Name|URL (leading # disables)
+#   M: Mobile  P: PC  B: Both (shared, downloaded once)
+B|AdGuard Chinese|https://raw.githubusercontent.com/AdguardTeam/FiltersRegistry/master/filters/filter_224_Chinese/filter.txt
+P|EasyList|https://raw.githubusercontent.com/easylist/easylist/master/easylist.txt
+# P|My Rules|https://example.com/my-rules.txt
 ```
 
-- One source per line, `>` separates name and address
-- Leading `#` disables the source; comment-only lines (no `>`) are automatically ignored
+- One source per line, `|` separates prefix, name and URL
+- Prefix `M` (Mobile), `P` (PC), `B` (Both — same URL downloaded once for both)
+- No prefix defaults to `M`; leading `#` disables the source
 
 ### **Fetch Rules**
 
@@ -292,8 +294,8 @@ The project's GitHub Actions runs the fetch and merge workflow daily — rule fi
 Edit `config/sources.txt` (AdBlock) or `config/dns_sources.txt` (DNS), one source per line:
 
 ```txt
-Your Rule Name > https://example.com/filter.txt
-# Unwanted Source > https://example.com/other.txt  (leading # disables)
+Your Rule Name|https://example.com/filter.txt
+# Unwanted Source|https://example.com/other.txt  (leading # disables)
 ```
 
 The source URL must return a directly accessible plain-text rule file (ABP/uBlock/AdGuard compatible).
@@ -308,11 +310,9 @@ Common reasons rules don't take effect: format incompatibility, tool rule-count 
 
 | File | Type | Description |
 |------|:---:|-------------|
-| `dist/adblock-main.txt` | AdBlock | Latest merged rules, **recommended for subscription** |
-| `dist/adblock-YYYYMMDD.txt` | AdBlock | Daily snapshot archive |
+| `dist/adblock-mo.txt` | AdBlock | Mobile merged rules, **recommended for subscription** |
+| `dist/adblock-pc.txt` | AdBlock | PC merged rules |
 | `dist/dns-blocklist.txt` | DNS | Latest merged DNS rules, **recommended for subscription** |
-| `dist/dns-blocklist-YYYYMMDD.txt` | DNS | Daily snapshot archive |
-| `dist/summary.json` | Metadata | Stats summary (fetch time, line counts, etc.) |
 
 ### Q5: How large are the files? What about performance?
 

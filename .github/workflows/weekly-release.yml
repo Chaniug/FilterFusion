@@ -25,14 +25,14 @@ jobs:
     - name: 📦 打包所有规则文件为 ZIP 压缩包
       run: |
         cd dist
-        zip ../weekly-rules.zip adblock-main.txt adblock-pc.txt dns-blocklist.txt
+        zip ../weekly-rules.zip adblock-mo.txt adblock-pc.txt dns-blocklist.txt
         cd ..
 
     - name: 📊 统计规则文件数量与拦截规则条目数
       id: stats
       run: |
-        FILE_COUNT=$(ls -1 dist/adblock-main.txt dist/adblock-pc.txt dist/dns-blocklist.txt 2>/dev/null | wc -l)
-        ADBLOCK_COUNT=$(cat dist/adblock-main.txt dist/adblock-pc.txt 2>/dev/null | grep -vcE '^\s*(!|\[|$)' || echo 0)
+        FILE_COUNT=$(ls -1 dist/adblock-mo.txt dist/adblock-pc.txt dist/dns-blocklist.txt 2>/dev/null | wc -l)
+        ADBLOCK_COUNT=$(cat dist/adblock-mo.txt dist/adblock-pc.txt 2>/dev/null | grep -vcE '^\s*(!|\[|$)' || echo 0)
         DNS_COUNT=$(cat dist/dns-blocklist.txt 2>/dev/null | grep -vcE '^\s*(!|\[|$)' || echo 0)
         TOTAL_COUNT=$(( ADBLOCK_COUNT + DNS_COUNT ))
 
@@ -119,7 +119,7 @@ jobs:
 
           **🚫 AdBlock（浏览器端 — uBlock Origin / AdGuard 浏览器扩展）**
           ```
-          https://cdn.jsdelivr.net/gh/Chaniug/FilterFusion@main/dist/adblock-main.txt
+          https://cdn.jsdelivr.net/gh/Chaniug/FilterFusion@main/dist/adblock-mo.txt
           ```
 
           **🌍 DNS 过滤（网络级 — AdGuard Home / Pi‑hole 等）**

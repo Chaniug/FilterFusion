@@ -20,8 +20,9 @@ class RuleFetcher(BaseFetcher):
     def load_sources(self) -> list[SourceInfo]:
         """从 config/sources.txt 加载规则源配置。
 
-        格式: [M|P]>名称 > 订阅地址；行首加 # 表示禁用。
-        M: 移动端 (Mobile), P: 电脑端 (PC/Desktop)，无前缀默认为 M。
+        格式: [M|P|B]|名称|订阅地址
+        M: 移动端 (Mobile), P: 电脑端 (PC), B: 两端共用 (Both)
+        无前缀默认为 M。B 会展开为 mobile 和 pc 两条记录（URL 相同，去重下载）。
         """
         config_path = self.project_root / "config" / "sources.txt"
         print(f"配置文件路径: {config_path}")
@@ -37,21 +38,21 @@ class RuleFetcher(BaseFetcher):
                 if not raw:
                     continue
 
-                # 判断是否被禁用（行首 # 且包含 >）
+                # 判断是否被禁用（行首 # 且包含 |）
                 disabled = False
                 if raw.startswith("#"):
                     content = raw[1:].strip()
-                    if ">" not in content:
+                    if "|" not in content:
                         continue  # 纯注释行，跳过
                     disabled = True
                     raw = content
 
-                # 解析 [M|P]>名称 > URL
-                if ">" not in raw:
-                    print(f"⚠️ 第 {line_num} 行格式错误（缺少 >）: {raw}")
+                # 解析 [M|P|B]|名称|URL
+                if "|" not in raw:
+                    print(f"⚠️ 第 {line_num} 行格式错误（缺少 |）: {raw}")
                     continue
 
-                parts = [p.strip() for p in raw.split(">", 2)]
+                parts = [p.strip() for p in raw.split("|", 2)]
                 if len(parts) == 3:
                     prefix, name, url = parts
                 elif len(parts) == 2:
@@ -68,14 +69,30 @@ class RuleFetcher(BaseFetcher):
                 if not url.startswith("http"):
                     continue  # 非有效 URL，视为纯注释行
 
-                category = "pc" if prefix.upper() == "P" else "mobile"
+                prefix_upper = prefix.upper()
 
-                sources.append({
-                    "name": name,
-                    "url": url,
-                    "category": category,
-                    "enabled": not disabled,
-                })
+                # B> 展开为 mobile + pc 两条记录（URL 相同，fetch 阶段按 URL 去重）
+                if prefix_upper == "B":
+                    sources.append({
+                        "name": name,
+                        "url": url,
+                        "category": "mobile",
+                        "enabled": not disabled,
+                    })
+                    sources.append({
+                        "name": name,
+                        "url": url,
+                        "category": "pc",
+                        "enabled": not disabled,
+                    })
+                else:
+                    category = "pc" if prefix_upper == "P" else "mobile"
+                    sources.append({
+                        "name": name,
+                        "url": url,
+                        "category": category,
+                        "enabled": not disabled,
+                    })
 
             print(f"加载了 {len(sources)} 个规则源")
             return sources

@@ -35,6 +35,9 @@ class BaseFetcher:
 
     使用 httpx.AsyncClient 单例，HTTP/2 多路复用，复用 TLS 连接。
     子类只需实现 load_sources() 定义配置解析逻辑。
+
+    支持按 URL 去重：同 URL 的多个源（如 B> 展开为 mobile+pc）只下载一次，
+    多条 source 记录共享同一个本地文件。
     """
 
     __slots__ = ("project_root", "rules_dir", "meta_file", "filename_prefix", "log_tag")
@@ -62,6 +65,11 @@ class BaseFetcher:
         """从配置文件加载规则源配置。子类必须实现。"""
         raise NotImplementedError
 
+    def _safe_filename(self, name: str) -> str:
+        """生成安全的文件名（可加前缀区分不同管道）。"""
+        safe_name = self.filename_prefix + name.replace(" ", "_").lower().replace(".", "")
+        return f"{safe_name}.txt"
+
     async def fetch_single_rule(self, source: SourceInfo, client: httpx.AsyncClient) -> SourceMeta:
         """异步抓取单个规则源，带 3 次重试与递增超时。"""
         retry_count = 3
@@ -73,12 +81,9 @@ class BaseFetcher:
                 response = await client.get(source["url"], timeout=timeout)
                 response.raise_for_status()
 
-                # 生成安全的文件名（可加前缀区分不同管道）
-                safe_name = self.filename_prefix + source["name"].replace(" ", "_").lower().replace(".", "")
-                filename = f"{safe_name}.txt"
-                filepath = self.rules_dir / filename
-
                 # 流式写入：直接写 bytes，避免编码开销
+                filename = self._safe_filename(source["name"])
+                filepath = self.rules_dir / filename
                 filepath.write_bytes(response.content)
 
                 file_hash = hashlib.sha256(response.content).hexdigest()
@@ -141,7 +146,11 @@ class BaseFetcher:
         return result
 
     async def fetch_all_rules(self) -> dict[str, Any]:
-        """并发抓取所有已启用的规则源。"""
+        """并发抓取所有已启用的规则源。
+
+        按 URL 去重：同 URL 只下载一次，下载结果（file/hash/timestamp）
+        复制到所有共享该 URL 的 source 记录上。
+        """
         sources = self.load_sources()
         results: list[SourceMeta] = []
 
@@ -159,9 +168,21 @@ class BaseFetcher:
             print(f"⏭️  跳过禁用规则: {source['name']}")
             results.append(self._build_disabled(source))
 
-        # 异步并发下载启用的源
-        print(f"\n🚀 开始并发下载 {len(enabled_sources)} 个启用的规则源...")
-        if enabled_sources:
+        # 按 URL 去重：同 URL 只下载一次
+        # url -> (首个 source 用于下载, [所有共享该 URL 的 source 索引])
+        url_groups: dict[str, list[int]] = {}
+        for idx, source in enumerate(enabled_sources):
+            url = source["url"]
+            url_groups.setdefault(url, []).append(idx)
+
+        # 需要实际下载的源（每组取第一个）
+        unique_sources = [enabled_sources[indices[0]] for indices in url_groups.values()]
+
+        # 索引映射：enabled_sources 的位置 -> 下载结果
+        download_results: dict[int, SourceMeta] = {}
+
+        print(f"\n🚀 开始并发下载 {len(unique_sources)} 个唯一规则源（去重后，原始 {len(enabled_sources)} 个）...")
+        if unique_sources:
             async with httpx.AsyncClient(
                 http2=True,
                 headers={"User-Agent": "FilterFusion/1.0 (+https://github.com/Chaniug/FilterFusion)"},
@@ -169,9 +190,44 @@ class BaseFetcher:
             ) as client:
                 # asyncio.gather 原生并发，无线程开销
                 fetched = await asyncio.gather(
-                    *(self.fetch_single_rule(s, client) for s in enabled_sources)
+                    *(self.fetch_single_rule(s, client) for s in unique_sources)
                 )
-                results.extend(fetched)
+
+            # 将下载结果映射回所有共享该 URL 的源
+            for unique_source, result in zip(unique_sources, fetched, strict=True):
+                url = unique_source["url"]
+                indices = url_groups[url]
+                for idx in indices:
+                    src = enabled_sources[idx]
+                    if result["status"] == FetchStatus.SUCCESS:
+                        # 共享下载结果，但保留各自的 name/category
+                        shared: SourceMeta = {
+                            "name": src["name"],
+                            "file": result["file"],
+                            "url": src["url"],
+                            "timestamp": result["timestamp"],
+                            "hash": result["hash"],
+                            "status": FetchStatus.SUCCESS,
+                        }
+                        if "category" in src:
+                            shared["category"] = src["category"]
+                        download_results[idx] = shared
+                    else:
+                        # 失败也共享，但保留各自的 name/category
+                        failed: SourceMeta = {
+                            "name": src["name"],
+                            "url": src["url"],
+                            "status": result["status"],
+                            "error": result.get("error", "未知错误"),
+                            "timestamp": result["timestamp"],
+                        }
+                        if "category" in src:
+                            failed["category"] = src["category"]
+                        download_results[idx] = failed
+
+        # 按 enabled_sources 原始顺序组装 results
+        for idx, _ in enumerate(enabled_sources):
+            results.append(download_results[idx])
 
         # 保存元数据
         meta = {

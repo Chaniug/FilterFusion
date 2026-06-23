@@ -46,7 +46,7 @@ jobs:
 
     - name: ✅ 校验规则文件（AdBlock + PC + DNS）
       run: |
-        for f in dist/adblock-main.txt dist/adblock-pc.txt dist/dns-blocklist.txt; do
+        for f in dist/adblock-mo.txt dist/adblock-pc.txt dist/dns-blocklist.txt; do
           if [ ! -s "$f" ]; then
             echo "❌ 错误: $f 不存在或为空"
             exit 1
