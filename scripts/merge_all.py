@@ -13,9 +13,7 @@ from scripts.merge_rules import RuleMerger
 
 
 def main() -> None:
-    print("=" * 50)
-    print("🔧 FilterFusion - 统一规则合并入口")
-    print("=" * 50)
+    print("🔧 FilterFusion - 统一规则合并", flush=True)
     start = time.perf_counter()
 
     # 顺序执行 3 个合并任务（mobile → pc → DNS）
@@ -24,8 +22,7 @@ def main() -> None:
     DnsRuleMerger().merge()
 
     elapsed = time.perf_counter() - start
-    print(f"\n✅ 全部合并完成，总耗时: {elapsed:.2f}秒")
-    print("=" * 50)
+    print(f"✅ 全部合并完成，总耗时: {elapsed:.2f}秒")
 
 
 if __name__ == "__main__":

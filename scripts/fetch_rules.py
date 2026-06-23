@@ -25,10 +25,9 @@ class RuleFetcher(BaseFetcher):
         无前缀默认为 M。B 会展开为 mobile 和 pc 两条记录（URL 相同，去重下载）。
         """
         config_path = self.project_root / "config" / "sources.txt"
-        print(f"配置文件路径: {config_path}")
 
         if not config_path.exists():
-            print(f"❌ 错误：找不到配置文件 {config_path}")
+            print(f"❌ 找不到配置文件 {config_path}")
             sys.exit(1)
 
         sources: list[SourceInfo] = []
@@ -97,20 +96,16 @@ class RuleFetcher(BaseFetcher):
             print(f"加载了 {len(sources)} 个规则源")
             return sources
         except Exception as e:
-            print(f"❌ 加载配置文件时出错: {e}")
+            print(f"❌ 加载配置出错: {e}")
             sys.exit(1)
 
 
 async def main() -> None:
-    print("=" * 50)
-    print("🚀 FilterFusion - 广告规则抓取工具")
-    print("=" * 50)
-
     fetcher = RuleFetcher()
     try:
         await fetcher.fetch_all_rules()
     except Exception as e:
-        print(f"\n❌ 发生错误: {e}")
+        print(f"\n❌ {e}")
         sys.exit(1)
 
 

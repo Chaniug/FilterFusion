@@ -23,10 +23,9 @@ class DnsRuleFetcher(BaseFetcher):
         格式: 名称|订阅地址
         """
         config_path = self.project_root / "config" / "dns_sources.txt"
-        print(f"DNS 配置文件路径: {config_path}")
 
         if not config_path.exists():
-            print(f"❌ 错误：找不到 DNS 配置文件 {config_path}")
+            print(f"❌ 找不到 DNS 配置文件 {config_path}")
             sys.exit(1)
 
         sources: list[SourceInfo] = []
@@ -68,20 +67,16 @@ class DnsRuleFetcher(BaseFetcher):
             print(f"加载了 {len(sources)} 个 DNS 规则源")
             return sources
         except Exception as e:
-            print(f"❌ 加载 DNS 配置文件时出错: {e}")
+            print(f"❌ 加载 DNS 配置出错: {e}")
             sys.exit(1)
 
 
 async def main() -> None:
-    print("=" * 50)
-    print("🚀 FilterFusion - DNS 规则抓取工具")
-    print("=" * 50)
-
     fetcher = DnsRuleFetcher()
     try:
         await fetcher.fetch_all_rules()
     except Exception as e:
-        print(f"\n❌ 发生错误: {e}")
+        print(f"\n❌ {e}")
         sys.exit(1)
 
 

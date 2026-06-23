@@ -50,16 +50,12 @@ class BaseFetcher:
         log_tag: str = "",
     ) -> None:
         self.project_root: Path = Path(__file__).resolve().parent.parent
-        print(f"项目根目录: {self.project_root}")
 
         self.rules_dir: Path = self.project_root / "scripts"
         self.meta_file: Path = Path(tempfile.gettempdir()) / "filterfusion" / meta_filename
         self.meta_file.parent.mkdir(parents=True, exist_ok=True)
         self.filename_prefix: str = filename_prefix
         self.log_tag: str = log_tag or meta_filename
-
-        print(f"规则目录: {self.rules_dir}")
-        print(f"元数据文件: {self.meta_file}")
 
     def load_sources(self) -> list[SourceInfo]:
         """从配置文件加载规则源配置。子类必须实现。"""
@@ -154,10 +150,7 @@ class BaseFetcher:
         sources = self.load_sources()
         results: list[SourceMeta] = []
 
-        print("\n" + "=" * 50)
-        print(f"🔍 开始抓取{self.log_tag}规则...")
-        print(f"📡 共检测到 {len(sources)} 个规则源")
-        print("=" * 50)
+        print(f"🔍 {self.log_tag}规则源: {len(sources)} 个", flush=True)
 
         # 分离启用/禁用的源
         enabled_sources = [s for s in sources if s.get("enabled", True)]
@@ -165,7 +158,6 @@ class BaseFetcher:
 
         # 记录禁用的源
         for source in disabled_sources:
-            print(f"⏭️  跳过禁用规则: {source['name']}")
             results.append(self._build_disabled(source))
 
         # 按 URL 去重：同 URL 只下载一次
@@ -181,7 +173,7 @@ class BaseFetcher:
         # 索引映射：enabled_sources 的位置 -> 下载结果
         download_results: dict[int, SourceMeta] = {}
 
-        print(f"\n🚀 开始并发下载 {len(unique_sources)} 个唯一规则源（去重后，原始 {len(enabled_sources)} 个）...")
+        print(f"🚀 并发下载 {len(unique_sources)} 个唯一源（去重前 {len(enabled_sources)} 个）...", flush=True)
         if unique_sources:
             async with httpx.AsyncClient(
                 http2=True,
@@ -240,15 +232,11 @@ class BaseFetcher:
         success = sum(1 for s in results if s["status"] == FetchStatus.SUCCESS)
         failed = sum(1 for s in results if s["status"] == FetchStatus.FAILED)
 
-        print("\n" + "=" * 50)
-        print(f"✅ {self.log_tag}规则抓取完成: 成功 {success} 个, 失败 {failed} 个")
-        print("=" * 50)
+        print(f"✅ {self.log_tag}抓取完成: 成功 {success}, 失败 {failed}")
 
         if failed > 0:
-            print("\n失败的来源:")
             for source in results:
                 if source["status"] == FetchStatus.FAILED:
-                    print(f"  - {source['name']}: {source.get('error', '未知错误')}")
+                    print(f"  ❌ {source['name']}: {source.get('error', '未知错误')}")
 
-        print(f"抓取元数据已保存至: {self.meta_file}")
         return meta

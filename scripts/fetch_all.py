@@ -14,17 +14,14 @@ from scripts.fetch_dns_rules import main as fetch_dns
 
 
 async def main() -> None:
-    print("=" * 50)
-    print("🚀 FilterFusion - 统一规则抓取入口")
-    print("=" * 50)
+    print("🚀 FilterFusion - 统一规则抓取", flush=True)
     start = time.perf_counter()
 
     # 在同一个事件循环中并发执行两个抓取任务
     await asyncio.gather(fetch_adblock(), fetch_dns())
 
     elapsed = time.perf_counter() - start
-    print(f"\n✅ 全部抓取完成，总耗时: {elapsed:.2f}秒")
-    print("=" * 50)
+    print(f"✅ 全部抓取完成，总耗时: {elapsed:.2f}秒")
 
 
 if __name__ == "__main__":

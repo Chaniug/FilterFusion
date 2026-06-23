@@ -69,14 +69,10 @@ class RuleMerger:
     def __init__(self, category: str = "mobile") -> None:
         self.category = category
         self.project_root: Path = Path(__file__).resolve().parent.parent
-        print(f"项目根目录: {self.project_root}")
 
         self.dist_dir: Path = self.project_root / "dist"
         self.dist_dir.mkdir(parents=True, exist_ok=True)
         self.rules_dir: Path = self.project_root / "scripts"
-
-        print(f"分发目录: {self.dist_dir}")
-        print(f"规则目录: {self.rules_dir}")
 
         # 统计信息
         self.initial_rule_count: int = 0
@@ -85,44 +81,26 @@ class RuleMerger:
 
     def load_metadata(self) -> dict[str, Any]:
         meta_path = Path(tempfile.gettempdir()) / "filterfusion" / "fetch_meta.json"
-        print(f"尝试加载元数据: {meta_path}")
 
         if not meta_path.exists():
-            print(f"❌ 错误：找不到抓取元数据文件 {meta_path}")
+            print(f"❌ 找不到抓取元数据文件 {meta_path}")
             sys.exit(1)
 
         try:
             data = json.loads(meta_path.read_text(encoding="utf-8"))
-            print("成功加载元数据文件")
             return data
         except json.JSONDecodeError as e:
-            print(f"❌ 错误：元数据文件格式不正确 {e}")
+            print(f"❌ 元数据文件格式不正确 {e}")
             sys.exit(1)
         except Exception as e:
-            print(f"❌ 加载元数据时出错: {e}")
+            print(f"❌ 加载元数据出错: {e}")
             sys.exit(1)
 
     def load_header_template(self) -> str:
         header_path = self.project_root / "config" / "default.header"
-        print(f"尝试加载头部模板: {header_path}")
 
         if not header_path.exists():
-            print(f"❌ 错误：找不到头部模板 {header_path}")
-            print("请确保文件存在:")
-            print(f"位置: {header_path}")
-            print("文件内容应为:")
-            print("-" * 50)
-            print(
-                "! Title: FilterFusion AdBlock Rules\n"
-                "! Version: {VERSION}\n"
-                "! Updated: {TIMEUPDATED}\n"
-                "! Last modified: {TIMEUPDATED}\n"
-                "! Checksum: {CHECKSUM}\n"
-                "! Homepage: {HOMEPAGE}\n"
-                "! Expires: 1 day\n"
-                "! License: {LICENSE}"
-            )
-            print("-" * 50)
+            print(f"❌ 找不到头部模板 {header_path}")
             sys.exit(1)
 
         try:
@@ -223,12 +201,11 @@ class RuleMerger:
         seen_rules: set[str] = set()
         source_stats: list[dict[str, Any]] = []
 
-        print("收集和处理规则:")
+        print("收集和处理规则:", flush=True)
         for source in sources:
             if source.get("status") != "success":
                 continue
             source_path = self.rules_dir / source["file"]
-            print(f"处理源文件: {source_path}")
             if not source_path.exists():
                 continue
 
@@ -254,8 +231,7 @@ class RuleMerger:
                         seen_rules.add(rule)
                         groups[typ].add(rule)
             except Exception as e:
-                print(f"⚠️ 警告：处理 {source['name']} 规则时出错: {e}")
-            print(f"源 {source['name']} 有效规则数: {source_rule_count}")
+                print(f"⚠️ 处理 {source['name']} 出错: {e}")
             source_stats.append({"name": source["name"], "rule_count": source_rule_count})
 
         # 按分组分类拼接输出
@@ -296,19 +272,14 @@ class RuleMerger:
         return f"{today.year}{today.month:02d}{today.day:02d}"
 
     def merge(self) -> None:
-        print("=" * 50)
-        print("🔧 FilterFusion - 广告规则合并工具")
-        print("=" * 50)
-
         # 步骤1: 加载元数据
-        print("步骤1: 加载元数据")
         metadata = self.load_metadata()
         sources = metadata["sources"]
 
         # 检查是否有成功抓取的源
         success_sources = [s for s in sources if s.get("status") == "success"]
         if not success_sources:
-            print("❌ 错误：没有成功抓取的规则源，终止合并")
+            print("❌ 没有成功抓取的规则源，终止合并")
             sys.exit(1)
 
         # 按类别过滤（mobile / pc）
@@ -316,27 +287,23 @@ class RuleMerger:
         if not filtered_sources:
             print(f"⚠️ 没有匹配类别 '{self.category}' 的规则源，跳过合并")
             return
-        print(f"🔖 类别: {self.category}，匹配规则源: {len(filtered_sources)} 个")
+        print(f"🔖 AdBlock [{self.category}]: {len(filtered_sources)} 个源", flush=True)
 
         # 按类别过滤所有源（含失败/禁用，用于头部 SOURCE_LIST）
         category_sources = [s for s in sources if s.get("category", "mobile") == self.category]
 
         # 步骤2: 加载头部模板
-        print("步骤2: 加载头部模板")
         header_template = self.load_header_template()
 
         # 步骤3: 收集、处理和去重规则（只传入匹配类别的源）
-        print("步骤3: 收集、处理和去重规则")
         rules, groups, source_stats = self.collect_and_process_rules(filtered_sources)
         self.initial_rule_count = sum(s["rule_count"] for s in source_stats)
         self.final_rule_count = sum(len(v) for v in groups.values())
 
         # 步骤4: 生成版本号
-        print("步骤4: 生成版本号")
         version = self.generate_version()
 
         # 步骤5: 生成头部（单次 format_map 替代 11 次链式 replace）
-        print("步骤5: 生成头部")
         desc = "FilterFusion - Ad blocking rules (Mobile)" if self.category == "mobile" else "FilterFusion - Ad blocking rules (PC)"
         source_list = self.generate_source_list(category_sources)
         now = datetime.now(UTC)  # 单次调用，消除重复
@@ -363,7 +330,6 @@ class RuleMerger:
         content = header.rstrip("\n") + "\n" + "\n".join(rules)
 
         # 步骤6: 计算校验和（ABP 标准：MD5 + Base64）
-        print("步骤6: 计算校验和（ABP 标准）")
         content_for_checksum = "\n".join(
             line for line in content.split("\n") if not line.startswith("! Checksum:")
         )
@@ -373,33 +339,22 @@ class RuleMerger:
 
         # 保存前检查规则数是否为 0
         if self.final_rule_count == 0:
-            print("⚠️ 警告：合并后规则数为 0，不覆盖现有文件")
+            print("⚠️ 合并后规则数为 0，不覆盖现有文件")
             return
 
         # 步骤7: 保存规则文件（直接写入规范文件名，不生成日期快照）
         suffix = "mo" if self.category == "mobile" else "pc"
         rule_filename = f"adblock-{suffix}.txt"
         rule_path = self.dist_dir / rule_filename
-        print(f"保存规则文件到: {rule_path}")
         rule_path.write_text(content, encoding="utf-8")
 
         # 计算处理时间
         processing_time = (datetime.now() - self.start_time).total_seconds()
 
         # 显示摘要
-        print("\n" + "=" * 50)
-        print("✅ 规则合并完成!")
-        print("=" * 50)
-        print(f"🔖 版本: {version}")
-        print(f"📦 源规则数量: {self.initial_rule_count}")
-        print(f"🪄 合并后规则数量: {self.final_rule_count}")
-        print(f"♻️  重复规则: {self.initial_rule_count - self.final_rule_count}")
-        print(f"⏱️  处理时间: {processing_time:.2f}秒")
-        print(f"🔐 校验和: {checksum}")
-        print(f"📄 合并规则文件: dist/{rule_filename}")
+        print(f"✅ AdBlock [{self.category}] 合并完成: {self.initial_rule_count} → {self.final_rule_count} 条 (去重 {self.initial_rule_count - self.final_rule_count}, {processing_time:.2f}s) → dist/{rule_filename}")
 
         # 步骤8: 保存摘要信息
-        print("步骤8: 保存摘要信息")
         self.save_summary(version, checksum, source_stats, processing_time)
 
     def save_summary(

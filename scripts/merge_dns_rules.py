@@ -30,14 +30,10 @@ class DnsRuleMerger:
 
     def __init__(self) -> None:
         self.project_root: Path = Path(__file__).resolve().parent.parent
-        print(f"项目根目录: {self.project_root}")
 
         self.dist_dir: Path = self.project_root / "dist"
         self.dist_dir.mkdir(parents=True, exist_ok=True)
         self.rules_dir: Path = self.project_root / "scripts"
-
-        print(f"分发目录: {self.dist_dir}")
-        print(f"规则目录: {self.rules_dir}")
 
         # 统计信息
         self.initial_rule_count: int = 0
@@ -47,30 +43,27 @@ class DnsRuleMerger:
     def load_metadata(self) -> dict[str, Any]:
         """加载 DNS 规则抓取元数据。"""
         meta_path = Path(tempfile.gettempdir()) / "filterfusion" / "dns_fetch_meta.json"
-        print(f"尝试加载 DNS 元数据: {meta_path}")
 
         if not meta_path.exists():
-            print(f"❌ 错误：找不到 DNS 抓取元数据文件 {meta_path}")
+            print(f"❌ 找不到 DNS 抓取元数据文件 {meta_path}")
             sys.exit(1)
 
         try:
             data = json.loads(meta_path.read_text(encoding="utf-8"))
-            print("成功加载 DNS 元数据文件")
             return data
         except json.JSONDecodeError as e:
-            print(f"❌ 错误：DNS 元数据文件格式不正确 {e}")
+            print(f"❌ DNS 元数据文件格式不正确 {e}")
             sys.exit(1)
         except Exception as e:
-            print(f"❌ 加载 DNS 元数据时出错: {e}")
+            print(f"❌ 加载 DNS 元数据出错: {e}")
             sys.exit(1)
 
     def load_header_template(self) -> str:
         """加载 DNS 规则头部模板。"""
         header_path = self.project_root / "config" / "dns.header"
-        print(f"尝试加载 DNS 头部模板: {header_path}")
 
         if not header_path.exists():
-            print(f"❌ 错误：找不到 DNS 头部模板 {header_path}")
+            print(f"❌ 找不到 DNS 头部模板 {header_path}")
             sys.exit(1)
 
         try:
@@ -107,12 +100,11 @@ class DnsRuleMerger:
         seen_rules: set[str] = set()
         source_stats: list[dict[str, Any]] = []
 
-        print("收集和去重 DNS 规则:")
+        print("收集和去重 DNS 规则:", flush=True)
         for source in sources:
             if source.get("status") != "success":
                 continue
             source_path = self.rules_dir / source["file"]
-            print(f"处理 DNS 源文件: {source_path}")
             if not source_path.exists():
                 continue
 
@@ -150,8 +142,7 @@ class DnsRuleMerger:
                         else:
                             normal_rules.add(rule)
             except Exception as e:
-                print(f"⚠️ 警告：处理 {source['name']} DNS 规则时出错: {e}")
-            print(f"DNS 源 {source['name']} 有效规则数: {source_rule_count}")
+                print(f"⚠️ 处理 {source['name']} DNS 出错: {e}")
             source_stats.append({"name": source["name"], "rule_count": source_rule_count})
 
         # 按分组分类拼接输出
@@ -176,36 +167,29 @@ class DnsRuleMerger:
         return f"{today.year}{today.month:02d}{today.day:02d}"
 
     def merge(self) -> None:
-        print("=" * 50)
-        print("🔧 FilterFusion - DNS 规则合并工具")
-        print("=" * 50)
-
         # 步骤1: 加载元数据
-        print("步骤1: 加载 DNS 元数据")
         metadata = self.load_metadata()
         sources = metadata["sources"]
 
         # 检查是否有成功抓取的源
         success_sources = [s for s in sources if s.get("status") == "success"]
         if not success_sources:
-            print("❌ 错误：没有成功抓取的 DNS 规则源，终止合并")
+            print("❌ 没有成功抓取的 DNS 规则源，终止合并")
             sys.exit(1)
 
+        print(f"🔖 DNS: {len(success_sources)} 个源", flush=True)
+
         # 步骤2: 加载头部模板
-        print("步骤2: 加载 DNS 头部模板")
         header_template = self.load_header_template()
 
         # 步骤3: 收集、处理和去重规则
-        print("步骤3: 收集、处理和去重 DNS 规则")
         rules, source_stats, self.final_rule_count = self.collect_and_dedup_rules(sources)
         self.initial_rule_count = sum(s["rule_count"] for s in source_stats)
 
         # 步骤4: 生成版本号
-        print("步骤4: 生成版本号")
         version = self.generate_version()
 
         # 步骤5: 生成头部（单次 format_map 替代 8 次链式 replace）
-        print("步骤5: 生成头部")
         source_list = self.generate_source_list(sources)
         now = datetime.now(UTC)  # 单次调用，消除重复
         header = header_template.format_map(
@@ -226,30 +210,20 @@ class DnsRuleMerger:
 
         # 保存前检查规则数是否为 0
         if self.final_rule_count == 0:
-            print("⚠️ 警告：合并后 DNS 规则数为 0，不覆盖现有文件")
+            print("⚠️ 合并后 DNS 规则数为 0，不覆盖现有文件")
             return
 
         # 步骤6: 保存规则文件（直接写入规范文件名，不生成日期快照）
         rule_path = self.dist_dir / "dns-blocklist.txt"
-        print(f"保存 DNS 规则文件到: {rule_path}")
         rule_path.write_text(content, encoding="utf-8")
 
         # 计算处理时间
         processing_time = (datetime.now() - self.start_time).total_seconds()
 
         # 显示摘要
-        print("\n" + "=" * 50)
-        print("✅ DNS 规则合并完成!")
-        print("=" * 50)
-        print(f"🔖 版本: {version}")
-        print(f"📦 源规则数量: {self.initial_rule_count}")
-        print(f"🪄 合并后规则数量: {self.final_rule_count}")
-        print(f"♻️  重复规则: {self.initial_rule_count - self.final_rule_count}")
-        print(f"⏱️  处理时间: {processing_time:.2f}秒")
-        print(f"📄 合并规则文件: dist/dns-blocklist.txt")
+        print(f"✅ DNS 合并完成: {self.initial_rule_count} → {self.final_rule_count} 条 (去重 {self.initial_rule_count - self.final_rule_count}, {processing_time:.2f}s) → dist/dns-blocklist.txt")
 
         # 步骤7: 保存摘要信息
-        print("步骤7: 保存 DNS 摘要信息")
         self.save_summary(version, source_stats, processing_time)
 
     def save_summary(
