@@ -138,6 +138,7 @@ class RuleFetcher:
                     "name": source["name"],
                     "file": filename,
                     "url": source["url"],
+                    "category": source["category"],
                     "timestamp": timestamp,
                     "hash": file_hash,
                     "status": FetchStatus.SUCCESS,
@@ -150,6 +151,7 @@ class RuleFetcher:
                 return {
                     "name": source["name"],
                     "url": source["url"],
+                    "category": source["category"],
                     "status": FetchStatus.FAILED,
                     "error": "请求超时",
                     "timestamp": datetime.now(UTC).isoformat(),
@@ -162,6 +164,7 @@ class RuleFetcher:
                 return {
                     "name": source["name"],
                     "url": source["url"],
+                    "category": source["category"],
                     "status": FetchStatus.FAILED,
                     "error": str(e),
                     "timestamp": datetime.now(UTC).isoformat(),
@@ -171,6 +174,7 @@ class RuleFetcher:
         return {
             "name": source["name"],
             "url": source["url"],
+            "category": source["category"],
             "status": FetchStatus.FAILED,
             "error": "重试次数耗尽",
             "timestamp": datetime.now(UTC).isoformat(),
@@ -196,6 +200,7 @@ class RuleFetcher:
             results.append({
                 "name": source["name"],
                 "url": source["url"],
+                "category": source["category"],
                 "status": FetchStatus.DISABLED,
             })
 
