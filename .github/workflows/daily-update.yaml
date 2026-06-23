@@ -89,5 +89,6 @@ jobs:
         else
           git commit -m "FilterFusion自动更新: $(date -u +'%Y-%m-%d %H:%M UTC')"
           git remote set-url origin "https://x-access-token:${TOKEN}@github.com/${{ github.repository }}.git"
+          git pull --rebase origin main
           git push origin HEAD:main
         fi
