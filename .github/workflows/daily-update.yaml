@@ -23,6 +23,7 @@ jobs:
       with:
         fetch-depth: 1
         token: ${{ secrets.PAT }}   # ✅ 使用 PAT 触发 Pages
+        persist-credentials: false   # ✅ 禁止 post 步骤清理时报错
 
     - name: 📦 安装 uv + Python 3.14
       uses: astral-sh/setup-uv@v8.2.0
