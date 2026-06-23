@@ -154,7 +154,7 @@ FilterFusion/
 │   ├── merge_optimization_plan.md  # 优化方案
 │   └── plans/                 # 历史 plan 归档
 ├── .gitignore
-├── CNAME                      # 自定义域名: ad.valk.ccwu.cc
+├── CNAME                      # 自定义域名（隐藏）
 ├── LICENSE                    # MIT 许可证
 ├── README.md                  # 中文说明文档
 ├── README_EN.md               # 英文说明文档
@@ -430,7 +430,7 @@ flowchart TB
     subgraph ACTIONS["执行动作"]
         A1["并行抓取 AdBlock + DNS<br/>合并去重<br/>清理过期文件+临时文件+缓存<br/>git commit & push"]
         A2["打包 dist/ 为 ZIP<br/>创建 GitHub Release<br/>Tag: YYYY.MM.DD"]
-        A3["部署 GitHub Pages<br/>自定义域名:<br/>ad.valk.ccwu.cc"]
+        A3["部署 GitHub Pages<br/>自定义域名 (隐藏)"]
     end
 
     T1 --> W1 --> A1
@@ -516,9 +516,7 @@ flowchart TB
 ## 7. 部署与订阅
 
 ### 自定义域名
-通过 `CNAME` 文件配置: **`ad.valk.ccwu.cc`**
-
-访问该域名将指向项目的 GitHub Pages 站点。
+通过 `CNAME` 文件配置自定义域名，指向项目的 GitHub Pages 站点。
 
 ### 订阅地址
 

@@ -3,7 +3,7 @@
 ## 项目概况
 - 广告过滤规则聚合工具，每日 CI 抓取 4 个规则源 → 分类去重 → 输出标准 ABP 格式
 - 维护者：Chaniug，GitHub 仓库 Chaniug/FilterFusion
-- 订阅域名：ad.valk.ccwu.cc（GitHub Pages + CNAME）
+- 订阅域名：自定义域名（GitHub Pages + CNAME，配置于 CNAME 文件）
 
 ## 技术栈（2026-06-18 最终确定）
 - Python >=3.13（本地 3.14，CI 3.14）
