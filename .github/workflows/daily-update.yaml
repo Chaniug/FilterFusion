@@ -38,15 +38,8 @@ jobs:
         uv venv
         uv pip install -r requirements.txt
 
-    - name: 🔄 并行抓取规则（AdBlock + DNS）
-      run: |
-        set -e
-        uv run --no-project python -m scripts.fetch_rules &
-        pid1=$!
-        uv run --no-project python -m scripts.fetch_dns_rules &
-        pid2=$!
-        wait $pid1
-        wait $pid2
+    - name: 🔄 统一抓取所有规则（AdBlock + DNS）
+      run: uv run --no-project python -m scripts.fetch_all
 
     - name: 🔀 合并 AdBlock 规则（移动端）
       run: uv run --no-project python -m scripts.merge_rules --category mobile
