@@ -319,6 +319,9 @@ class RuleMerger:
             return
         print(f"🔖 类别: {self.category}，匹配规则源: {len(filtered_sources)} 个")
 
+        # 按类别过滤所有源（含失败/禁用，用于头部 SOURCE_LIST）
+        category_sources = [s for s in sources if s.get("category", "mobile") == self.category]
+
         # 步骤2: 加载头部模板
         print("步骤2: 加载头部模板")
         header_template = self.load_header_template()
@@ -336,7 +339,7 @@ class RuleMerger:
         # 步骤5: 生成头部（单次 format_map 替代 11 次链式 replace）
         print("步骤5: 生成头部")
         desc = "FilterFusion - Ad blocking rules (Mobile)" if self.category == "mobile" else "FilterFusion - Ad blocking rules (PC)"
-        source_list = self.generate_source_list(sources)
+        source_list = self.generate_source_list(category_sources)
         now = datetime.now(UTC)  # 单次调用，消除重复
         header = header_template.format_map(
             _SafeDict(
@@ -345,7 +348,7 @@ class RuleMerger:
                     "TIMEUPDATED": now.strftime("%Y-%m-%d %H:%M:%S UTC"),
                     "TIMEUPDATED_ISO": now.isoformat(),
                     "DESCRIPTION": desc,
-                    "SOURCE_COUNT": str(len(filtered_sources)),
+                    "SOURCE_COUNT": str(len(category_sources)),
                     "SOURCE_LIST": source_list,
                     "COMBINED_RULES": str(self.final_rule_count),
                     "TOTAL_RULES": str(self.initial_rule_count),
