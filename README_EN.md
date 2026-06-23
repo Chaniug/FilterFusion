@@ -154,20 +154,21 @@ flowchart LR
     subgraph PIPE["Two Independent Pipelines"]
         direction TB
         subgraph AD["AdBlock Pipeline"]
-            A1["📋 Config<br/>sources.txt"] --> A2["⬇️ Fetch<br/>fetch_rules.py"]
-            A2 --> A3a["🔀 Merge Mobile<br/>merge_rules.py --category mobile"]
-            A2 --> A3b["🔀 Merge PC<br/>merge_rules.py --category pc"]
-            A3a --> A4a["📤 Output<br/>adblock-mo.txt"]
-            A3b --> A4b["📤 Output<br/>adblock-pc.txt"]
+            A1["📋 Config<br/>sources.yaml"] --> A2["⬇️ Fetch<br/>fetch_rules.py"]
+            A2 --> A3["🔀 Merge<br/>merge_all.py → merge_custom<br/>Driven by custom_rules config"]
+            A3 --> A4a["📤 Output<br/>adblock-mo.txt"]
+            A3 --> A4b["📤 Output<br/>adblock-pc.txt"]
+            A3 --> A4c["📤 Output<br/>custom.txt"]
         end
         subgraph DNS["DNS Pipeline"]
-            D1["📋 Config<br/>dns_sources.txt"] --> D2["⬇️ Fetch<br/>fetch_dns_rules.py"]
+            D1["📋 Config<br/>dns_sources.yaml"] --> D2["⬇️ Fetch<br/>fetch_dns_rules.py"]
             D2 --> D3["🔀 Merge<br/>merge_dns_rules.py"]
             D3 --> D4["📤 Output<br/>dns-blocklist.txt"]
         end
     end
     A4a --> CDN["jsDelivr + GitHub Raw<br/>Multi-CDN Global Distribution"]
     A4b --> CDN
+    A4c --> CDN
     D4 --> CDN
 
     style AD fill:#ebf5ff,stroke:#2196f3
@@ -203,19 +204,53 @@ The merge engine automatically sorts rules into the following 7-tier classificat
 
 ### **Configure Rule Sources**
 
-Edit `config/sources.txt` (AdBlock) or `config/dns_sources.txt` (DNS):
+Edit `config/sources.yaml` (AdBlock) or `config/dns_sources.yaml` (DNS) in YAML format, with syntax highlighting on GitHub:
 
-```txt
-# Format: [M|P|B]|Name|URL (leading # disables)
-#   M: Mobile  P: PC  B: Both (shared, downloaded once)
-B|AdGuard Chinese|https://raw.githubusercontent.com/AdguardTeam/FiltersRegistry/master/filters/filter_224_Chinese/filter.txt
-P|EasyList|https://raw.githubusercontent.com/easylist/easylist/master/easylist.txt
-# P|My Rules|https://example.com/my-rules.txt
+```yaml
+# config/sources.yaml — AdBlock rule sources
+# category: mobile / pc / both (both = shared, downloaded once)
+# Presence = enabled, leading # comment = disabled
+sources:
+  - id: m1
+    category: mobile
+    name: AdGuard Mobile
+    url: https://raw.githubusercontent.com/.../filter.txt
+
+  - id: b1
+    category: both
+    name: AdGuard Chinese
+    url: https://raw.githubusercontent.com/.../filter.txt
+
+# Combination rules — reference sources by ID, merge & dedup to dist/
+# description is optional, auto-generated if omitted
+custom_rules:
+  # Core rules (filenames unchanged, subscription links stay the same)
+  - output: adblock-mo.txt
+    description: FilterFusion - Ad blocking rules (Mobile)
+    sources: [m1, m2, m3, b1, b2]
+
+  - output: adblock-pc.txt
+    description: FilterFusion - Ad blocking rules (PC)
+    sources: [p1, b1, b2]
+
+  # Example: add custom rules (uncomment to enable)
+  # - output: exten.txt
+  #   sources: [m1, b1]
 ```
 
-- One source per line, `|` separates prefix, name and URL
-- Prefix `M` (Mobile), `P` (PC), `B` (Both — same URL downloaded once for both)
-- No prefix defaults to `M`; leading `#` disables the source
+```yaml
+# config/dns_sources.yaml — DNS rule sources
+sources:
+  - name: AdGuard DNS
+    url: https://raw.githubusercontent.com/.../filter.txt
+  # - name: HaGeZi DNS
+  #   url: https://...
+```
+
+- AdBlock sources require `id` (short identifier for custom rules), `category`, `name`, `url`
+- `category: both` sources are downloaded once and shared between mobile and pc
+- `custom_rules` section defines all AdBlock output files (including core `adblock-mo.txt` / `adblock-pc.txt`), references sources by ID, `description` field is optional
+- DNS sources only need `name` and `url`, no custom rules support
 
 ### **Fetch Rules**
 
@@ -289,11 +324,19 @@ The project's GitHub Actions runs the fetch and merge workflow daily — rule fi
 
 ### Q2: How do I customize rule sources?
 
-Edit `config/sources.txt` (AdBlock) or `config/dns_sources.txt` (DNS), one source per line:
+Edit `config/sources.yaml` (AdBlock) or `config/dns_sources.yaml` (DNS) in YAML format:
 
-```txt
-Your Rule Name|https://example.com/filter.txt
-# Unwanted Source|https://example.com/other.txt  (leading # disables)
+```yaml
+# AdBlock sources (require id / category / name / url)
+sources:
+  - id: m1
+    category: mobile
+    name: Your Rule Name
+    url: https://example.com/filter.txt
+  # - id: m2
+  #   category: mobile
+  #   name: Unwanted Source
+  #   url: https://example.com/other.txt  (leading # comment disables)
 ```
 
 The source URL must return a directly accessible plain-text rule file (ABP/uBlock/AdGuard compatible).

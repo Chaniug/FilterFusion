@@ -4,6 +4,10 @@ from __future__ import annotations
 
 import asyncio
 import sys
+from pathlib import Path
+from typing import Any
+
+import yaml
 
 from scripts.base_fetcher import BaseFetcher, SourceInfo
 
@@ -18,86 +22,107 @@ class RuleFetcher(BaseFetcher):
         super().__init__(meta_filename="fetch_meta.json", filename_prefix="", log_tag="广告")
 
     def load_sources(self) -> list[SourceInfo]:
-        """从 config/sources.txt 加载规则源配置。
+        """从 config/sources.yaml 加载规则源配置。
 
-        格式: [M|P|B]|名称|订阅地址
-        M: 移动端 (Mobile), P: 电脑端 (PC), B: 两端共用 (Both)
-        无前缀默认为 M。B 会展开为 mobile 和 pc 两条记录（URL 相同，去重下载）。
+        YAML 格式:
+          sources:
+            - id: m1
+              category: mobile / pc / both
+              name: AdGuard Mobile
+              url: https://...
+          custom_rules:
+            - output: adblock-mo.txt
+              description: FilterFusion - Ad blocking rules (Mobile)  # 可选
+              sources: [m1, m2, m3, b1, b2]
+
+        category: both 会展开为 mobile 和 pc 两条记录（URL 相同，去重下载）。
         """
-        config_path = self.project_root / "config" / "sources.txt"
+        config_path = self.project_root / "config" / "sources.yaml"
 
         if not config_path.exists():
             print(f"❌ 找不到配置文件 {config_path}")
             sys.exit(1)
 
         sources: list[SourceInfo] = []
+        seen_ids: set[str] = set()
+
         try:
-            for line_num, raw_line in enumerate(config_path.read_text(encoding="utf-8").splitlines(), 1):
-                raw = raw_line.strip()
-                if not raw:
-                    continue
-
-                # 判断是否被禁用（行首 # 且包含 |）
-                disabled = False
-                if raw.startswith("#"):
-                    content = raw[1:].strip()
-                    if "|" not in content:
-                        continue  # 纯注释行，跳过
-                    disabled = True
-                    raw = content
-
-                # 解析 [M|P|B]|名称|URL
-                if "|" not in raw:
-                    print(f"⚠️ 第 {line_num} 行格式错误（缺少 |）: {raw}")
-                    continue
-
-                parts = [p.strip() for p in raw.split("|", 2)]
-                if len(parts) == 3:
-                    prefix, name, url = parts
-                elif len(parts) == 2:
-                    name, url = parts
-                    prefix = "M"
-                else:
-                    continue
-
-                if not name or not url:
-                    print(f"⚠️ 第 {line_num} 行名称或地址为空: {raw}")
-                    continue
-
-                # 校验 URL 格式（必须以 http 开头）
-                if not url.startswith("http"):
-                    continue  # 非有效 URL，视为纯注释行
-
-                prefix_upper = prefix.upper()
-
-                # B> 展开为 mobile + pc 两条记录（URL 相同，fetch 阶段按 URL 去重）
-                if prefix_upper == "B":
-                    sources.append({
-                        "name": name,
-                        "url": url,
-                        "category": "mobile",
-                        "enabled": not disabled,
-                    })
-                    sources.append({
-                        "name": name,
-                        "url": url,
-                        "category": "pc",
-                        "enabled": not disabled,
-                    })
-                else:
-                    category = "pc" if prefix_upper == "P" else "mobile"
-                    sources.append({
-                        "name": name,
-                        "url": url,
-                        "category": category,
-                        "enabled": not disabled,
-                    })
-
-            print(f"加载了 {len(sources)} 个规则源")
-            return sources
-        except Exception as e:
-            print(f"❌ 加载配置出错: {e}")
+            data: dict[str, Any] = yaml.safe_load(config_path.read_text(encoding="utf-8")) or {}
+        except yaml.YAMLError as e:
+            print(f"❌ YAML 解析失败: {e}")
             sys.exit(1)
+
+        # 解析 sources 段
+        raw_sources = data.get("sources") or []
+        for idx, item in enumerate(raw_sources, 1):
+            source_id = str(item.get("id", "")).strip()
+            name = str(item.get("name", "")).strip()
+            url = str(item.get("url", "")).strip()
+            category = str(item.get("category", "mobile")).strip().lower()
+
+            if not name or not url:
+                print(f"⚠️ 第 {idx} 个源缺少 name 或 url，跳过")
+                continue
+
+            if not url.startswith("http"):
+                print(f"⚠️ 第 {idx} 个源 url 无效: {url}")
+                continue
+
+            if category not in ("mobile", "pc", "both"):
+                print(f"⚠️ 第 {idx} 个源 category 无效 '{category}'，默认为 mobile")
+                category = "mobile"
+
+            # both 展开为 mobile + pc 两条记录（URL 相同，fetch 阶段按 URL 去重）
+            if category == "both":
+                targets = ["mobile", "pc"]
+            else:
+                targets = [category]
+
+            for cat in targets:
+                record: SourceInfo = {
+                    "name": name,
+                    "url": url,
+                    "category": cat,
+                    "enabled": True,
+                }
+                if source_id:
+                    # both 源两条记录共享同一 id（用于组合规则按 ID 引用）
+                    if source_id in seen_ids and cat == targets[0]:
+                        print(f"⚠️ 重复的源 ID '{source_id}'，跳过")
+                        break
+                    if source_id not in seen_ids:
+                        seen_ids.add(source_id)
+                    record["id"] = source_id
+                sources.append(record)
+
+            # 同时记录用于组合规则的 id → name/url 映射（仅首次出现时）
+
+        # 解析 custom_rules 段
+        raw_custom = data.get("custom_rules") or []
+        for item in raw_custom:
+            output = str(item.get("output", "")).strip()
+            rule_sources = item.get("sources") or []
+            description = str(item.get("description", "")).strip()
+            if not output or not rule_sources:
+                print(f"⚠️ 组合规则缺少 output 或 sources，跳过")
+                continue
+
+            # 规范化 source_ids 为字符串列表
+            source_ids = [str(s).strip() for s in rule_sources if str(s).strip()]
+            if not source_ids:
+                print(f"⚠️ 组合规则 '{output}' 的 sources 为空，跳过")
+                continue
+
+            rule_config: dict[str, Any] = {
+                "output": output,
+                "sources": source_ids,
+            }
+            if description:
+                rule_config["description"] = description
+            self.custom_rules.append(rule_config)
+
+        print(f"加载了 {len(sources)} 个规则源，{len(self.custom_rules)} 个组合规则")
+        return sources
 
 
 async def main() -> None:

@@ -25,15 +25,25 @@ jobs:
     - name: 📦 打包所有规则文件为 ZIP 压缩包
       run: |
         cd dist
-        zip ../weekly-rules.zip adblock-mo.txt adblock-pc.txt dns-blocklist.txt
+        zip ../weekly-rules.zip *.txt
         cd ..
 
     - name: 📊 统计规则文件数量与拦截规则条目数
       id: stats
       run: |
-        FILE_COUNT=$(ls -1 dist/adblock-mo.txt dist/adblock-pc.txt dist/dns-blocklist.txt 2>/dev/null | wc -l)
+        FILE_COUNT=$(ls -1 dist/*.txt 2>/dev/null | wc -l)
         ADBLOCK_COUNT=$(cat dist/adblock-mo.txt dist/adblock-pc.txt 2>/dev/null | grep -vcE '^\s*(!|\[|$)' || echo 0)
         DNS_COUNT=$(cat dist/dns-blocklist.txt 2>/dev/null | grep -vcE '^\s*(!|\[|$)' || echo 0)
+
+        # 统计自定义组合规则文件的规则数（排除 3 个核心文件）
+        CUSTOM_COUNT=0
+        for f in dist/*.txt; do
+          case "$f" in
+            dist/adblock-mo.txt|dist/adblock-pc.txt|dist/dns-blocklist.txt) ;;
+            *) CUSTOM_COUNT=$(( CUSTOM_COUNT + $(grep -vcE '^\s*(!|\[|$)' "$f" 2>/dev/null || echo 0) )) ;;
+          esac
+        done
+
         TOTAL_COUNT=$(( ADBLOCK_COUNT + DNS_COUNT ))
 
         # 格式化为千位分隔的数字，方便 Release 页面展示

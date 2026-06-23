@@ -154,20 +154,21 @@ flowchart LR
     subgraph PIPE["两条独立管道"]
         direction TB
         subgraph AD["AdBlock 管道"]
-            A1["📋 配置<br/>sources.txt"] --> A2["⬇️ 抓取<br/>fetch_rules.py"]
-            A2 --> A3a["🔀 合并 Mobile<br/>merge_rules.py --category mobile"]
-            A2 --> A3b["🔀 合并 PC<br/>merge_rules.py --category pc"]
-            A3a --> A4a["📤 输出<br/>adblock-mo.txt"]
-            A3b --> A4b["📤 输出<br/>adblock-pc.txt"]
+            A1["📋 配置<br/>sources.yaml"] --> A2["⬇️ 抓取<br/>fetch_rules.py"]
+            A2 --> A3["🔀 合并<br/>merge_all.py → merge_custom<br/>按 custom_rules 配置驱动"]
+            A3 --> A4a["📤 输出<br/>adblock-mo.txt"]
+            A3 --> A4b["📤 输出<br/>adblock-pc.txt"]
+            A3 --> A4c["📤 输出<br/>自定义.txt"]
         end
         subgraph DNS["DNS 管道"]
-            D1["📋 配置<br/>dns_sources.txt"] --> D2["⬇️ 抓取<br/>fetch_dns_rules.py"]
+            D1["📋 配置<br/>dns_sources.yaml"] --> D2["⬇️ 抓取<br/>fetch_dns_rules.py"]
             D2 --> D3["🔀 合并<br/>merge_dns_rules.py"]
             D3 --> D4["📤 输出<br/>dns-blocklist.txt"]
         end
     end
     A4a --> CDN["jsDelivr + GitHub Raw<br/>多 CDN 全球分发"]
     A4b --> CDN
+    A4c --> CDN
     D4 --> CDN
 
     style AD fill:#ebf5ff,stroke:#2196f3
@@ -203,19 +204,53 @@ example.com##.ad-banner         # 元素隐藏
 
 ### **配置规则源**
 
-编辑 `config/sources.txt`（AdBlock）或 `config/dns_sources.txt`（DNS）：
+编辑 `config/sources.yaml`（AdBlock）或 `config/dns_sources.yaml`（DNS），YAML 格式，GitHub 网页编辑有语法高亮：
 
-```txt
-# 格式: [M|P|B]|名称|URL（行首 # 禁用）
-#   M: 移动端  P: 电脑端  B: 两端共用
-B|AdGuard Chinese|https://raw.githubusercontent.com/AdguardTeam/FiltersRegistry/master/filters/filter_224_Chinese/filter.txt
-P|EasyList|https://raw.githubusercontent.com/easylist/easylist/master/easylist.txt
-# P|My Rules|https://example.com/my-rules.txt
+```yaml
+# config/sources.yaml — AdBlock 规则源
+# category: mobile(移动端) / pc(电脑端) / both(两端共用，同 URL 只下载一次)
+# 存在即启用，行首 # 注释即禁用
+sources:
+  - id: m1
+    category: mobile
+    name: AdGuard Mobile
+    url: https://raw.githubusercontent.com/.../filter.txt
+
+  - id: b1
+    category: both
+    name: AdGuard Chinese
+    url: https://raw.githubusercontent.com/.../filter.txt
+
+# 组合规则 — 按 ID 引用源，合并去重后输出到 dist/
+# description 可选，不填则自动生成
+custom_rules:
+  # 核心规则（文件名保持不变，订阅链接无需修改）
+  - output: adblock-mo.txt
+    description: FilterFusion - Ad blocking rules (Mobile)
+    sources: [m1, m2, m3, b1, b2]
+
+  - output: adblock-pc.txt
+    description: FilterFusion - Ad blocking rules (PC)
+    sources: [p1, b1, b2]
+
+  # 示例：新增自定义规则（取消注释即可启用）
+  # - output: exten.txt
+  #   sources: [m1, b1]
 ```
 
-- 一行一个源，`|` 分隔前缀、名称和地址
-- 前缀 `M`（移动端）、`P`（电脑端）、`B`（两端共用，同 URL 只下载一次）
-- 无前缀默认为 `M`；行首 `#` 禁用该源
+```yaml
+# config/dns_sources.yaml — DNS 规则源
+sources:
+  - name: AdGuard DNS
+    url: https://raw.githubusercontent.com/.../filter.txt
+  # - name: HaGeZi DNS
+  #   url: https://...
+```
+
+- AdBlock 源需 `id`（短标识，被组合规则引用）、`category`、`name`、`url` 四个字段
+- `category: both` 的源同 URL 只下载一次，自动分发给 mobile 和 pc
+- `custom_rules` 段定义所有 AdBlock 产出文件（含核心的 `adblock-mo.txt` / `adblock-pc.txt`），按 ID 引用已抓取的源，`description` 字段可选
+- DNS 源仅需 `name` 和 `url`，不支持组合规则
 
 ### **抓取规则**
 
@@ -289,11 +324,19 @@ flowchart LR
 
 ### Q2: 如何自定义规则源？
 
-编辑 `config/sources.txt`（AdBlock）或 `config/dns_sources.txt`（DNS），一行一个源：
+编辑 `config/sources.yaml`（AdBlock）或 `config/dns_sources.yaml`（DNS），YAML 格式：
 
-```txt
-你的规则名|https://example.com/filter.txt
-# 不需要的源|https://example.com/other.txt  （行首 # 禁用）
+```yaml
+# AdBlock 源（需 id / category / name / url）
+sources:
+  - id: m1
+    category: mobile
+    name: 你的规则名
+    url: https://example.com/filter.txt
+  # - id: m2
+  #   category: mobile
+  #   name: 不需要的源
+  #   url: https://example.com/other.txt  （行首 # 注释即禁用）
 ```
 
 规则源 URL 必须返回可直链访问的纯文本规则文件（ABP/uBlock/AdGuard 格式）。

@@ -271,6 +271,78 @@ class RuleMerger:
         today = datetime.now(UTC)
         return f"{today.year}{today.month:02d}{today.day:02d}"
 
+    def _do_merge(
+        self,
+        sources_to_merge: list[dict[str, Any]],
+        sources_for_header: list[dict[str, Any]],
+        output_filename: str,
+        description: str,
+        log_tag: str = "",
+    ) -> tuple[int, int, float, list[dict[str, Any]], str]:
+        """通用合并方法：加载头部 → 收集去重 → 校验和 → 保存到 dist/。
+
+        返回 (initial_count, final_count, processing_time, source_stats, checksum)。
+        """
+        # 加载头部模板
+        header_template = self.load_header_template()
+
+        # 收集、处理和去重规则
+        rules, groups, source_stats = self.collect_and_process_rules(sources_to_merge)
+        initial_count = sum(s["rule_count"] for s in source_stats)
+        final_count = sum(len(v) for v in groups.values())
+
+        # 生成版本号
+        version = self.generate_version()
+
+        # 生成头部
+        source_list = self.generate_source_list(sources_for_header)
+        now = datetime.now(UTC)
+        header = header_template.format_map(
+            _SafeDict(
+                {
+                    "VERSION": version,
+                    "TIMEUPDATED": now.strftime("%Y-%m-%d %H:%M:%S UTC"),
+                    "TIMEUPDATED_ISO": now.isoformat(),
+                    "DESCRIPTION": description,
+                    "SOURCE_COUNT": str(len(sources_for_header)),
+                    "SOURCE_LIST": source_list,
+                    "COMBINED_RULES": str(final_count),
+                    "TOTAL_RULES": str(initial_count),
+                    "DUPLICATES": str(initial_count - final_count),
+                    "HOMEPAGE": "https://github.com/Chaniug/FilterFusion",
+                    "LICENSE": "MIT License",
+                }
+            )
+        )
+
+        # 构建最终内容
+        content = header.rstrip("\n") + "\n" + "\n".join(rules)
+
+        # 计算校验和（ABP 标准：MD5 + Base64）
+        content_for_checksum = "\n".join(
+            line for line in content.split("\n") if not line.startswith("! Checksum:")
+        )
+        md5_hash = hashlib.md5(content_for_checksum.encode("utf-8")).digest()
+        checksum = base64.b64encode(md5_hash).decode("utf-8")
+        content = content.replace("{CHECKSUM}", checksum)
+
+        # 保存前检查规则数是否为 0
+        if final_count == 0:
+            print("⚠️ 合并后规则数为 0，不覆盖现有文件")
+            return initial_count, final_count, 0.0, source_stats, checksum
+
+        # 保存规则文件
+        rule_path = self.dist_dir / output_filename
+        rule_path.write_text(content, encoding="utf-8")
+
+        # 计算处理时间
+        processing_time = (datetime.now() - self.start_time).total_seconds()
+
+        tag = f" [{log_tag}]" if log_tag else ""
+        print(f"✅ AdBlock{tag} 合并完成: {initial_count} → {final_count} 条 (去重 {initial_count - final_count}, {processing_time:.2f}s) → dist/{output_filename}")
+
+        return initial_count, final_count, processing_time, source_stats, checksum
+
     def merge(self) -> None:
         # 步骤1: 加载元数据
         metadata = self.load_metadata()
@@ -292,70 +364,88 @@ class RuleMerger:
         # 按类别过滤所有源（含失败/禁用，用于头部 SOURCE_LIST）
         category_sources = [s for s in sources if s.get("category", "mobile") == self.category]
 
-        # 步骤2: 加载头部模板
-        header_template = self.load_header_template()
-
-        # 步骤3: 收集、处理和去重规则（只传入匹配类别的源）
-        rules, groups, source_stats = self.collect_and_process_rules(filtered_sources)
-        self.initial_rule_count = sum(s["rule_count"] for s in source_stats)
-        self.final_rule_count = sum(len(v) for v in groups.values())
-
-        # 步骤4: 生成版本号
-        version = self.generate_version()
-
-        # 步骤5: 生成头部（单次 format_map 替代 11 次链式 replace）
+        # 生成描述
         desc = "FilterFusion - Ad blocking rules (Mobile)" if self.category == "mobile" else "FilterFusion - Ad blocking rules (PC)"
-        source_list = self.generate_source_list(category_sources)
-        now = datetime.now(UTC)  # 单次调用，消除重复
-        header = header_template.format_map(
-            _SafeDict(
-                {
-                    "VERSION": version,
-                    "TIMEUPDATED": now.strftime("%Y-%m-%d %H:%M:%S UTC"),
-                    "TIMEUPDATED_ISO": now.isoformat(),
-                    "DESCRIPTION": desc,
-                    "SOURCE_COUNT": str(len(category_sources)),
-                    "SOURCE_LIST": source_list,
-                    "COMBINED_RULES": str(self.final_rule_count),
-                    "TOTAL_RULES": str(self.initial_rule_count),
-                    "DUPLICATES": str(self.initial_rule_count - self.final_rule_count),
-                    "HOMEPAGE": "https://github.com/Chaniug/FilterFusion",
-                    "LICENSE": "MIT License",
-                }
-            )
+        suffix = "mo" if self.category == "mobile" else "pc"
+        output_filename = f"adblock-{suffix}.txt"
+
+        # 调用通用合并方法
+        initial_count, final_count, processing_time, source_stats, checksum = self._do_merge(
+            sources_to_merge=filtered_sources,
+            sources_for_header=category_sources,
+            output_filename=output_filename,
+            description=desc,
+            log_tag=self.category,
         )
-        # {CHECKSUM} 通过 _SafeDict.__missing__ 保持为字面占位符，后续单独替换
 
-        # 构建最终内容
-        content = header.rstrip("\n") + "\n" + "\n".join(rules)
+        # 保存摘要信息
+        version = self.generate_version()
+        self.initial_rule_count = initial_count
+        self.final_rule_count = final_count
+        self.save_summary(version, checksum, source_stats, processing_time)
 
-        # 步骤6: 计算校验和（ABP 标准：MD5 + Base64）
-        content_for_checksum = "\n".join(
-            line for line in content.split("\n") if not line.startswith("! Checksum:")
-        )
-        md5_hash = hashlib.md5(content_for_checksum.encode("utf-8")).digest()
-        checksum = base64.b64encode(md5_hash).decode("utf-8")
-        content = content.replace("{CHECKSUM}", checksum)
+    def merge_custom(
+        self, output_filename: str, source_ids: list[str], description: str = ""
+    ) -> None:
+        """合并自定义组合规则：按 ID 查找源 → 按 file 去重 → 合并去重 → 输出到 dist/。
 
-        # 保存前检查规则数是否为 0
-        if self.final_rule_count == 0:
-            print("⚠️ 合并后规则数为 0，不覆盖现有文件")
+        Args:
+            output_filename: 输出文件名（如 adblock-mo.txt）
+            source_ids: 要引用的源 ID 列表（如 ["m1", "m2", "b1"]）
+            description: 可选的规则描述文本，不填则自动生成
+        """
+        # 加载元数据
+        metadata = self.load_metadata()
+        sources: list[dict[str, Any]] = metadata["sources"]
+
+        # 按 ID 查找源记录
+        id_to_sources: dict[str, list[dict[str, Any]]] = {}
+        for s in sources:
+            sid = s.get("id")
+            if sid:
+                id_to_sources.setdefault(sid, []).append(s)
+
+        # 收集要合并的源（按 ID 引用，按 file 去重避免 B 源重复处理）
+        sources_to_merge: list[dict[str, Any]] = []
+        seen_files: set[str] = set()
+        for sid in source_ids:
+            matched = id_to_sources.get(sid)
+            if not matched:
+                print(f"⚠️ 组合规则 '{output_filename}' 引用的 ID '{sid}' 不存在，跳过")
+                continue
+            for s in matched:
+                file_name = s.get("file", "")
+                if file_name and file_name in seen_files:
+                    continue  # 同一文件已加入，跳过
+                if file_name:
+                    seen_files.add(file_name)
+                if s.get("status") == "success":
+                    sources_to_merge.append(s)
+
+        if not sources_to_merge:
+            print(f"⚠️ 组合规则 '{output_filename}' 没有可用的源，跳过")
             return
 
-        # 步骤7: 保存规则文件（直接写入规范文件名，不生成日期快照）
-        suffix = "mo" if self.category == "mobile" else "pc"
-        rule_filename = f"adblock-{suffix}.txt"
-        rule_path = self.dist_dir / rule_filename
-        rule_path.write_text(content, encoding="utf-8")
+        print(f"🔖 组合规则 [{output_filename}]: {len(source_ids)} 个 ID → {len(sources_to_merge)} 个源", flush=True)
 
-        # 计算处理时间
-        processing_time = (datetime.now() - self.start_time).total_seconds()
+        # 生成描述：优先使用配置中的 description，否则自动生成
+        if description:
+            desc = description
+        else:
+            name_without_ext = output_filename.rsplit(".", 1)[0] if "." in output_filename else output_filename
+            desc = f"FilterFusion - Custom combined rules ({name_without_ext})"
 
-        # 显示摘要
-        print(f"✅ AdBlock [{self.category}] 合并完成: {self.initial_rule_count} → {self.final_rule_count} 条 (去重 {self.initial_rule_count - self.final_rule_count}, {processing_time:.2f}s) → dist/{rule_filename}")
+        # 重置 start_time 用于此组合规则单独计时
+        self.start_time = datetime.now()
 
-        # 步骤8: 保存摘要信息
-        self.save_summary(version, checksum, source_stats, processing_time)
+        # 调用通用合并方法（头部 SOURCE_LIST 用合并的源列表）
+        self._do_merge(
+            sources_to_merge=sources_to_merge,
+            sources_for_header=sources_to_merge,
+            output_filename=output_filename,
+            description=desc,
+            log_tag=output_filename,
+        )
 
     def save_summary(
         self,

@@ -4,6 +4,9 @@ from __future__ import annotations
 
 import asyncio
 import sys
+from typing import Any
+
+import yaml
 
 from scripts.base_fetcher import BaseFetcher, SourceInfo
 
@@ -18,11 +21,14 @@ class DnsRuleFetcher(BaseFetcher):
         super().__init__(meta_filename="dns_fetch_meta.json", filename_prefix="dns_", log_tag="DNS")
 
     def load_sources(self) -> list[SourceInfo]:
-        """从 config/dns_sources.txt 加载 DNS 规则源配置。
+        """从 config/dns_sources.yaml 加载 DNS 规则源配置。
 
-        格式: 名称|订阅地址
+        YAML 格式:
+          sources:
+            - name: AdGuard DNS
+              url: https://...
         """
-        config_path = self.project_root / "config" / "dns_sources.txt"
+        config_path = self.project_root / "config" / "dns_sources.yaml"
 
         if not config_path.exists():
             print(f"❌ 找不到 DNS 配置文件 {config_path}")
@@ -30,45 +36,32 @@ class DnsRuleFetcher(BaseFetcher):
 
         sources: list[SourceInfo] = []
         try:
-            for line_num, raw_line in enumerate(config_path.read_text(encoding="utf-8").splitlines(), 1):
-                raw = raw_line.strip()
-                if not raw:
-                    continue
-
-                # 判断是否被禁用（行首 # 且包含 |）
-                disabled = False
-                if raw.startswith("#"):
-                    content = raw[1:].strip()
-                    if "|" not in content:
-                        continue  # 纯注释行，跳过
-                    disabled = True
-                    raw = content
-
-                # 解析 名称|URL
-                if "|" not in raw:
-                    print(f"⚠️ 第 {line_num} 行格式错误（缺少 |）: {raw}")
-                    continue
-
-                name, url = (part.strip() for part in raw.split("|", 1))
-                if not name or not url:
-                    print(f"⚠️ 第 {line_num} 行名称或地址为空: {raw}")
-                    continue
-
-                # 校验 URL 格式（必须以 http 开头）
-                if not url.startswith("http"):
-                    continue  # 非有效 URL，视为纯注释行
-
-                sources.append({
-                    "name": name,
-                    "url": url,
-                    "enabled": not disabled,
-                })
-
-            print(f"加载了 {len(sources)} 个 DNS 规则源")
-            return sources
-        except Exception as e:
-            print(f"❌ 加载 DNS 配置出错: {e}")
+            data: dict[str, Any] = yaml.safe_load(config_path.read_text(encoding="utf-8")) or {}
+        except yaml.YAMLError as e:
+            print(f"❌ YAML 解析失败: {e}")
             sys.exit(1)
+
+        raw_sources = data.get("sources") or []
+        for idx, item in enumerate(raw_sources, 1):
+            name = str(item.get("name", "")).strip()
+            url = str(item.get("url", "")).strip()
+
+            if not name or not url:
+                print(f"⚠️ 第 {idx} 个 DNS 源缺少 name 或 url，跳过")
+                continue
+
+            if not url.startswith("http"):
+                print(f"⚠️ 第 {idx} 个 DNS 源 url 无效: {url}")
+                continue
+
+            sources.append({
+                "name": name,
+                "url": url,
+                "enabled": True,
+            })
+
+        print(f"加载了 {len(sources)} 个 DNS 规则源")
+        return sources
 
 
 async def main() -> None:

@@ -17,6 +17,124 @@ FilterFusion — 广告过滤规则聚合工具，从多源获取过滤规则，
 
 ---
 
+## 2026-06-23（配置 YAML 迁移 + 自定义组合规则）
+
+### 配置格式迁移：txt → YAML
+
+- `config/sources.txt` → `config/sources.yaml`：`[M|P|B]|名称|URL` 改为 YAML 结构（`id` / `category` / `name` / `url`）
+- `config/dns_sources.txt` → `config/dns_sources.yaml`：`名称|URL` 改为 YAML 结构（`name` / `url`）
+- 新增 `pyyaml>=6.0` 依赖（`requirements.txt` + `pyproject.toml` 同步）
+- 动机：GitHub 网页编辑 YAML 有语法高亮，缩进结构清晰，手机端编辑友好；key:value 自文档化，扩展字段只需加 key
+
+### 自定义组合规则（custom_rules）
+
+- `sources.yaml` 新增 `custom_rules` 段：按 ID 引用已抓取的源，合并去重后输出到 `dist/`
+- 每个 AdBlock 源分配短 ID（m1/m2/m3/b1/b2/p1），被组合规则按 ID 引用
+- `merge_rules.py`：提取 `_do_merge` 通用方法（复用分类、去重、校验和、头部模板逻辑）；新增 `merge_custom(output, source_ids)` 方法
+- `merge_all.py`：标准 3 合并后，从 `fetch_meta.json` 读取 `custom_rules`，循环调用 `merge_custom`
+- `base_fetcher.py`：`__slots__` 新增 `custom_rules`；`_build_success`/`_build_failure`/`_build_disabled` 及共享下载结果传播 `id` 字段；元数据输出 `custom_rules`
+- 零额外网络开销：组合规则引用的源已被主流程抓取，合并阶段仅读本地文件
+
+### 抓取层适配
+
+- `fetch_rules.py`：`load_sources()` 重写为 `yaml.safe_load` 解析，提取 `sources` + `custom_rules`，ID 冲突检测
+- `fetch_dns_rules.py`：`load_sources()` 重写为 `yaml.safe_load` 解析 `dns_sources.yaml`
+- B（both）源两条记录共享同一 ID，组合规则按 ID 引用时按 `file` 去重避免重复处理
+
+### 工作流适配
+
+- `daily-update.yaml`：校验步骤保留 3 个标准文件硬性校验 + 列举自定义文件
+- `weekly-release.yml`：打包改为 `zip *.txt` 通配；统计步骤动态统计 `dist/*.txt` 规则数
+
+### 文档同步
+
+- `README.md` / `README_EN.md`：配置示例改为 YAML + custom_rules 说明、Mermaid 数据流图新增组合规则分支、Q2 FAQ 更新
+- `PROJECT_DOCS.md`：4.1 节配置格式全量重写、目录结构更新、数据流图更新、4.3 节新增 merge_custom 说明、输出产物新增自定义规则章节、维护指南新增组合规则配置说明
+
+### 核心规则迁移到 custom_rules 驱动
+
+- `adblock-mo.txt` / `adblock-pc.txt` 从硬编码 `merge()` 迁移到 `custom_rules` 配置驱动，文件名和订阅链接保持不变
+- `sources.yaml` 的 `custom_rules` 新增可选 `description` 字段，核心规则使用原有描述文本（`Ad blocking rules (Mobile/PC)`）
+- `fetch_rules.py`：解析 `custom_rules` 时读取 `description` 字段
+- `merge_rules.py`：`merge_custom` 方法新增 `description` 参数，优先使用配置描述，未提供时自动生成
+- `merge_all.py`：移除硬编码的 `RuleMerger(category="mobile").merge()` 和 `RuleMerger(category="pc").merge()` 调用，AdBlock 规则全部通过 `custom_rules` 统一驱动；DNS 管道保持独立
+- 动机：所有 AdBlock 产出文件统一由配置驱动，新增/修改规则只需编辑 `sources.yaml`，无需改代码
+
+---
+
+## 2026-06-23（性能优化 + 配置重构 + 日志精简）
+
+### GitHub Actions 性能优化
+
+#### 1. 统一合并入口（进程合并）
+- 新建 `scripts/merge_all.py`：单进程顺序执行 mobile/pc/DNS 3 个合并任务
+- `daily-update.yaml`：3 个合并 step → 1 个 `uv run --no-project python -m scripts.merge_all`
+- 减少 2 次 Python 解释器启动开销（约 0.6-1s），对齐已有的 `fetch_all.py` 单进程模式
+
+#### 2. 抽取共享 Fetch 基类
+- 新建 `scripts/base_fetcher.py`，定义 `BaseFetcher` 基类
+- 共享 `FetchStatus` 枚举、`fetch_single_rule`、`fetch_all_rules`、`_build_success`/`_build_failure`/`_build_disabled`
+- `fetch_rules.py` 261→90 行，`fetch_dns_rules.py` 244→80 行
+- 子类仅实现 `load_sources()`
+
+#### 3. 修复 weekly-release 规则数重复统计 bug
+- `cat dist/adblock-main.txt dist/adblock-main-*.txt ...` 通配符同时匹配规范文件和日期归档，规则数翻倍
+- 修复：统计只用规范文件
+
+#### 4. 其他优化
+- `merge_dns_rules.py`：移除 `final_rule_count` 死代码，8 次链式 `.replace()` → 单次 `format_map()`
+- `pyproject.toml`：mypy/basedpyright `python_version` 3.10 → 3.14
+
+### dist 目录简化：移除日期快照
+
+- 移除所有 `adblock-*-YYYYMMDD.txt` 和 `dns-blocklist-YYYYMMDD.txt` 日期快照文件
+- `merge_rules.py` / `merge_dns_rules.py`：直接写入规范文件名，不再生成快照+copyfile
+- `daily-update.yaml`：删除"清理旧的规则文件"整个 step
+- `weekly-release.yml`：zip 打包和统计只用 3 个规范文件
+- dist 最终只保留：`adblock-mo.txt`、`adblock-pc.txt`、`dns-blocklist.txt`
+
+### 配置格式重构
+
+#### 1. 分隔符 `>` → `|`
+- `config/sources.txt`：`M|名称|URL` / `P|名称|URL` / `B|名称|URL`
+- `config/dns_sources.txt`：`名称|URL`
+- 理由：`>` 一符两用语义混淆，`|` 语义清晰
+
+#### 2. 新增 B 前缀（两端共用）
+- `B` 展开为 mobile + pc 两条 source 记录（URL 相同）
+- `base_fetcher.py` 的 `fetch_all_rules()` 按 URL 去重：同 URL 只下载一次，结果共享给所有同 URL 的 source 记录
+- AdGuard Chinese 和 Chaniug AdSuper 改用 B 前缀，各省一次下载
+
+#### 3. adblock-main.txt → adblock-mo.txt
+- 移动端文件名从 `adblock-main.txt` 改为 `adblock-mo.txt`（mo = Mobile，更直观）
+- 同步更新 `merge_rules.py`、`daily-update.yaml`、`weekly-release.yml`、README
+
+### PC 端规则源扩充
+
+PC 端从 1 个源扩充到 4 个，与移动端对齐：
+- `AdGuard Base`（替代原 Android 优化版）
+- `AdGuard Chinese`（B 共用）
+- `Chaniug AdSuper`（B 共用）
+- `EasyList`（新增）
+- 全部使用 `raw.githubusercontent.com` 同域，HTTP/2 多路复用
+- 另加 3 条 AdGuard optimized 版本作为禁用注释源
+
+### 日志精简
+
+精简所有脚本的 CI 日志输出，减少约 60-70% 日志量：
+- 去掉所有 `=`*50 分隔线横幅
+- 去掉路径调试信息（项目根目录、规则目录、元数据文件、配置文件路径）
+- 去掉"步骤1/2/3..."逐步标签
+- 去掉逐源文件处理路径和规则数（最终摘要有汇总）
+- 合并结果摘要压缩为一行：`✅ AdBlock [mobile] 合并完成: 31367 → 31340 条 (去重 27, 1.23s) → dist/adblock-mo.txt`
+- 保留：阶段标识、源数量、抓取成功/失败、最终摘要、所有错误和警告
+
+### 文档同步
+- `README.md` / `README_EN.md`：订阅地址改为代码块分组范式（每块 3 行 CDN + blockquote 说明）、配置示例改为 `|` 格式 + B 前缀、Mermaid 图和 Q4 表格同步、删除过时 summary.json 引用、补充 PC 端订阅地址
+- `PROJECT_DOCS.md` → v1.8，全量同步配置格式、输出产物、订阅地址、目录结构
+
+---
+
 ## 2026-06-23（CI/CD 重大升级与文档同步）
 
 ### 工作流版本升级

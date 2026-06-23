@@ -41,17 +41,27 @@ jobs:
     - name: 🔄 统一抓取所有规则（AdBlock + DNS）
       run: uv run --no-project python -m scripts.fetch_all
 
-    - name: 🔀 统一合并所有规则（AdBlock Mobile/PC + DNS）
+    - name: 🔀 统一合并所有规则（AdBlock custom_rules + DNS）
       run: uv run --no-project python -m scripts.merge_all
 
-    - name: ✅ 校验规则文件（AdBlock + PC + DNS）
+    - name: ✅ 校验规则文件（AdBlock + PC + DNS + 自定义）
       run: |
+        # 校验核心文件（必须存在且非空）
         for f in dist/adblock-mo.txt dist/adblock-pc.txt dist/dns-blocklist.txt; do
           if [ ! -s "$f" ]; then
             echo "❌ 错误: $f 不存在或为空"
             exit 1
           fi
           echo "✅ $f: $(wc -l < "$f") 行"
+        done
+
+        # 列举自定义组合规则文件（可选，非空则显示行数）
+        echo "📦 自定义规则文件:"
+        for f in dist/*.txt; do
+          case "$f" in
+            dist/adblock-mo.txt|dist/adblock-pc.txt|dist/dns-blocklist.txt) ;;
+            *) echo "  ✅ $f: $(wc -l < "$f") 行" ;;
+          esac
         done
 
     - name: 🧹 清理临时规则文件与缓存

@@ -1,0 +1,14 @@
+# FilterFusion DNS 过滤规则源配置
+# 格式: YAML
+#   sources: DNS 规则源列表，每项含 name / url
+# 存在即启用，行首 # 注释即禁用
+
+sources:
+  - name: AdGuard DNS
+    url: https://raw.githubusercontent.com/AdguardTeam/FiltersRegistry/master/filters/filter_15_DnsFilter/filter.txt
+
+  # 下面是关闭的源（去掉行首 # 即可开启）：
+  # - name: HaGeZi DNS
+  #   url: https://raw.githubusercontent.com/hagezi/dns-blocklists/main/dns-selective.txt
+  # - name: StevenBlack Hosts
+  #   url: https://raw.githubusercontent.com/StevenBlack/hosts/master/hosts

@@ -1,6 +1,6 @@
 # FilterFusion 项目文档
 
-> **版本**: 1.7 | **最后更新**: 2026-06-23 | **许可证**: MIT
+> **版本**: 1.8 | **最后更新**: 2026-06-23 | **许可证**: MIT
 
 ---
 
@@ -10,7 +10,7 @@
 - [2. 项目架构](#2-项目架构)
 - [3. 目录结构](#3-目录结构)
 - [4. 核心组件详解](#4-核心组件详解)
-  - [4.1 规则源配置 (`config/sources.txt`)](#41-规则源配置-configsourcestxt)
+  - [4.1 规则源配置 (`config/sources.yaml`)](#41-adblock-规则源配置-configsourcesyaml)
   - [4.2 抓取脚本 (`scripts/fetch_rules.py`)](#42-抓取脚本-scriptsfetch_rulespy)
   - [4.3 合并脚本 (`scripts/merge_rules.py`)](#43-合并脚本-scriptsmerge_rulespy)
   - [4.4 输出头部模板 (`config/default.header`)](#44-输出头部模板-configdefaultheader)
@@ -67,23 +67,23 @@ FilterFusion 是一个**自动化广告过滤规则聚合工具**，由 [Chaniug
 flowchart LR
     subgraph ADBLOCK["AdBlock 规则流水线"]
         direction LR
-        A1[("config/<br/>sources.txt")] -->|M 类源| B1["fetch_all.py<br/>统一入口并发抓取<br/>httpx + HTTP/2"]
+        A1[("config/<br/>sources.yaml")] -->|M 类源| B1["fetch_all.py<br/>统一入口并发抓取<br/>httpx + HTTP/2"]
         B1 --> C1[("scripts/*.txt<br/>原始规则")]
         B1 --> M1[("临时目录/<br/>fetch_meta.json<br/>运行后自动消失")]
-        C1 --> D1a["merge_rules.py --category mobile<br/>分类 → 去重 → 排序<br/>NFKC + 预编译正则"]
-        D1a --> E1a[("dist/<br/>adblock-main.txt<br/>adblock-main-YYYYMMDD.txt")]
-        C1 --> D1b["merge_rules.py --category pc<br/>分类 → 去重 → 排序<br/>NFKC + 预编译正则"]
-        D1b --> E1b[("dist/<br/>adblock-pc.txt<br/>adblock-pc-YYYYMMDD.txt")]
+        C1 --> D1["merge_all.py → merge_custom<br/>按 custom_rules 引用 ID<br/>分类 → 去重 → 排序"]
+        D1 --> E1a[("dist/<br/>adblock-mo.txt")]
+        D1 --> E1b[("dist/<br/>adblock-pc.txt")]
+        D1 --> E1c[("dist/<br/>自定义组合规则.txt")]
         D1 -->|控制台输出| F1["📊 合并摘要<br/>(打印至 CI 日志)"]
     end
 
     subgraph DNS["DNS 过滤规则流水线"]
         direction LR
-        A2[("config/<br/>dns_sources.txt")] -->|配置源 URL| B2["fetch_dns_rules.py<br/>异步并发下载<br/>httpx + HTTP/2"]
+        A2[("config/<br/>dns_sources.yaml")] -->|配置源 URL| B2["fetch_dns_rules.py<br/>异步并发下载<br/>httpx + HTTP/2"]
         B2 --> C2[("scripts/dns_*.txt<br/>DNS 原始规则")]
         B2 --> M2[("临时目录/<br/>dns_fetch_meta.json<br/>运行后自动消失")]
         C2 --> D2["merge_dns_rules.py<br/>去重合并<br/>简化处理"]
-        D2 --> E2[("dist/<br/>dns-blocklist.txt<br/>dns-blocklist-YYYYMMDD.txt")]
+        D2 --> E2[("dist/<br/>dns-blocklist.txt")]
         D2 -->|控制台输出| F2["📊 DNS 合并摘要<br/>(打印至 CI 日志)"]
     end
 
@@ -97,7 +97,7 @@ flowchart LR
 
 ```mermaid
 flowchart LR
-    S1["📋 阶段 1<br/>配置"] -->|sources.txt<br/>dns_sources.txt| S2["⬇️ 阶段 2<br/>抓取"]
+    S1["📋 阶段 1<br/>配置"] -->|sources.yaml<br/>dns_sources.yaml| S2["⬇️ 阶段 2<br/>抓取"]
     S2 -->|原始规则 + 元数据| S3["🔀 阶段 3<br/>合并去重"]
     S3 -->|主文件 + 归档| S4["📤 阶段 4<br/>输出发布"]
 
@@ -109,10 +109,10 @@ flowchart LR
 
 | 阶段 | 输入 | 处理 | 输出 |
 |------|------|------|------|
-| 配置 | `config/sources.txt` | 定义规则源 URL、名称、启用状态 | — |
+| 配置 | `config/sources.yaml` | 定义规则源 URL、名称、类别、ID、组合规则 | — |
 | 抓取 | 各源 URL | HTTP GET 下载，计算 SHA256 哈希 | `scripts/*.txt`（临时文件，运行后清理） |
-| 合并 | 原始规则文件 + header 模板 | Unicode 规范化 → 分类 → 去重 → 排序 | `dist/adblock-YYYYMMDD.txt` |
-| 输出 | 合并结果 | 写入主文件、摘要打印至控制台 | `dist/adblock-main.txt` |
+| 合并 | 原始规则文件 + header 模板 | Unicode 规范化 → 分类 → 去重 → 排序 | `dist/adblock-mo.txt` |
+| 输出 | 合并结果 | 写入主文件、摘要打印至控制台 | `dist/adblock-mo.txt` |
 
 ---
 
@@ -129,20 +129,20 @@ FilterFusion/
 ├── config/
 │   ├── default.header         # AdBlock 规则输出头部模板
 │   ├── dns.header             # DNS 规则输出头部模板
-│   ├── sources.txt            # AdBlock 规则源配置
-│   ├── dns_sources.txt        # DNS 规则源配置
+│   ├── sources.yaml           # AdBlock 规则源配置（YAML）
+│   ├── dns_sources.yaml       # DNS 规则源配置（YAML）
 │   └── _cdnauth.txt           # CDN 认证令牌
-├── dist/                      # 输出产物（自动生成）
-│   ├── adblock-main.txt       # AdBlock 移动端最新主规则
-│   ├── adblock-main-YYYYMMDD.txt   # 移动端按日期归档（保留近1天）
-│   ├── adblock-pc.txt         # AdBlock 电脑端最新主规则
-│   ├── adblock-pc-YYYYMMDD.txt     # 电脑端按日期归档（保留近1天）
-│   ├── dns-blocklist.txt      # DNS 最新主规则文件
-│   └── dns-blocklist-YYYYMMDD.txt   # DNS 按日期归档的规则文件（保留近1天）
+├── dist/                      # 输出产物（自动生成，核心文件 + 可选自定义组合文件）
+│   ├── adblock-mo.txt         # AdBlock 移动端规则（custom_rules 驱动）
+│   ├── adblock-pc.txt         # AdBlock 电脑端规则（custom_rules 驱动）
+│   ├── dns-blocklist.txt      # DNS 过滤规则
+│   └── *.txt                  # 自定义组合规则文件（由 sources.yaml 的 custom_rules 生成）
 ├── scripts/
 │   ├── __init__.py             # Python 包标识
+│   ├── base_fetcher.py        # 抓取基类（共享逻辑 + URL 去重下载）
 │   ├── fetch_all.py           # 统一抓取入口（并发执行 AdBlock + DNS 抓取）
 │   ├── fetch_rules.py         # AdBlock 规则抓取脚本
+│   ├── merge_all.py           # 统一合并入口（DNS 合并 + AdBlock custom_rules 组合规则）
 │   ├── merge_rules.py         # AdBlock 规则合并去重脚本
 │   ├── fetch_dns_rules.py     # DNS 规则抓取脚本
 │   ├── merge_dns_rules.py     # DNS 规则合并去重脚本
@@ -165,46 +165,71 @@ FilterFusion/
 
 ## 4. 核心组件详解
 
-### 4.1 AdBlock 规则源配置 (`config/sources.txt`)
+### 4.1 AdBlock 规则源配置 (`config/sources.yaml`)
 
-**文件格式**: 纯文本，一行一个规则源，格式为 `[M|P]>名称 > 订阅地址`。
+**文件格式**: YAML，含 `sources`（规则源列表）和可选的 `custom_rules`（自定义组合规则）两段。
 
-- `M>` — 移动端规则 (Mobile)
-- `P>` — 电脑端规则 (PC/Desktop)
-- 无前缀默认为 `M>`
+- `category: mobile` — 移动端规则 (Mobile)
+- `category: pc` — 电脑端规则 (PC/Desktop)
+- `category: both` — 两端共用 (Both)，展开为 mobile + pc 两条记录，按 URL 去重只下载一次
+- 每个 AdBlock 源需 `id`（短标识，被组合规则引用）、`category`、`name`、`url` 四个字段
 
-```txt
+```yaml
 # FilterFusion 规则源配置
-# 格式: [M|P]>名称 > 订阅地址
-#   M: 移动端规则 (Mobile)
-#   P: 电脑端规则 (PC/Desktop)
-# 开启: 直接写一行
-# 关闭: 行首加 #
+# category: mobile / pc / both（both = 两端共用，同 URL 只下载一次）
+# 存在即启用，行首 # 注释即禁用
 
-M>AdGuard Mobile > https://raw.githubusercontent.com/AdguardTeam/FiltersRegistry/master/filters/filter_11_Mobile/filter.txt
-M>AdGuard Chinese > https://raw.githubusercontent.com/AdguardTeam/FiltersRegistry/master/filters/filter_224_Chinese/filter.txt
-M>Chaniug AdSuper > https://raw.githubusercontent.com/Chaniug/AdSuper/refs/heads/master/adnew.txt
-M>Adguard Extra > https://raw.githubusercontent.com/AdguardTeam/FiltersRegistry/master/filters/filter_5_Experimental/filter.txt
+sources:
+  # ===== 移动端 (Mobile) =====
+  - id: m1
+    category: mobile
+    name: AdGuard Mobile
+    url: https://raw.githubusercontent.com/AdguardTeam/FiltersRegistry/master/filters/filter_11_Mobile/filter.txt
 
-# 下面是关闭的源（去掉行首 # 即可开启）：
-P>EasyList > https://easylist.to/easylist.txt
-P>EasyPrivacy > https://easylist.to/easyprivacy.txt
+  - id: m2
+    category: mobile
+    name: Adguard Extra
+    url: https://raw.githubusercontent.com/AdguardTeam/FiltersRegistry/master/filters/filter_5_Experimental/filter.txt
+
+  # ===== 两端共用 (Both) =====
+  - id: b1
+    category: both
+    name: AdGuard Chinese
+    url: https://raw.githubusercontent.com/AdguardTeam/FiltersRegistry/master/filters/filter_224_Chinese/filter.txt
+
+  # ===== 电脑端 (PC) =====
+  - id: p1
+    category: pc
+    name: AdGuard Base
+    url: https://raw.githubusercontent.com/AdguardTeam/FiltersRegistry/master/filters/filter_2_Base/filter.txt
+
+# ===== 自定义组合规则 =====
+# 按 ID 引用已抓取的源，合并去重后输出标准 ABP 格式到 dist/
+custom_rules:
+  - output: exten.txt
+    sources: [m1, m2, b1]
+  # - output: test.txt
+  #   sources: [m1, b1]
 ```
 
 **配置规则**：
-- **启用规则源**: 直接写一行 `名称 > 订阅地址`
-- **禁用规则源**: 在行首加 `#`（如 `# EasyList > https://...`）
-- **纯注释**: 以 `#` 开头且不含 `>` 的行会被忽略
-- **空行**: 会被自动跳过
+- **启用规则源**: 在 `sources` 列表下添加一项，填写 `id` / `category` / `name` / `url`
+- **禁用规则源**: 将该项用 `#` 注释掉或直接删除
+- **ID 唯一性**: 每个 AdBlock 源的 `id` 必须唯一，重复 ID 会被跳过并警告
+- **B（both）去重**: `category: both` 展开为 mobile+pc 两条记录，URL 相同时只下载一次，结果共享
+- **组合规则**: `custom_rules` 段定义所有 AdBlock 产出文件，`output` 指定文件名，`sources` 用 ID 列表引用已抓取的源，`description` 可选（自定义描述文本）
 
-当前配置了 **4 个启用的规则源**：
+当前配置了 **6 个启用的规则源**（both 源去重下载）：
 
-| 源名称 | 类型 | 规则量级 |
-|--------|------|----------|
-| AdGuard Mobile | AdGuard 移动端过滤规则 | ~数千条 |
-| AdGuard Chinese | AdGuard 中文规则 | ~21,000+ 条 |
-| Chaniug AdSuper | 作者自维护补充规则 | ~60 条 |
-| Adguard Extra | AdGuard 额外优化规则 | ~15 条 |
+| ID | 源名称 | category | 类型 |
+|:--:|--------|:---:|------|
+| m1 | AdGuard Mobile | mobile | AdGuard 移动端过滤规则 |
+| m2 | Adguard Extra | mobile | AdGuard 额外优化规则 |
+| m3 | Adguard Mobilestandard | mobile | AdGuard 移动端优化版 |
+| b1 | AdGuard Chinese | both | AdGuard 中文规则（两端共用） |
+| b2 | Chaniug AdSuper | both | 作者自维护补充规则（两端共用） |
+| p1 | AdGuard Base | pc | AdGuard 桌面端基础规则 |
+| EasyList | P | 经典 PC 端广告规则 |
 
 ### 4.2 统一抓取入口 (`scripts/fetch_all.py`)
 
@@ -228,7 +253,7 @@ python scripts/fetch_all.py
 **类**: `RuleFetcher`
 
 **核心逻辑**：
-1. 读取 `config/sources.txt`，获取所有已启用的规则源
+1. 读取 `config/sources.yaml`，解析 `sources` 段（含 id / category / name / url）和 `custom_rules` 段（含 output / sources / 可选 description）
 2. 对每个源发起异步 HTTP GET 请求下载规则文件（`httpx.AsyncClient` + HTTP/2 多路复用）
 3. 计算下载内容的 SHA256 哈希值
 4. 保存到 `scripts/` 目录（文件名由源名称安全转换而来）
@@ -287,8 +312,18 @@ python scripts/fetch_rules.py
 
 **命令行使用**:
 ```bash
-python scripts/merge_rules.py
+python scripts/merge_all.py
 ```
+
+> 所有 AdBlock 规则（含 `adblock-mo.txt` / `adblock-pc.txt`）均由 `custom_rules` 配置驱动，通过 `merge_custom` 方法产出。
+
+**组合规则合并**（`merge_custom` 方法）：
+
+- 由 `merge_all.py` 统一调用，所有 AdBlock 规则（含核心的 `adblock-mo.txt` / `adblock-pc.txt`）均由此方法产出
+- 从 `fetch_meta.json` 读取 `custom_rules` 段（含 `output`、`sources`、可选 `description`）
+- 按 ID 查找已抓取的源记录，按 `file` 去重（避免 B 源重复处理）
+- 复用 `_do_merge` 通用方法，输出标准 ABP 格式 + 校验和到 `dist/{output}`
+- 零额外网络开销，仅读取本地已抓取的 `scripts/*.txt`
 
 ### 4.4 AdBlock 输出头部模板 (`config/default.header`)
 
@@ -307,26 +342,26 @@ python scripts/merge_rules.py
 | `{TOTAL_RULES}` | 源规则总数（去重前） |
 | `{DUPLICATES}` | 重复规则数量（已移除） |
 
-### 4.5 DNS 规则源配置 (`config/dns_sources.txt`)
+### 4.5 DNS 规则源配置 (`config/dns_sources.yaml`)
 
-**文件格式**: 纯文本，一行一个 DNS 规则源，格式为 `名称 > 订阅地址`。
+**文件格式**: YAML，`sources` 列表下每项含 `name` 和 `url` 两个字段。
 
-```txt
+```yaml
 # FilterFusion DNS 过滤规则源配置
-# 格式: 名称 > 订阅地址
-# 开启: 直接写一行
-# 关闭: 行首加 #
+# 存在即启用，行首 # 注释即禁用
 
-AdGuard DNS > https://raw.githubusercontent.com/AdguardTeam/FiltersRegistry/master/filters/filter_15_DnsFilter/filter.txt
-HaGeZi DNS > https://raw.githubusercontent.com/hagezi/dns-blocklists/main/adblock/dns.txt
-
-# 下面是关闭的源（去掉行首 # 即可开启）：
-# StevenBlack Hosts > https://raw.githubusercontent.com/StevenBlack/hosts/master/hosts
+sources:
+  - name: AdGuard DNS
+    url: https://raw.githubusercontent.com/AdguardTeam/FiltersRegistry/master/filters/filter_15_DnsFilter/filter.txt
+  # - name: HaGeZi DNS
+  #   url: https://raw.githubusercontent.com/hagezi/dns-blocklists/main/dns-selective.txt
+  # - name: StevenBlack Hosts
+  #   url: https://raw.githubusercontent.com/StevenBlack/hosts/master/hosts
 ```
 
 **配置规则**：
-- 与 `config/sources.txt` 格式保持一致
-- 支持启用/禁用规则源（行首 `#`）
+- DNS 源仅需 `name` 和 `url`，无 `id` / `category`（DNS 不支持组合规则）
+- 存在即启用，行首 `#` 注释即禁用
 - URL 必须以 `http` 开头
 
 ### 4.6 DNS 规则抓取脚本 (`scripts/fetch_dns_rules.py`)
@@ -334,7 +369,7 @@ HaGeZi DNS > https://raw.githubusercontent.com/hagezi/dns-blocklists/main/adbloc
 **类**: `DnsRuleFetcher`
 
 **核心逻辑**：
-1. 读取 `config/dns_sources.txt`，获取所有已启用的 DNS 规则源
+1. 读取 `config/dns_sources.yaml`，获取所有已启用的 DNS 规则源
 2. 对每个源发起异步 HTTP GET 请求下载规则文件（复用 `fetch_rules.py` 的异步抓取逻辑）
 3. 计算下载内容的 SHA256 哈希值
 4. 保存到 `scripts/` 目录（文件名添加 `dns_` 前缀以区分 AdBlock 规则）
@@ -405,29 +440,22 @@ python scripts/merge_dns_rules.py
 python scripts/fetch_all.py
 ```
 
-#### 分别合并
+#### 统一合并（推荐）
 
 ```bash
-# 合并移动端规则（M 类源 → adblock-main.txt）
-python scripts/merge_rules.py --category mobile
-
-# 合并电脑端规则（P 类源 → adblock-pc.txt）
-python scripts/merge_rules.py --category pc
-
-# 合并 DNS 规则
-python scripts/merge_dns_rules.py
+# 统一入口：DNS 合并 + AdBlock custom_rules 组合规则
+python scripts/merge_all.py
 ```
 
 **输出文件**：
-- `dist/adblock-main.txt` — 移动端规则
-- `dist/adblock-pc.txt` — 电脑端规则
+- `dist/adblock-mo.txt` — 移动端规则（custom_rules 驱动）
+- `dist/adblock-pc.txt` — 电脑端规则（custom_rules 驱动）
 - `dist/dns-blocklist.txt` — DNS 规则
 
 | 管道 | 抓取 | 合并去重 |
 |------|------|---------|
-| 🟦 **AdBlock (Mobile)** | `python scripts/fetch_all.py` | `python scripts/merge_rules.py --category mobile` |
-| 🟦 **AdBlock (PC)** | `python scripts/fetch_all.py` | `python scripts/merge_rules.py --category pc` |
-| 🟪 **DNS** | `python scripts/fetch_all.py` | `python scripts/merge_dns_rules.py` |
+| 🟦 **AdBlock** | `python scripts/fetch_all.py` | `python scripts/merge_all.py`（custom_rules 驱动） |
+| 🟪 **DNS** | `python scripts/fetch_all.py` | `python scripts/merge_all.py`（DNS 管道独立） |
 
 **依赖要求**:
 - Python 3.14+（CI 锁定 3.14 确保可重现性）
@@ -478,8 +506,8 @@ flowchart TB
 - **代码检出**: `actions/checkout@v7.0.0`（`fetch-depth: 1`，仅最新提交）
 - **包管理**: `astral-sh/setup-uv@v8.2.0` 安装 uv + Python 3.14
 - **依赖安装**: `uv venv && uv pip install -r requirements.txt`（轻量级，不构建项目包）
-- **并行抓取**: `scripts/fetch_all.py` 统一入口，单个 `uv run` 在同一个事件循环中用 `asyncio.gather` 并发执行 AdBlock + DNS 抓取，消除 Shell 后台任务和重复 Python 进程启动开销
-- **分别合并**: `merge_rules.py --category mobile` 输出移动端规则，`--category pc` 输出电脑端规则
+- **并行抓取**: `scripts/fetch_all.py` 统一入口，单个 `uv run` 在同一个事件循环中用 `asyncio.gather` 并发执行 AdBlock + DNS 抓取，按 URL 去重（B 前缀源只下载一次），消除 Shell 后台任务和重复 Python 进程启动开销
+- **统一合并**: `scripts/merge_all.py` 单进程执行 DNS 合并 + AdBlock custom_rules 组合规则（含核心的 adblock-mo/pc），消除多次进程启动开销
 - **脚本执行**: `uv run --no-project python -m scripts.xxx`
 - **缓存**: uv 缓存 + GitHub Actions cache 双重加速
 - **运行后清理**: 提交前自动删除 `scripts/` 中的临时 `.txt` 文件和 `__pycache__` 字节码缓存
@@ -490,26 +518,29 @@ flowchart TB
 
 ### AdBlock 规则
 
-#### 移动端 - `dist/adblock-main.txt`
+#### 移动端 - `dist/adblock-mo.txt`
 - 最终合并去重后的移动端主规则文件
 - 兼容 Adblock Plus 语法（同时支持 uBlock Origin / AdGuard 扩展语法）
 - 按分类组织：例外规则 → HTML/脚本过滤 → 正则 → 特殊参数 → 普通屏蔽
 
-#### 移动端 - `dist/adblock-main-YYYYMMDD.txt`
-- 移动端按日期版本归档（保留近 1 天）
-- 内容与 `adblock-main.txt` 完全一致
-- 用于版本回溯和 Release 打包
-
 #### 电脑端 - `dist/adblock-pc.txt`
 - 最终合并去重后的电脑端主规则文件
-- 包含 EasyList / EasyPrivacy 等桌面端规则
+- 包含 AdGuard Base / EasyList 等桌面端规则
 - 格式同上（兼容 ABP / uBlock / AdGuard）
 
-#### 电脑端 - `dist/adblock-pc-YYYYMMDD.txt`
-- 电脑端按日期版本归档（保留近 1 天）
+> **注意**: 不再生成日期快照归档文件。如需历史版本，可通过 git 历史获取。
 
 #### AdBlock 合并摘要
 > 不再写入文件。合并统计信息（规则数、去重数、耗时、各源明细）会以 JSON 格式打印至 CI 控制台日志。
+
+### 组合规则
+
+#### `dist/*.txt`（全部由 `config/sources.yaml` 的 `custom_rules` 段驱动）
+- 所有 AdBlock 产出文件（含核心的 `adblock-mo.txt` / `adblock-pc.txt`）均由 `custom_rules` 配置定义
+- 在 `sources.yaml` 中按 ID 引用已抓取的源，指定输出文件名和可选描述
+- CI 运行时自动合并去重，输出标准 ABP 格式 + 校验和
+- 复用 default.header 模板，零额外网络开销
+- 新增规则只需编辑 `custom_rules` 段，无需修改代码
 
 ### DNS 过滤规则
 
@@ -518,10 +549,7 @@ flowchart TB
 - 兼容 AdGuard DNS 过滤语法
 - 按分类组织：例外规则 → 普通 DNS 过滤规则
 
-#### `dist/dns-blocklist-YYYYMMDD.txt`
-- 按日期版本归档（保留近 1 天）
-- 内容与 `dns-blocklist.txt` 完全一致
-- 用于版本回溯和 Release 打包
+> **注意**: 不再生成日期快照归档文件。
 
 #### DNS 合并摘要
 > 不再写入文件。DNS 合并统计信息（规则数、去重数、耗时、各源明细）会以 JSON 格式打印至 CI 控制台日志。
@@ -537,33 +565,25 @@ flowchart TB
 
 #### 🟦 AdBlock 规则（浏览器广告拦截）
 
-**移动端订阅**
-- **jsDelivr CDN**（中国大陆推荐）
-  ```text
-  https://cdn.jsdelivr.net/gh/Chaniug/FilterFusion@main/dist/adblock-main.txt
-  ```
-- **GitHub Raw**（全球）
-  ```text
-  https://raw.githubusercontent.com/Chaniug/FilterFusion/main/dist/adblock-main.txt
-  ```
-- **gh.llkk.cc 加速**（备用）
-  ```text
-  https://gh.llkk.cc/https://raw.githubusercontent.com/Chaniug/FilterFusion/main/dist/adblock-main.txt
-  ```
+**每个代码块内 3 行为同一规则的不同 CDN 源，任选其一复制即可**（推荐第一行 jsDelivr）：
 
-**电脑端订阅**（在拦截器中添加以下地址即可）
-- **jsDelivr CDN**（中国大陆推荐）
-  ```text
-  https://cdn.jsdelivr.net/gh/Chaniug/FilterFusion@main/dist/adblock-pc.txt
-  ```
-- **GitHub Raw**（全球）
-  ```text
-  https://raw.githubusercontent.com/Chaniug/FilterFusion/main/dist/adblock-pc.txt
-  ```
-- **gh.llkk.cc 加速**（备用）
-  ```text
-  https://gh.llkk.cc/https://raw.githubusercontent.com/Chaniug/FilterFusion/main/dist/adblock-pc.txt
-  ```
+**📱 移动端（Mobile）**
+
+```text
+https://cdn.jsdelivr.net/gh/Chaniug/FilterFusion@main/dist/adblock-mo.txt
+https://raw.githubusercontent.com/Chaniug/FilterFusion/main/dist/adblock-mo.txt
+https://gh.llkk.cc/https://raw.githubusercontent.com/Chaniug/FilterFusion/main/dist/adblock-mo.txt
+```
+
+**🖥️ 电脑端（PC）**
+
+```text
+https://cdn.jsdelivr.net/gh/Chaniug/FilterFusion@main/dist/adblock-pc.txt
+https://raw.githubusercontent.com/Chaniug/FilterFusion/main/dist/adblock-pc.txt
+https://gh.llkk.cc/https://raw.githubusercontent.com/Chaniug/FilterFusion/main/dist/adblock-pc.txt
+```
+
+> 📌 三行依次为：jsDelivr CDN（中国大陆推荐）/ GitHub Raw（全球）/ gh.llkk.cc（备用）
 
 #### 🟪 DNS 过滤规则（网络级广告拦截）
 
@@ -580,28 +600,48 @@ flowchart TB
   https://gh.llkk.cc/https://raw.githubusercontent.com/Chaniug/FilterFusion/main/dist/dns-blocklist.txt
   ```
 
+> 📌 三行依次为：jsDelivr CDN（中国大陆推荐）/ GitHub Raw（全球）/ gh.llkk.cc（备用）
+
 ---
 
 ## 8. 维护与自定义
 
 ### 添加新 AdBlock 规则源
 
-编辑 `config/sources.txt`，在文件末尾新增一行：
+编辑 `config/sources.yaml`，在 `sources` 列表下新增一项：
 
-```txt
-你的规则源名称 > https://example.com/filter.txt
+```yaml
+sources:
+  - id: m4                    # 短 ID，需唯一（被组合规则引用）
+    category: mobile          # mobile / pc / both
+    name: 你的规则源名称
+    url: https://example.com/filter.txt
+```
+
+### 添加自定义组合规则
+
+编辑 `config/sources.yaml`，在 `custom_rules` 段下新增一项，按 ID 引用已抓取的源：
+
+```yaml
+custom_rules:
+  - output: exten.txt              # 输出到 dist/exten.txt
+    description: 我的自定义规则     # 可选，规则描述（不填则自动生成）
+    sources: [m1, m2, b1]          # 引用 sources 中定义的 ID
 ```
 
 ### 添加新 DNS 规则源
 
-编辑 `config/dns_sources.txt`，在文件末尾新增一行：
+编辑 `config/dns_sources.yaml`，在 `sources` 列表下新增一项：
 
-```txt
-你的 DNS 规则源名称 > https://example.com/dns-filter.txt
+```yaml
+sources:
+  - name: 你的 DNS 规则源名称
+    url: https://example.com/dns-filter.txt
 ```
 
 **格式要求**:
-- 一行一个规则源，使用 `>` 分隔名称和 URL
+- AdBlock 源使用 YAML 格式，每项含 `id` / `category` / `name` / `url` 四个字段
+- `category`: `mobile`（移动端）、`pc`（电脑端）、`both`（两端共用，同 URL 只下载一次）
 - URL 必须以 `http` 开头
 - 名称可包含中文、英文、数字和空格
 - AdBlock 规则源支持 Adblock Plus、uBlock Origin、AdGuard 等主流格式
@@ -612,7 +652,7 @@ flowchart TB
 在对应行前面加 `#` 即可禁用，无需删除：
 
 ```txt
-# AdGuard Chinese > https://...（已禁用）
+# P|AdGuard Chinese|https://...（已禁用）
 ```
 
 要重新启用，去掉行首的 `#` 即可。
@@ -623,12 +663,8 @@ flowchart TB
 
 ### 调整清理策略
 
-编辑 `.github/workflows/daily-update.yml`，修改以下行可调整保留天数和文件匹配模式：
-
-```yaml
-# 默认：删除 1 天以前的归档文件
-find dist -name "adblock-[0-9]*.txt" -mtime +0 -delete
-```
+> **注意**: 不再生成日期快照文件，`daily-update.yaml` 已移除"清理旧的规则文件"步骤。
+> 提交前仍会自动清理 `scripts/` 中的临时 `.txt` 文件和 `__pycache__` 字节码缓存。
 
 ---
 

@@ -40,7 +40,7 @@ class BaseFetcher:
     多条 source 记录共享同一个本地文件。
     """
 
-    __slots__ = ("project_root", "rules_dir", "meta_file", "filename_prefix", "log_tag")
+    __slots__ = ("project_root", "rules_dir", "meta_file", "filename_prefix", "log_tag", "custom_rules")
 
     def __init__(
         self,
@@ -56,6 +56,7 @@ class BaseFetcher:
         self.meta_file.parent.mkdir(parents=True, exist_ok=True)
         self.filename_prefix: str = filename_prefix
         self.log_tag: str = log_tag or meta_filename
+        self.custom_rules: list[dict[str, Any]] = []
 
     def load_sources(self) -> list[SourceInfo]:
         """从配置文件加载规则源配置。子类必须实现。"""
@@ -113,6 +114,8 @@ class BaseFetcher:
             "hash": file_hash,
             "status": FetchStatus.SUCCESS,
         }
+        if "id" in source:
+            result["id"] = source["id"]
         if "category" in source:
             result["category"] = source["category"]
         return result
@@ -126,6 +129,8 @@ class BaseFetcher:
             "error": error,
             "timestamp": datetime.now(UTC).isoformat(),
         }
+        if "id" in source:
+            result["id"] = source["id"]
         if "category" in source:
             result["category"] = source["category"]
         return result
@@ -137,6 +142,8 @@ class BaseFetcher:
             "url": source["url"],
             "status": FetchStatus.DISABLED,
         }
+        if "id" in source:
+            result["id"] = source["id"]
         if "category" in source:
             result["category"] = source["category"]
         return result
@@ -192,7 +199,7 @@ class BaseFetcher:
                 for idx in indices:
                     src = enabled_sources[idx]
                     if result["status"] == FetchStatus.SUCCESS:
-                        # 共享下载结果，但保留各自的 name/category
+                        # 共享下载结果，但保留各自的 name/id/category
                         shared: SourceMeta = {
                             "name": src["name"],
                             "file": result["file"],
@@ -201,11 +208,13 @@ class BaseFetcher:
                             "hash": result["hash"],
                             "status": FetchStatus.SUCCESS,
                         }
+                        if "id" in src:
+                            shared["id"] = src["id"]
                         if "category" in src:
                             shared["category"] = src["category"]
                         download_results[idx] = shared
                     else:
-                        # 失败也共享，但保留各自的 name/category
+                        # 失败也共享，但保留各自的 name/id/category
                         failed: SourceMeta = {
                             "name": src["name"],
                             "url": src["url"],
@@ -213,6 +222,8 @@ class BaseFetcher:
                             "error": result.get("error", "未知错误"),
                             "timestamp": result["timestamp"],
                         }
+                        if "id" in src:
+                            failed["id"] = src["id"]
                         if "category" in src:
                             failed["category"] = src["category"]
                         download_results[idx] = failed
@@ -222,10 +233,12 @@ class BaseFetcher:
             results.append(download_results[idx])
 
         # 保存元数据
-        meta = {
+        meta: dict[str, Any] = {
             "fetch_date": datetime.now(UTC).isoformat(),
             "sources": results,
         }
+        if self.custom_rules:
+            meta["custom_rules"] = self.custom_rules
         self.meta_file.write_text(json.dumps(meta, indent=2), encoding="utf-8")
 
         # 统计

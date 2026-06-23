@@ -1,0 +1,60 @@
+# FilterFusion AdBlock 规则源配置
+# 格式: YAML
+#   sources: 规则源列表，每项含 id / category / name / url
+#     category: mobile(移动端) / pc(电脑端) / both(两端共用，同 URL 只下载一次)
+#   custom_rules: 组合规则（含核心 adblock-mo/pc），按 ID 引用已抓取的源，合并去重后输出到 dist/
+# 存在即启用，行首 # 注释即禁用
+
+sources:
+  # ===== 移动端 (Mobile) =====
+  - id: m1
+    category: mobile
+    name: AdGuard Mobile
+    url: https://raw.githubusercontent.com/AdguardTeam/FiltersRegistry/master/filters/filter_11_Mobile/filter.txt
+
+  - id: m2
+    category: mobile
+    name: Adguard Extra
+    url: https://raw.githubusercontent.com/AdguardTeam/FiltersRegistry/master/filters/filter_5_Experimental/filter.txt
+
+  - id: m3
+    category: mobile
+    name: Adguard Mobilestandard
+    url: https://filters.adtidy.org/android/filters/2_optimized.txt
+
+  # ===== 两端共用 (Both) =====
+  - id: b1
+    category: both
+    name: AdGuard Chinese
+    url: https://raw.githubusercontent.com/AdguardTeam/FiltersRegistry/master/filters/filter_224_Chinese/filter.txt
+
+  - id: b2
+    category: both
+    name: Chaniug AdSuper
+    url: https://raw.githubusercontent.com/Chaniug/AdSuper/refs/heads/master/adnew.txt
+
+  # ===== 电脑端 (PC) =====
+  - id: p1
+    category: pc
+    name: AdGuard Base
+    url: https://raw.githubusercontent.com/AdguardTeam/FiltersRegistry/master/filters/filter_2_Base/filter.txt
+
+# ===== 自定义组合规则 =====
+# 从已抓取的源中选取部分，合并去重后输出标准 ABP 格式到 dist/
+# 字段:
+#   output:      输出文件名（保存到 dist/ 下）
+#   sources:     引用上方定义的 id 列表
+#   description: 可选，规则文件的描述文本（不填则自动生成）
+custom_rules:
+  # --- 核心规则（已迁移到配置驱动，文件名保持不变） ---
+  - output: adblock-mo.txt
+    description: FilterFusion - Ad blocking rules (Mobile)
+    sources: [m1, m2, m3, b1, b2]
+
+  - output: adblock-pc.txt
+    description: FilterFusion - Ad blocking rules (PC)
+    sources: [p1, b1, b2]
+
+  # --- 示例：新增自定义规则（取消注释即可启用） ---
+  # - output: exten.txt
+  #   sources: [m1, m2, b1]
