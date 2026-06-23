@@ -1,4 +1,4 @@
-name: 🧬每日自动更新
+name: 🧬 每日自动更新
 
 on:
   schedule:
@@ -78,10 +78,14 @@ jobs:
           echo "✅ $f: $(wc -l < "$f") 行"
         done
 
-    - name: 🧹 清理临时规则文件
+    - name: 🧹 清理临时规则文件与缓存
       run: |
         echo "🗑️ 清理 scripts 目录中的临时 .txt 规则文件"
         find scripts -maxdepth 1 -type f -name '*.txt' -delete || true
+
+        echo "🗑️ 清理 Python 字节码缓存"
+        find scripts -type d -name '__pycache__' -exec rm -rf {} + 2>/dev/null || true
+
         echo "✅ scripts 目录已清理"
         ls -1 scripts/
 

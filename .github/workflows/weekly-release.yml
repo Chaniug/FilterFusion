@@ -1,4 +1,4 @@
-name: 🗓️ 每周自动打包发布 — FilterFusion 规则更新
+name: 🗓️ 每周自动打包发布 
 
 on:
   schedule:
