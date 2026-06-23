@@ -24,5 +24,9 @@ Thumbs.db
 *.log
 *.tmp
 
+# Auto-generated merge summaries (regenerated on each run)
+/scripts/summary.json
+/scripts/dns_summary.json
+
 # Don't ignore dist/ directory - we want to track generated files
 !dist/

@@ -72,7 +72,7 @@ flowchart LR
         B1 --> M1[("scripts/<br/>fetch_meta.json")]
         C1 --> D1["merge_rules.py<br/>分类 → 去重 → 排序<br/>NFKC + 预编译正则"]
         D1 --> E1[("dist/<br/>adblock-main.txt<br/>adblock-YYYYMMDD.txt")]
-        D1 --> F1[("config/<br/>summary.json")]
+        D1 --> F1[("scripts/<br/>summary.json")]
     end
 
     subgraph DNS["DNS 过滤规则流水线"]
@@ -82,7 +82,7 @@ flowchart LR
         B2 --> M2[("scripts/<br/>dns_fetch_meta.json")]
         C2 --> D2["merge_dns_rules.py<br/>去重合并<br/>简化处理"]
         D2 --> E2[("dist/<br/>dns-blocklist.txt<br/>dns-blocklist-YYYYMMDD.txt")]
-        D2 --> F2[("config/<br/>dns_summary.json")]
+        D2 --> F2[("scripts/<br/>dns_summary.json")]
     end
 
     style ADBLOCK fill:#ebf5ff,stroke:#2196f3
@@ -110,7 +110,7 @@ flowchart LR
 | 配置 | `config/sources.txt` | 定义规则源 URL、名称、启用状态 | — |
 | 抓取 | 各源 URL | HTTP GET 下载，计算 SHA256 哈希 | `scripts/*.txt`, `scripts/fetch_meta.json` |
 | 合并 | 原始规则文件 + header 模板 | Unicode 规范化 → 分类 → 去重 → 排序 | `dist/adblock-YYYYMMDD.txt` |
-| 输出 | 合并结果 | 写入主文件、摘要文件 | `dist/adblock-main.txt`, `config/summary.json` |
+| 输出 | 合并结果 | 写入主文件、摘要文件 | `dist/adblock-main.txt`, `scripts/summary.json` |
 
 ---
 
@@ -129,9 +129,7 @@ FilterFusion/
 │   ├── dns.header             # DNS 规则输出头部模板
 │   ├── sources.txt            # AdBlock 规则源配置
 │   ├── dns_sources.txt        # DNS 规则源配置
-│   ├── _cdnauth.txt           # CDN 认证令牌
-│   ├── summary.json           # AdBlock 统计摘要
-│   └── dns_summary.json       # DNS 统计摘要
+│   └── _cdnauth.txt           # CDN 认证令牌
 ├── dist/                      # 输出产物（自动生成）
 │   ├── adblock-main.txt       # AdBlock 最新主规则文件
 │   ├── adblock-YYYYMMDD.txt   # AdBlock 按日期归档的规则文件（保留近1天）
@@ -145,6 +143,8 @@ FilterFusion/
 │   ├── merge_dns_rules.py     # DNS 规则合并去重脚本
 │   ├── fetch_meta.json        # AdBlock 抓取元数据
 │   ├── dns_fetch_meta.json    # DNS 抓取元数据
+│   ├── summary.json           # AdBlock 合并统计摘要（自动生成）
+│   ├── dns_summary.json       # DNS 合并统计摘要（自动生成）
 │   ├── *.txt                  # 各源下载的原始规则文件（CI 运行后自动清理）
 │   ├── dns_*.txt              # DNS 各源下载的原始规则文件（CI 运行后自动清理）
 │   └── __pycache__/           # Python 字节码缓存（CI 运行后自动清理）
@@ -341,7 +341,7 @@ python scripts/fetch_dns_rules.py
 
 5. 去重：使用集合（set）数据结构，O(1) 查找
 6. 输出到 `dist/dns-blocklist.txt` 和按日期归档的文件
-7. 保存摘要到 `config/dns_summary.json`
+7. 保存摘要到 `scripts/dns_summary.json`
 
 **命令行使用**:
 ```bash
@@ -472,7 +472,7 @@ flowchart TB
 - 内容与 `adblock-main.txt` 完全一致
 - 用于版本回溯和 Release 打包
 
-#### `config/summary.json`
+#### `scripts/summary.json`
 ```json
 {
     "version": "20260612",
@@ -496,7 +496,7 @@ flowchart TB
 - 内容与 `dns-blocklist.txt` 完全一致
 - 用于版本回溯和 Release 打包
 
-#### `config/dns_summary.json`
+#### `scripts/dns_summary.json`
 ```json
 {
     "version": "20260612",

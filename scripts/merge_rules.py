@@ -413,11 +413,11 @@ class RuleMerger:
             "sources": source_stats,
         }
 
-        summary_path = self.project_root / "config" / "summary.json"
+        summary_path = self.project_root / "scripts" / "summary.json"
         print(f"保存摘要到: {summary_path}")
         summary_path.write_text(json.dumps(summary, indent=2), encoding="utf-8")
 
-        print("📊 摘要信息已保存至: config/summary.json")
+        print("📊 摘要信息已保存至: scripts/summary.json")
 
 
 if __name__ == "__main__":
