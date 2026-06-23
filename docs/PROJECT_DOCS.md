@@ -1,6 +1,6 @@
 # FilterFusion 项目文档
 
-> **版本**: 1.6 | **最后更新**: 2026-06-23 | **许可证**: MIT
+> **版本**: 1.7 | **最后更新**: 2026-06-23 | **许可证**: MIT
 
 ---
 
@@ -67,7 +67,7 @@ FilterFusion 是一个**自动化广告过滤规则聚合工具**，由 [Chaniug
 flowchart LR
     subgraph ADBLOCK["AdBlock 规则流水线"]
         direction LR
-        A1[("config/<br/>sources.txt")] -->|M 类源| B1["fetch_rules.py<br/>异步并发下载<br/>httpx + HTTP/2"]
+        A1[("config/<br/>sources.txt")] -->|M 类源| B1["fetch_all.py<br/>统一入口并发抓取<br/>httpx + HTTP/2"]
         B1 --> C1[("scripts/*.txt<br/>原始规则")]
         B1 --> M1[("临时目录/<br/>fetch_meta.json<br/>运行后自动消失")]
         C1 --> D1a["merge_rules.py --category mobile<br/>分类 → 去重 → 排序<br/>NFKC + 预编译正则"]
@@ -141,6 +141,7 @@ FilterFusion/
 │   └── dns-blocklist-YYYYMMDD.txt   # DNS 按日期归档的规则文件（保留近1天）
 ├── scripts/
 │   ├── __init__.py             # Python 包标识
+│   ├── fetch_all.py           # 统一抓取入口（并发执行 AdBlock + DNS 抓取）
 │   ├── fetch_rules.py         # AdBlock 规则抓取脚本
 │   ├── merge_rules.py         # AdBlock 规则合并去重脚本
 │   ├── fetch_dns_rules.py     # DNS 规则抓取脚本
@@ -205,7 +206,24 @@ P>EasyPrivacy > https://easylist.to/easyprivacy.txt
 | Chaniug AdSuper | 作者自维护补充规则 | ~60 条 |
 | Adguard Extra | AdGuard 额外优化规则 | ~15 条 |
 
-### 4.2 抓取脚本 (`scripts/fetch_rules.py`)
+### 4.2 统一抓取入口 (`scripts/fetch_all.py`)
+
+**统一入口脚本**，在单进程中同时执行 AdBlock 和 DNS 规则抓取。
+
+```python
+await asyncio.gather(fetch_adblock(), fetch_dns())
+```
+
+- 共享同一个 `httpx.AsyncClient` 事件循环，消除重复 Python 进程启动
+- CI 中一次 `uv run` 完成所有抓取工作
+- 内部依次调用 `fetch_rules.main()` 和 `fetch_dns_rules.main()`
+
+**命令行使用**:
+```bash
+python scripts/fetch_all.py
+```
+
+### 4.3 抓取脚本 (`scripts/fetch_rules.py`)
 
 **类**: `RuleFetcher`
 
@@ -380,41 +398,36 @@ python scripts/merge_dns_rules.py
 
 ### 5.1 本地使用
 
-#### AdBlock 规则
+#### 一键抓取所有规则（推荐）
 
 ```bash
-# 1. 抓取各源的最新 AdBlock 规则（所有类别）
-python scripts/fetch_rules.py
+# 统一入口：单进程并发抓取 AdBlock + DNS 所有规则源
+python scripts/fetch_all.py
+```
 
-# 2. 合并去重，生成移动端规则
+#### 分别合并
+
+```bash
+# 合并移动端规则（M 类源 → adblock-main.txt）
 python scripts/merge_rules.py --category mobile
 
-# 3. 合并去重，生成电脑端规则
+# 合并电脑端规则（P 类源 → adblock-pc.txt）
 python scripts/merge_rules.py --category pc
 
-# 4. 输出文件位于 dist/ 目录
-# dist/adblock-main.txt  → 移动端规则，可直接导入广告拦截工具
-# dist/adblock-pc.txt    → 电脑端规则，可直接导入广告拦截工具
-```
-
-#### DNS 过滤规则
-
-```bash
-# 1. 抓取各源的最新 DNS 规则
-python scripts/fetch_dns_rules.py
-
-# 2. 合并去重，生成最终 DNS 规则文件
+# 合并 DNS 规则
 python scripts/merge_dns_rules.py
-
-# 3. 输出文件位于 dist/ 目录
-# dist/dns-blocklist.txt  → 可直接导入 DNS 过滤工具
 ```
+
+**输出文件**：
+- `dist/adblock-main.txt` — 移动端规则
+- `dist/adblock-pc.txt` — 电脑端规则
+- `dist/dns-blocklist.txt` — DNS 规则
 
 | 管道 | 抓取 | 合并去重 |
 |------|------|---------|
-| 🟦 **AdBlock (Mobile)** | `python scripts/fetch_rules.py` | `python scripts/merge_rules.py --category mobile` |
-| 🟦 **AdBlock (PC)** | `python scripts/fetch_rules.py` | `python scripts/merge_rules.py --category pc` |
-| 🟪 **DNS** | `python scripts/fetch_dns_rules.py` | `python scripts/merge_dns_rules.py` |
+| 🟦 **AdBlock (Mobile)** | `python scripts/fetch_all.py` | `python scripts/merge_rules.py --category mobile` |
+| 🟦 **AdBlock (PC)** | `python scripts/fetch_all.py` | `python scripts/merge_rules.py --category pc` |
+| 🟪 **DNS** | `python scripts/fetch_all.py` | `python scripts/merge_dns_rules.py` |
 
 **依赖要求**:
 - Python 3.14+（CI 锁定 3.14 确保可重现性）
@@ -465,7 +478,7 @@ flowchart TB
 - **代码检出**: `actions/checkout@v7.0.0`（`fetch-depth: 1`，仅最新提交）
 - **包管理**: `astral-sh/setup-uv@v8.2.0` 安装 uv + Python 3.14
 - **依赖安装**: `uv venv && uv pip install -r requirements.txt`（轻量级，不构建项目包）
-- **并行抓取**: 所有规则源使用 Shell 后台任务并发抓取，减少总运行时间
+- **并行抓取**: `scripts/fetch_all.py` 统一入口，单个 `uv run` 在同一个事件循环中用 `asyncio.gather` 并发执行 AdBlock + DNS 抓取，消除 Shell 后台任务和重复 Python 进程启动开销
 - **分别合并**: `merge_rules.py --category mobile` 输出移动端规则，`--category pc` 输出电脑端规则
 - **脚本执行**: `uv run --no-project python -m scripts.xxx`
 - **缓存**: uv 缓存 + GitHub Actions cache 双重加速

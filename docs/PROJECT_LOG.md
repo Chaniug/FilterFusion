@@ -37,6 +37,48 @@ FilterFusion — 广告过滤规则聚合工具，从多源获取过滤规则，
 
 ---
 
+## 2026-06-23（移动端/电脑端规则分离）
+
+### 规则类别分离
+- **`config/sources.txt`** 格式升级：新增 `M>`（移动端） / `P>`（电脑端）前缀，每行格式为 `[M|P]>名称 > URL`
+- **`scripts/fetch_rules.py`**：`load_sources()` 解析 M/P 前缀，将 `category` 写入 `fetch_meta.json`
+- **`scripts/merge_rules.py`**：新增 `--category mobile|pc` CLI 参数，按类别过滤源，分别输出到不同的文件
+- **`config/default.header`**：`Description` 行改为 `{DESCRIPTION}` 占位符，由合并脚本动态填充
+- **Header `SOURCE_LIST`** 修复：只显示匹配类别的源，不再混入不需要的源
+
+### 输出产物变更
+- `dist/adblock-main.txt` → **移动端规则**（M 类源）
+- `dist/adblock-pc.txt` → **电脑端规则**（P 类源）
+- 新增 P 类源：`Adguard PC`（AdGuard 基础过滤规则）
+- 禁用源：`uniartisan`（标注 `#` 注释）
+
+### 新增规则源
+- `P>Adguard PC` 启用（含 EasyList+EasyPrivacy 等桌面端规则，~48,000 条有效规则）
+
+---
+
+## 2026-06-23（统一抓取入口与项目清理）
+
+### 统一抓取入口
+- **`scripts/fetch_all.py`**（新建）：统一入口，用 `asyncio.gather` 在单进程单事件循环中同时执行 AdBlock + DNS 抓取
+- **`daily-update.yaml`**：抓取步骤从两次 `uv run`（Shell 后台任务）简化为单行 `python -m scripts.fetch_all`
+- 消除重复 Python 进程启动开销和独立的 httpx 连接池
+
+### 元数据路径迁移
+- `fetch_meta.json` 和 `dns_fetch_meta.json` 写入系统临时目录（`/tmp/filterfusion/`），运行后自动销毁
+- 取消 Git 追踪，加入 `.gitignore`
+- `summary.json` 和 `dns_summary.json` 改为控制台输出，不再生成文件
+
+### 项目清理
+- `.codebuddy/` 取消 Git 追踪并加入 `.gitignore`
+- 删除 `requirements-dev.txt`、`docs/plans/`、`docs/merge_optimization_plan.md`
+- `config/` 目录中移出 `summary.json` 和 `dns_summary.json`
+
+### Archives 部署优化
+- `static.yml`：`static_site_generator: none` → `.nojekyll` 文件跳过 Jekyll 构建；`cancel-in-progress: true` 避免排队
+
+---
+
 ## 2026-06-19（文档修复）
 
 ### README 多语言文档修复
