@@ -68,11 +68,14 @@ class BaseFetcher:
         return f"{safe_name}.txt"
 
     async def fetch_single_rule(self, source: SourceInfo, client: httpx.AsyncClient) -> SourceMeta:
-        """异步抓取单个规则源，带 3 次重试与递增超时。"""
+        """异步抓取单个规则源，带 3 次重试与递增超时。
+
+        日志策略：不在开始时打印（避免并发交错），只在完成时打印一行结果。
+        重试时静默，仅最终结果输出。
+        """
         retry_count = 3
         for attempt in range(1, retry_count + 1):
             try:
-                print(f"⬇️  抓取规则: {source['name']} (尝试 {attempt}/{retry_count})...", end=" ", flush=True)
                 # 递增超时：35s → 50s → 65s，适配大型规则文件
                 timeout = 20 + attempt * 15
                 response = await client.get(source["url"], timeout=timeout)
@@ -86,19 +89,17 @@ class BaseFetcher:
                 file_hash = hashlib.sha256(response.content).hexdigest()
                 timestamp = datetime.now(UTC).isoformat()
 
-                print("✓")
+                print(f"  ✓ {source['name']}")
                 return self._build_success(source, filename, file_hash, timestamp)
             except httpx.TimeoutException:
                 if attempt < retry_count:
-                    print("超时，重试...", end=" ")
                     continue
-                print("✗ (超时)")
+                print(f"  ✗ {source['name']} (超时)")
                 return self._build_failure(source, "请求超时")
             except httpx.HTTPError as e:
                 if attempt < retry_count:
-                    print(f"错误 ({e}), 重试...", end=" ")
                     continue
-                print(f"✗ ({e})")
+                print(f"  ✗ {source['name']} ({e})")
                 return self._build_failure(source, str(e))
 
         # 理论不可达：循环内已覆盖所有分支返回
@@ -246,10 +247,5 @@ class BaseFetcher:
         failed = sum(1 for s in results if s["status"] == FetchStatus.FAILED)
 
         print(f"✅ {self.log_tag}抓取完成: 成功 {success}, 失败 {failed}")
-
-        if failed > 0:
-            for source in results:
-                if source["status"] == FetchStatus.FAILED:
-                    print(f"  ❌ {source['name']}: {source.get('error', '未知错误')}")
 
         return meta
