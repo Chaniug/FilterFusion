@@ -82,6 +82,12 @@ jobs:
         git config user.name "FilterFusion Bot"
         git config user.email "filterfusion-bot@users.noreply.github.com"
 
+        # 拉取远程最新（浅克隆友好，不需要完整历史）
+        git fetch --depth=1 origin main
+
+        # 同步到远程最新，保留工作区生成的规则文件
+        git reset --soft origin/main
+
         git add dist config scripts
 
         if git diff --cached --quiet; then
@@ -89,6 +95,5 @@ jobs:
         else
           git commit -m "FilterFusion自动更新: $(date -u +'%Y-%m-%d %H:%M UTC')"
           git remote set-url origin "https://x-access-token:${TOKEN}@github.com/${{ github.repository }}.git"
-          git pull --rebase origin main
           git push origin HEAD:main
         fi
