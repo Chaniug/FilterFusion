@@ -1,11 +1,11 @@
 {
   "version": "20260623",
-  "date": "2026-06-23T03:38:15.244839+00:00",
+  "date": "2026-06-23T04:20:48.801695+00:00",
   "total_source_rules": 31362,
   "unique_rules": 31335,
   "duplicates_removed": 27,
-  "merge_time_seconds": 0.07,
-  "checksum": "535hFTFIhEm/Kf2AVrZhBw==",
+  "merge_time_seconds": 0.08,
+  "checksum": "DgMKvrxrfBsALyJEJKn+5Q==",
   "sources": [
     {
       "name": "AdGuard Mobile",

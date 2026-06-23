@@ -1,10 +1,10 @@
 {
   "version": "20260623",
-  "date": "2026-06-23T03:38:15.804766+00:00",
+  "date": "2026-06-23T04:20:49.019194+00:00",
   "total_source_rules": 158341,
   "unique_rules": 158341,
   "duplicates_removed": 0,
-  "merge_time_seconds": 0.16,
+  "merge_time_seconds": 0.17,
   "sources": [
     {
       "name": "AdGuard DNS",
