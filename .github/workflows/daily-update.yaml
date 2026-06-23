@@ -9,7 +9,7 @@ permissions:
   contents: write
 
 concurrency:
-  group: daily-update
+  group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: false
 
 jobs:
@@ -19,32 +19,43 @@ jobs:
 
     steps:
     - name: 🛠️ 检出仓库
-      uses: actions/checkout@v6
+      uses: actions/checkout@v4
       with:
         fetch-depth: 1
         token: ${{ secrets.PAT }}   # ✅ 使用 PAT 触发 Pages
 
-    - name: 📦 安装 uv + Python 3.14
-      uses: astral-sh/setup-uv@v8.2.0
+    - name: 📦 安装 uv + Python 3.13
+      uses: astral-sh/setup-uv@v5
       with:
-        python-version: '3.14'
+        python-version: '3.13'
         enable-cache: true
-        cache-dependency-glob: 'requirements.txt'
+        cache-dependency-glob: |
+          requirements.txt
+          pyproject.toml
 
     - name: 📥 安装依赖
       run: |
         uv venv
         uv pip install -r requirements.txt
 
-    - name: 🔄 抓取并合并规则（AdBlock + DNS）
+    - name: 🔄 并行抓取规则（AdBlock + DNS）
       run: |
-        uv run --no-project python -m scripts.fetch_rules
+        set -e
+        uv run --no-project python -m scripts.fetch_rules &
+        pid1=$!
+        uv run --no-project python -m scripts.fetch_dns_rules &
+        pid2=$!
+        wait $pid1
+        wait $pid2
+
+    - name: 🔀 合并规则（AdBlock + DNS）
+      run: |
         uv run --no-project python -m scripts.merge_rules
-        uv run --no-project python -m scripts.fetch_dns_rules
         uv run --no-project python -m scripts.merge_dns_rules
 
     - name: 🧹 清理旧的规则文件（仅保留今日）
       run: |
+        mkdir -p dist
         today=$(date -u +%Y%m%d)
         echo "📅 今日日期: $today"
 
@@ -59,17 +70,13 @@ jobs:
 
     - name: ✅ 校验规则文件（AdBlock + DNS）
       run: |
-        if [ ! -s dist/adblock-main.txt ]; then
-          echo "❌ 错误: dist/adblock-main.txt 不存在或为空"
-          exit 1
-        fi
-        echo "✅ AdBlock 规则: $(wc -l < dist/adblock-main.txt) 行"
-
-        if [ ! -s dist/dns-blocklist.txt ]; then
-          echo "❌ 错误: dist/dns-blocklist.txt 不存在或为空"
-          exit 1
-        fi
-        echo "✅ DNS 规则: $(wc -l < dist/dns-blocklist.txt) 行"
+        for f in dist/adblock-main.txt dist/dns-blocklist.txt; do
+          if [ ! -s "$f" ]; then
+            echo "❌ 错误: $f 不存在或为空"
+            exit 1
+          fi
+          echo "✅ $f: $(wc -l < "$f") 行"
+        done
 
     - name: 📤 提交变更（使用 PAT 触发 Pages）
       env:
@@ -78,14 +85,12 @@ jobs:
         git config user.name "FilterFusion Bot"
         git config user.email "filterfusion-bot@users.noreply.github.com"
 
-        git fetch origin main
-        git reset --soft origin/main
-        git checkout origin/main -- ':!dist' ':!config' ':!scripts'
         git add dist config scripts
 
-        if git diff-index --quiet HEAD; then
+        if git diff --cached --quiet; then
           echo "ℹ️ 没有规则变更，跳过提交"
         else
           git commit -m "FilterFusion自动更新: $(date -u +'%Y-%m-%d %H:%M UTC')"
-          git push https://x-access-token:${TOKEN}@github.com/${{ github.repository }}.git
+          git remote set-url origin "https://x-access-token:${TOKEN}@github.com/${{ github.repository }}.git"
+          git push origin HEAD:main
         fi
