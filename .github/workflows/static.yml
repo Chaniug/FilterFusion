@@ -15,7 +15,7 @@ permissions:
 
 concurrency:
   group: "pages"
-  cancel-in-progress: false
+  cancel-in-progress: true   # ✅ 新的推送可取消正在运行的旧部署
 
 jobs:
   deploy:
@@ -32,7 +32,8 @@ jobs:
 
       - name: Setup Pages
         uses: actions/configure-pages@v6
-        # ✅ 这里完全没有 with 参数，最简单稳定
+        with:
+          static_site_generator: none   # ✅ 纯静态 .txt 文件，无需 Jekyll
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v5
