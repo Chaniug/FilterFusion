@@ -72,7 +72,7 @@ flowchart LR
         B1 --> M1[("scripts/<br/>fetch_meta.json")]
         C1 --> D1["merge_rules.py<br/>分类 → 去重 → 排序<br/>NFKC + 预编译正则"]
         D1 --> E1[("dist/<br/>adblock-main.txt<br/>adblock-YYYYMMDD.txt")]
-        D1 --> F1[("scripts/<br/>summary.json")]
+        D1 -->|控制台输出| F1["📊 合并摘要<br/>(打印至 CI 日志)"]
     end
 
     subgraph DNS["DNS 过滤规则流水线"]
@@ -82,7 +82,7 @@ flowchart LR
         B2 --> M2[("scripts/<br/>dns_fetch_meta.json")]
         C2 --> D2["merge_dns_rules.py<br/>去重合并<br/>简化处理"]
         D2 --> E2[("dist/<br/>dns-blocklist.txt<br/>dns-blocklist-YYYYMMDD.txt")]
-        D2 --> F2[("scripts/<br/>dns_summary.json")]
+        D2 -->|控制台输出| F2["📊 DNS 合并摘要<br/>(打印至 CI 日志)"]
     end
 
     style ADBLOCK fill:#ebf5ff,stroke:#2196f3
@@ -110,7 +110,7 @@ flowchart LR
 | 配置 | `config/sources.txt` | 定义规则源 URL、名称、启用状态 | — |
 | 抓取 | 各源 URL | HTTP GET 下载，计算 SHA256 哈希 | `scripts/*.txt`, `scripts/fetch_meta.json` |
 | 合并 | 原始规则文件 + header 模板 | Unicode 规范化 → 分类 → 去重 → 排序 | `dist/adblock-YYYYMMDD.txt` |
-| 输出 | 合并结果 | 写入主文件、摘要文件 | `dist/adblock-main.txt`, `scripts/summary.json` |
+| 输出 | 合并结果 | 写入主文件、摘要打印至控制台 | `dist/adblock-main.txt` |
 
 ---
 
@@ -143,8 +143,6 @@ FilterFusion/
 │   ├── merge_dns_rules.py     # DNS 规则合并去重脚本
 │   ├── fetch_meta.json        # AdBlock 抓取元数据
 │   ├── dns_fetch_meta.json    # DNS 抓取元数据
-│   ├── summary.json           # AdBlock 合并统计摘要（自动生成）
-│   ├── dns_summary.json       # DNS 合并统计摘要（自动生成）
 │   ├── *.txt                  # 各源下载的原始规则文件（CI 运行后自动清理）
 │   ├── dns_*.txt              # DNS 各源下载的原始规则文件（CI 运行后自动清理）
 │   └── __pycache__/           # Python 字节码缓存（CI 运行后自动清理）
@@ -221,6 +219,8 @@ python scripts/fetch_rules.py
 ```
 
 ### 4.3 合并脚本 (`scripts/merge_rules.py`)
+
+> **注意**: 合并结果摘要不再写入 JSON 文件，改为格式化打印至控制台（CI 日志可见）。
 
 **类**: `RuleMerger`
 
@@ -341,7 +341,7 @@ python scripts/fetch_dns_rules.py
 
 5. 去重：使用集合（set）数据结构，O(1) 查找
 6. 输出到 `dist/dns-blocklist.txt` 和按日期归档的文件
-7. 保存摘要到 `scripts/dns_summary.json`
+7. 输出摘要到控制台（CI 日志可查看）
 
 **命令行使用**:
 ```bash
@@ -472,17 +472,8 @@ flowchart TB
 - 内容与 `adblock-main.txt` 完全一致
 - 用于版本回溯和 Release 打包
 
-#### `scripts/summary.json`
-```json
-{
-    "version": "20260612",
-    "total_source_rules": 30159,
-    "unique_rules": 30112,
-    "duplicates_removed": 47,
-    "merge_time_seconds": 0.17,
-    "sources": [ /* 各源统计 */ ]
-}
-```
+#### AdBlock 合并摘要
+> 不再写入文件。合并统计信息（规则数、去重数、耗时、各源明细）会以 JSON 格式打印至 CI 控制台日志。
 
 ### DNS 过滤规则
 
@@ -496,17 +487,8 @@ flowchart TB
 - 内容与 `dns-blocklist.txt` 完全一致
 - 用于版本回溯和 Release 打包
 
-#### `scripts/dns_summary.json`
-```json
-{
-    "version": "20260612",
-    "total_source_rules": 50000,
-    "unique_rules": 45000,
-    "duplicates_removed": 5000,
-    "merge_time_seconds": 0.05,
-    "sources": [ /* 各源统计 */ ]
-}
-```
+#### DNS 合并摘要
+> 不再写入文件。DNS 合并统计信息（规则数、去重数、耗时、各源明细）会以 JSON 格式打印至 CI 控制台日志。
 
 ---
 

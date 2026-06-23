@@ -401,7 +401,7 @@ class RuleMerger:
         source_stats: list[dict[str, Any]],
         processing_time: float,
     ) -> None:
-        """保存摘要信息到 JSON 文件。"""
+        """打印合并摘要信息到控制台。"""
         summary = {
             "version": version,
             "date": datetime.now(UTC).isoformat(),
@@ -413,11 +413,8 @@ class RuleMerger:
             "sources": source_stats,
         }
 
-        summary_path = self.project_root / "scripts" / "summary.json"
-        print(f"保存摘要到: {summary_path}")
-        summary_path.write_text(json.dumps(summary, indent=2), encoding="utf-8")
-
-        print("📊 摘要信息已保存至: scripts/summary.json")
+        print("📊 合并摘要:")
+        print(json.dumps(summary, indent=2, ensure_ascii=False))
 
 
 if __name__ == "__main__":

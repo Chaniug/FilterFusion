@@ -265,7 +265,7 @@ class DnsRuleMerger:
         source_stats: list[dict[str, Any]],
         processing_time: float,
     ) -> None:
-        """保存 DNS 规则摘要信息到 JSON 文件。"""
+        """打印 DNS 合并摘要信息到控制台。"""
         summary = {
             "version": version,
             "date": datetime.now(UTC).isoformat(),
@@ -276,11 +276,8 @@ class DnsRuleMerger:
             "sources": source_stats,
         }
 
-        summary_path = self.project_root / "scripts" / "dns_summary.json"
-        print(f"保存 DNS 摘要到: {summary_path}")
-        summary_path.write_text(json.dumps(summary, indent=2), encoding="utf-8")
-
-        print("📊 DNS 摘要信息已保存至: scripts/dns_summary.json")
+        print("📊 DNS 合并摘要:")
+        print(json.dumps(summary, indent=2, ensure_ascii=False))
 
 
 if __name__ == "__main__":
