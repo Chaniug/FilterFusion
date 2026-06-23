@@ -16,6 +16,9 @@ venv/
 .idea/
 .codebuddy/
 
+# Wiki repo (cloned separately, not part of main repo)
+wiki-repo/
+
 # Operating System
 .DS_Store
 Thumbs.db
