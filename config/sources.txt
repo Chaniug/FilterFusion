@@ -17,5 +17,5 @@ B|Chaniug AdSuper|https://raw.githubusercontent.com/Chaniug/AdSuper/refs/heads/m
 
 # ===== 电脑端 (PC) =====
 P|AdGuard Base|https://raw.githubusercontent.com/AdguardTeam/FiltersRegistry/master/filters/filter_2_Base/filter.txt
-P|EasyList|https://raw.githubusercontent.com/easylist/easylist/master/easylist.txt
+#P|EasyList|https://raw.githubusercontent.com/easylist/easylist/master/easylist.txt
 #P|uniartisan|https://raw.githubusercontent.com/uniartisan/adblock_list/master/adblock.txt
