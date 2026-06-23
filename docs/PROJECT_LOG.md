@@ -11,9 +11,29 @@ FilterFusion — 广告过滤规则聚合工具，从多源获取过滤规则，
 **技术决策速览**：
 - Release Tag 格式 `YYYY.MM.DD`，标题 `FilterFusion Weekly · YYYY.MM.DD`
 - Checksum 使用 ABP 标准 MD5 + Base64（24 字符）
-- Python ≥ 3.10
+- Python ≥ 3.14
 - GitHub Actions 权限 `contents: write`
 
+
+---
+
+## 2026-06-23（CI/CD 重大升级与文档同步）
+
+### 工作流版本升级
+- **daily-update.yml**：
+  - `actions/checkout@v6` → `v7.0.0`，消除 Node.js 20 弃用警告
+  - `astral-sh/setup-uv@v5` → `v8.2.0`，消除 Node.js 20 弃用警告
+  - Python 从 3.13 升级到 **3.14**（CI + `pyproject.toml` 同步更新）
+  - AdBlock 和 DNS 抓取改为 **Shell 后台任务并行执行**，减少总运行时间
+  - 提交前新增 **临时规则文件和 `__pycache__` 自动清理**，保持 `scripts/` 目录干净
+  - 新增 `concurrency` 组控制，防止并发竞态
+- **weekly-release.yml**：`actions/checkout@v6` → `v7.0.0`
+- **static.yml**：`actions/checkout@v6` → `v7.0.0`
+
+### 项目文档同步
+- `PROJECT_DOCS.md` → v1.6，同步所有 CI/CD 细节（并行抓取、清理、新版 Action 版本）
+- `README.md / README_EN.md / README_JP.md / README_KO.md` → Python 3.13 → 3.14 徽章与系统要求
+- 修复英文/日文/韩文 README 中快速开始的错误目录命令
 
 ---
 

@@ -1,6 +1,6 @@
 # FilterFusion 项目文档
 
-> **版本**: 1.5 | **最后更新**: 2026-06-22 | **许可证**: MIT
+> **版本**: 1.6 | **最后更新**: 2026-06-23 | **许可证**: MIT
 
 ---
 
@@ -145,8 +145,9 @@ FilterFusion/
 │   ├── merge_dns_rules.py     # DNS 规则合并去重脚本
 │   ├── fetch_meta.json        # AdBlock 抓取元数据
 │   ├── dns_fetch_meta.json    # DNS 抓取元数据
-│   ├── *.txt                  # AdBlock 各源下载的原始规则文件
-│   └── dns_*.txt              # DNS 各源下载的原始规则文件
+│   ├── *.txt                  # 各源下载的原始规则文件（CI 运行后自动清理）
+│   ├── dns_*.txt              # DNS 各源下载的原始规则文件（CI 运行后自动清理）
+│   └── __pycache__/           # Python 字节码缓存（CI 运行后自动清理）
 ├── docs/                      # 项目文档
 │   ├── PROJECT_DOCS.md        # 完整项目文档
 │   ├── PROJECT_LOG.md         # 开发日志
@@ -405,7 +406,7 @@ python scripts/merge_dns_rules.py
 | 🟪 **DNS** | `python scripts/fetch_dns_rules.py` | `python scripts/merge_dns_rules.py` |
 
 **依赖要求**:
-- Python 3.13+（本地开发可使用 3.14，CI 锁定 3.13 确保可重现性）
+- Python 3.14+（CI 锁定 3.14 确保可重现性）
 - `httpx[http2] >= 0.27.0`
 
 ### 5.2 自动流水线 (GitHub Actions)
@@ -427,7 +428,7 @@ flowchart TB
     end
 
     subgraph ACTIONS["执行动作"]
-        A1["抓取 + 合并<br/>清理过期文件<br/>git commit & push"]
+        A1["并行抓取 AdBlock + DNS<br/>合并去重<br/>清理过期文件+临时文件+缓存<br/>git commit & push"]
         A2["打包 dist/ 为 ZIP<br/>创建 GitHub Release<br/>Tag: YYYY.MM.DD"]
         A3["部署 GitHub Pages<br/>自定义域名:<br/>ad.valk.ccwu.cc"]
     end
@@ -443,17 +444,20 @@ flowchart TB
 
 | 工作流 | 触发条件 | 功能说明 |
 |--------|----------|----------|
-| **daily-update** | 每天 UTC 0:00 定时 | 自动抓取 → 合并 → 清理过期文件 → 提交推送 |
+| **daily-update** | 每天 UTC 0:00 定时 | AdBlock+DNS 并行抓取 → 合并 → 清理过期+临时文件 → 提交推送 |
 | **weekly-release** | 每周日 UTC 2:00 定时 | 打包 `dist/` 中所有 `adblock-*.txt` 为 ZIP → 创建 GitHub Release |
 | **static** | main 分支 push 时 | 部署 dist/ 目录到 GitHub Pages |
 
 整个流水线**全自动运行**，无需人工干预。维护者只需确保规则源 URL 有效即可。
 
 **CI 技术细节**：
-- **包管理**: `astral-sh/setup-uv@v8.2.0` 安装 uv + Python 3.13
+- **代码检出**: `actions/checkout@v7.0.0`（`fetch-depth: 1`，仅最新提交）
+- **包管理**: `astral-sh/setup-uv@v8.2.0` 安装 uv + Python 3.14
 - **依赖安装**: `uv venv && uv pip install -r requirements.txt`（轻量级，不构建项目包）
+- **并行抓取**: AdBlock 和 DNS 规则使用 Shell 后台任务并发抓取，减少总运行时间
 - **脚本执行**: `uv run --no-project python -m scripts.xxx`
 - **缓存**: uv 缓存 + GitHub Actions cache 双重加速
+- **运行后清理**: 提交前自动删除 `scripts/` 中的临时 `.txt` 文件和 `__pycache__` 字节码缓存
 
 ---
 

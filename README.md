@@ -12,7 +12,7 @@
     <img src="https://img.shields.io/github/v/release/Chaniug/FilterFusion?display_name=tag&color=brightgreen" alt="Release" />
   </a>
   <img src="https://img.shields.io/github/last-commit/Chaniug/FilterFusion?color=success" alt="Last Commit" />
-  <img src="https://img.shields.io/badge/python-%3E%3D3.13-3776AB?logo=python&logoColor=white" alt="Python 3.13+" />
+  <img src="https://img.shields.io/badge/python-%3E%3D3.14-3776AB?logo=python&logoColor=white" alt="Python 3.14+" />
   <a href="./LICENSE">
     <img src="https://img.shields.io/badge/license-MIT-blue" alt="License" />
   </a>
@@ -108,7 +108,7 @@ FilterFusion 是一个自动聚合和融合多源广告过滤规则的工具集�
 
 | 项目 | 要求 |
 |------|------|
-| 🐍 **Python** | 3.13+（本地开发可使用 3.14） |
+| 🐍 **Python** | 3.14+ |
 | 💻 **操作系统** | Windows / macOS / Linux |
 | 🌐 **网络** | 需要互联网连接以抓取规则源 |
 | 📦 **依赖** | `httpx[http2]>=0.27.0`（仅此一个） |

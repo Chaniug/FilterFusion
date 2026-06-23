@@ -12,7 +12,7 @@
     <img src="https://img.shields.io/github/v/release/Chaniug/FilterFusion?display_name=tag&color=brightgreen" alt="Release" />
   </a>
   <img src="https://img.shields.io/github/last-commit/Chaniug/FilterFusion?color=success" alt="Last Commit" />
-  <img src="https://img.shields.io/badge/python-%3E%3D3.13-3776AB?logo=python&logoColor=white" alt="Python 3.13+" />
+  <img src="https://img.shields.io/badge/python-%3E%3D3.14-3776AB?logo=python&logoColor=white" alt="Python 3.14+" />
   <a href="./LICENSE">
     <img src="https://img.shields.io/badge/license-MIT-blue" alt="License" />
   </a>
@@ -110,7 +110,7 @@ FilterFusion은 여러 소스의 광고 차단 규칙을 자동으로 집계하�
 
 | 항목 | 요구 사항 |
 |------|----------|
-| 🐍 **Python** | 3.13 이상 (로컬 개발 시 3.14 사용 가능) |
+| 🐍 **Python** | 3.14 이상 |
 | 💻 **OS** | Windows / macOS / Linux |
 | 🌐 **네트워크** | 규칙 소스 수집을 위한 인터넷 연결 |
 | 📦 **종속** | `httpx[http2]>=0.27.0` (하나뿐) |
@@ -125,7 +125,7 @@ python --version
 ### **저장소 클론**
 ```bash
 git clone https://github.com/Chaniug/FilterFusion.git
-cd 빠른 시작
+cd FilterFusion
 
 ### 1. 저장소 클론
 ```bash

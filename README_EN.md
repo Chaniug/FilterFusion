@@ -12,7 +12,7 @@
     <img src="https://img.shields.io/github/v/release/Chaniug/FilterFusion?display_name=tag&color=brightgreen" alt="Release" />
   </a>
   <img src="https://img.shields.io/github/last-commit/Chaniug/FilterFusion?color=success" alt="Last Commit" />
-  <img src="https://img.shields.io/badge/python-%3E%3D3.13-3776AB?logo=python&logoColor=white" alt="Python 3.13+" />
+  <img src="https://img.shields.io/badge/python-%3E%3D3.14-3776AB?logo=python&logoColor=white" alt="Python 3.14+" />
   <a href="./LICENSE">
     <img src="https://img.shields.io/badge/license-MIT-blue" alt="License" />
   </a>
@@ -110,7 +110,7 @@ If you find **false positives, false negatives**, or want to suggest new rules, 
 
 | Item | Requirement |
 |------|-------------|
-| 🐍 **Python** | 3.13+ (local development can use 3.14) |
+| 🐍 **Python** | 3.14+ |
 | 💻 **OS** | Windows / macOS / Linux |
 | 🌐 **Network** | Internet connection required to fetch rule sources |
 | 📦 **Dependency** | `httpx[http2]>=0.27.0` (only one) |
@@ -125,7 +125,7 @@ python --version
 ### **Clone the Repository**
 ```bash
 git clone https://github.com/Chaniug/FilterFusion.git
-cd Quick Start
+cd FilterFusion
 
 ### 1. Clone the Repository
 ```bash
