@@ -9,8 +9,5 @@ M>AdGuard Mobile > https://raw.githubusercontent.com/AdguardTeam/FiltersRegistry
 M>AdGuard Chinese > https://raw.githubusercontent.com/AdguardTeam/FiltersRegistry/master/filters/filter_224_Chinese/filter.txt
 M>Chaniug AdSuper > https://raw.githubusercontent.com/Chaniug/AdSuper/refs/heads/master/adnew.txt
 M>Adguard Extra > https://raw.githubusercontent.com/AdguardTeam/FiltersRegistry/master/filters/filter_5_Experimental/filter.txt
-
-
-P>EasyList > https://easylist.to/easylist/easylist.txt
-P>EasyPrivacy > https://easylist.to/easyprivacy.txt
-#P>Adblock > https://raw.githubusercontent.com/uniartisan/adblock_list/master/adblock.txt
+P>Adguard PC > https://raw.githubusercontent.com/AdguardTeam/FiltersRegistry/master/filters/filter_2_Base/filter.txt
+#P>uniartisan > https://raw.githubusercontent.com/uniartisan/adblock_list/master/adblock.txt
