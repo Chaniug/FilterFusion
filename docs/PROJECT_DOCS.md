@@ -173,6 +173,7 @@ FilterFusion/
 - `category: pc` — 电脑端规则 (PC/Desktop)
 - `category: bo` — 两端共用 (Both)，展开为 mobile + pc 两条记录，按 URL 去重只下载一次，也兼容旧全称 `both`
 - 每个 AdBlock 源需 `name`、`category`、`url`、`id` 四个字段（`id` 是唯一短编号，被 `custom_rules` 按 ID 引用）
+- **源说明注释**（可选）：在某个源上方加一行 `#` 注释，说明该源的用途，脚本会忽略注释，仅给人看
 
 ```yaml
 # FilterFusion 规则源配置
@@ -180,26 +181,31 @@ FilterFusion/
 #   也兼容旧全称 mobile / pc / both
 # YAML 对大小写敏感，所有值建议用小写
 # 存在即启用，行首 # 注释即禁用
+# 给源写说明：在某个源上方加一行 # 注释即可（脚本忽略）
 
 sources:
   # ===== 手机端 (Mobile) =====
+  # AdGuard 官方移动端过滤规则（默认手机端拦截）
   - name: AdGuard Mobile
     category: mo
     url: https://raw.githubusercontent.com/AdguardTeam/FiltersRegistry/master/filters/filter_11_Mobile/filter.txt
     id: m1
 
+  # AdGuard 实验性补充规则（清理弹窗、额外广告元素）
   - name: Adguard Extra
     category: mo
     url: https://raw.githubusercontent.com/AdguardTeam/FiltersRegistry/master/filters/filter_5_Experimental/filter.txt
     id: m2
 
   # ===== 两端共用 (Both) =====
+  # AdGuard 中文广告过滤规则（手机端 + 电脑端共用）
   - name: AdGuard Chinese
     category: bo
     url: https://raw.githubusercontent.com/AdguardTeam/FiltersRegistry/master/filters/filter_224_Chinese/filter.txt
     id: b1
 
   # ===== 电脑端 (PC) =====
+  # AdGuard 桌面端基础过滤规则（默认电脑端拦截）
   - name: AdGuard Base
     category: pc
     url: https://raw.githubusercontent.com/AdguardTeam/FiltersRegistry/master/filters/filter_2_Base/filter.txt

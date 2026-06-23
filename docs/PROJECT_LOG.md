@@ -399,3 +399,46 @@ PC 端从 1 个源扩充到 4 个，与移动端对齐：
 
 ### 影响文件
 - `README.md`、`README_EN.md`（2 语种全量同步；日文/韩文后续已移除，精简为只维护中/英文）
+
+---
+
+## 2026-06-23（sources.yaml 易读性优化）
+
+### 字段顺序调整（方案 A）
+- `config/sources.yaml` 字段顺序改为 `name → category → url → id`（name 优先便于阅读，id 放最后降低视觉优先级）
+- 顶部字段说明详细解释了 id 的用途："被 custom_rules 按 ID 引用来组合产出文件"
+
+### category 缩写（方案 B）
+- `category` 值改为缩写：`mo`（手机端）/ `pc`（电脑端）/ `bo`（两端共用），减少手写字数
+- `scripts/fetch_rules.py` 新增 `CATEGORY_MAP` 映射表常量，将缩写映射为内部全称（`mo→mobile` / `pc→pc` / `bo→both`），同时兼容旧全称写法，向后兼容无破坏
+- 内部 metadata（fetch_meta.json）仍存全称，`merge_rules.py` / `merge_all.py` / `base_fetcher.py` 零改动
+
+### 顶部注释优化
+- 新增"复制即用"模板注释块（新增源 + 新增组合规则各一段），普通人只需改 2-3 处即可
+- 注明"YAML 对大小写敏感，所有值建议用小写"
+- 详细说明 id 是什么、为什么要填
+
+### 影响文件
+- `config/sources.yaml`（主改动）
+- `scripts/fetch_rules.py`（新增 CATEGORY_MAP + 更新 docstring）
+- `docs/PROJECT_DOCS.md`、`README.md`、`README_EN.md`（同步示例和说明）
+
+---
+
+## 2026-06-23（sources.yaml 给源加说明注释）
+
+### 源说明注释约定
+- `config/sources.yaml` 顶部字段说明区新增【给源写说明？】约定段：告知可在源上方加 `#` 注释说明用途，脚本会忽略
+- 给 6 个源各加一行说明注释：
+  - AdGuard Mobile (m1)：AdGuard 官方移动端过滤规则（默认手机端拦截）
+  - Adguard Extra (m2)：AdGuard 实验性补充规则（清理弹窗、额外广告元素）
+  - Adguard Mobilestandard (m3)：AdGuard 移动端优化版（针对移动网络优化，规则更精简）
+  - AdGuard Chinese (b1)：AdGuard 中文广告过滤规则（手机端 + 电脑端共用）
+  - Chaniug AdSuper (b2)：作者自维护的补充规则集（两端的额外拦截补充）
+  - AdGuard Base (p1)：AdGuard 桌面端基础过滤规则（默认电脑端拦截）
+- 纯注释改动，脚本零影响，无破坏性变更
+
+### 影响文件
+- `config/sources.yaml`（仅注释）
+
+

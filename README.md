@@ -211,12 +211,15 @@ example.com##.ad-banner         # 元素隐藏
 # category: mo(手机端) / pc(电脑端) / bo(两端共用，同 URL 只下载一次)
 #   也兼容旧全称 mobile / pc / both；YAML 对大小写敏感，建议全小写
 # 存在即启用，行首 # 注释即禁用
+# 给源写说明：在某个源上方加一行 # 注释即可（脚本忽略，仅给人看）
 sources:
+  # AdGuard 官方移动端过滤规则
   - name: AdGuard Mobile
     category: mo
     url: https://raw.githubusercontent.com/.../filter.txt
     id: m1
 
+  # AdGuard 中文广告过滤规则（两端共用）
   - name: AdGuard Chinese
     category: bo
     url: https://raw.githubusercontent.com/.../filter.txt

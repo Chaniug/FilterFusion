@@ -211,12 +211,15 @@ Edit `config/sources.yaml` (AdBlock) or `config/dns_sources.yaml` (DNS) in YAML 
 # category: mo(Mobile) / pc(PC) / bo(Both, same URL downloaded once)
 #   also accepts full names mobile / pc / both; YAML is case-sensitive, use lowercase
 # Presence = enabled, leading # comment = disabled
+# To add a note for a source: add a # comment line above it (ignored by script)
 sources:
+  # AdGuard official mobile filtering rules
   - name: AdGuard Mobile
     category: mo
     url: https://raw.githubusercontent.com/.../filter.txt
     id: m1
 
+  # AdGuard Chinese ad filtering rules (shared by mobile + PC)
   - name: AdGuard Chinese
     category: bo
     url: https://raw.githubusercontent.com/.../filter.txt
