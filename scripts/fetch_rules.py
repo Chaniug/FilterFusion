@@ -11,6 +11,16 @@ import yaml
 
 from scripts.base_fetcher import BaseFetcher, SourceInfo
 
+# YAML 配置中的 category 缩写 → 内部全称（同时兼容旧全称写法）
+# 内部元数据（fetch_meta.json）统一存储全称，下游脚本无需改动
+CATEGORY_MAP: dict[str, str] = {
+    "mo": "mobile",
+    "pc": "pc",
+    "bo": "both",
+    "mobile": "mobile",   # 兼容旧写法
+    "both": "both",       # 兼容旧写法
+}
+
 
 class RuleFetcher(BaseFetcher):
     """异步抓取多源广告过滤规则。
@@ -24,18 +34,21 @@ class RuleFetcher(BaseFetcher):
     def load_sources(self) -> list[SourceInfo]:
         """从 config/sources.yaml 加载规则源配置。
 
-        YAML 格式:
+        YAML 格式（字段顺序可任意，name 建议放首位便于阅读）:
           sources:
-            - id: m1
-              category: mobile / pc / both
-              name: AdGuard Mobile
+            - name: AdGuard Mobile
+              category: mo / pc / bo      # 缩写，也兼容旧全称 mobile/pc/both
               url: https://...
+              id: m1                       # 唯一短编号，被 custom_rules 按 ID 引用
           custom_rules:
             - output: adblock-mo.txt
               description: FilterFusion - Ad blocking rules (Mobile)  # 可选
               sources: [m1, m2, m3, b1, b2]
 
-        category: both 会展开为 mobile 和 pc 两条记录（URL 相同，去重下载）。
+        category 取值（缩写优先，兼容全称）:
+          mo / mobile  — 手机端
+          pc           — 电脑端
+          bo / both    — 两端共用，展开为 mobile + pc 两条记录（URL 相同，去重下载）
         """
         config_path = self.project_root / "config" / "sources.yaml"
 
@@ -58,7 +71,8 @@ class RuleFetcher(BaseFetcher):
             source_id = str(item.get("id", "")).strip()
             name = str(item.get("name", "")).strip()
             url = str(item.get("url", "")).strip()
-            category = str(item.get("category", "mobile")).strip().lower()
+            raw_category = str(item.get("category", "mobile")).strip().lower()
+            category = CATEGORY_MAP.get(raw_category, "")
 
             if not name or not url:
                 print(f"⚠️ 第 {idx} 个源缺少 name 或 url，跳过")
@@ -68,8 +82,8 @@ class RuleFetcher(BaseFetcher):
                 print(f"⚠️ 第 {idx} 个源 url 无效: {url}")
                 continue
 
-            if category not in ("mobile", "pc", "both"):
-                print(f"⚠️ 第 {idx} 个源 category 无效 '{category}'，默认为 mobile")
+            if not category:
+                print(f"⚠️ 第 {idx} 个源 category 无效 '{raw_category}'（应为 mo/pc/bo），默认为 mobile")
                 category = "mobile"
 
             # both 展开为 mobile + pc 两条记录（URL 相同，fetch 阶段按 URL 去重）

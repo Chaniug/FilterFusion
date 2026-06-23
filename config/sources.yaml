@@ -1,50 +1,80 @@
+# ============================================================
 # FilterFusion AdBlock 规则源配置
-# 格式: YAML
-#   sources: 规则源列表，每项含 id / category / name / url
-#     category: mobile(移动端) / pc(电脑端) / both(两端共用，同 URL 只下载一次)
-#   custom_rules: 组合规则（含核心 adblock-mo/pc），按 ID 引用已抓取的源，合并去重后输出到 dist/
-# 存在即启用，行首 # 注释即禁用
+# ------------------------------------------------------------
+# 格式: YAML（对大小写敏感，所有值建议用小写）
+#
+# 【字段说明】（每个源必填 4 项，顺序可任意）
+#   name     : 规则源的名字（显示用，可中文）
+#   category : 分类，取以下三个缩写之一：
+#                mo = 手机端 (Mobile)
+#                pc = 电脑端 (PC)
+#                bo = 两端共用 (Both)，同 URL 只下载一次，自动分发给 mo 和 pc
+#              （也兼容旧写法 mobile / pc / both）
+#   url      : 规则文件的直链地址（必须以 http 开头）
+#   id       : 这个源的唯一短编号（如 m1、b2、p1）
+#              ★ id 是干嘛用的？
+#                下面 custom_rules 段里要"按 id 引用源"来组合产出文件，
+#                比如 sources: [m1, m2, b1] 就是把 m1、m2、b1 三个源合并成一个文件。
+#                所以每个源都得有个 id，别人才能引用它。id 不能重复。
+#
+# 【启用 / 禁用】
+#   写在 sources 列表里就是启用；整项前面加 # 注释掉就是禁用。
+#
+# 【新增一个源？复制下面模板，改 3 处即可】
+#   - name: 你的规则名
+#     category: mo          # mo=手机端 / pc=电脑端 / bo=两端共用
+#     url: https://你的规则地址
+#     id: x1                # 随便起个不重复的编号就行
+# ============================================================
 
 sources:
-  # ===== 移动端 (Mobile) =====
-  - id: m1
-    category: mobile
-    name: AdGuard Mobile
+  # ===== 手机端 (Mobile) =====
+  - name: AdGuard Mobile
+    category: mo
     url: https://raw.githubusercontent.com/AdguardTeam/FiltersRegistry/master/filters/filter_11_Mobile/filter.txt
+    id: m1
 
-  - id: m2
-    category: mobile
-    name: Adguard Extra
+  - name: Adguard Extra
+    category: mo
     url: https://raw.githubusercontent.com/AdguardTeam/FiltersRegistry/master/filters/filter_5_Experimental/filter.txt
+    id: m2
 
-  - id: m3
-    category: mobile
-    name: Adguard Mobilestandard
+  - name: Adguard Mobilestandard
+    category: mo
     url: https://filters.adtidy.org/android/filters/2_optimized.txt
+    id: m3
 
   # ===== 两端共用 (Both) =====
-  - id: b1
-    category: both
-    name: AdGuard Chinese
+  - name: AdGuard Chinese
+    category: bo
     url: https://raw.githubusercontent.com/AdguardTeam/FiltersRegistry/master/filters/filter_224_Chinese/filter.txt
+    id: b1
 
-  - id: b2
-    category: both
-    name: Chaniug AdSuper
+  - name: Chaniug AdSuper
+    category: bo
     url: https://raw.githubusercontent.com/Chaniug/AdSuper/refs/heads/master/adnew.txt
+    id: b2
 
   # ===== 电脑端 (PC) =====
-  - id: p1
+  - name: AdGuard Base
     category: pc
-    name: AdGuard Base
     url: https://raw.githubusercontent.com/AdguardTeam/FiltersRegistry/master/filters/filter_2_Base/filter.txt
+    id: p1
 
-# ===== 自定义组合规则 =====
-# 从已抓取的源中选取部分，合并去重后输出标准 ABP 格式到 dist/
-# 字段:
-#   output:      输出文件名（保存到 dist/ 下）
-#   sources:     引用上方定义的 id 列表
-#   description: 可选，规则文件的描述文本（不填则自动生成）
+# ============================================================
+# 自定义组合规则（custom_rules）
+# ------------------------------------------------------------
+# 从上面已抓取的源里，按 id 挑选几个，合并去重后输出标准 ABP 格式到 dist/。
+#
+# 【字段说明】
+#   output      : 输出文件名（保存到 dist/ 下）
+#   sources     : 引用上方 sources 里定义的 id 列表
+#   description : 可选，规则文件的描述文本（不填则自动生成）
+#
+# 【新增一条组合规则？复制下面模板，改 2 处即可】
+#   - output: 我的规则.txt
+#     sources: [m1, b1]      # 想合并哪些源，就填哪些 id
+# ============================================================
 custom_rules:
   # --- 核心规则（已迁移到配置驱动，文件名保持不变） ---
   - output: adblock-mo.txt

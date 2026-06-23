@@ -169,39 +169,41 @@ FilterFusion/
 
 **文件格式**: YAML，含 `sources`（规则源列表）和可选的 `custom_rules`（自定义组合规则）两段。
 
-- `category: mobile` — 移动端规则 (Mobile)
+- `category: mo` — 手机端规则 (Mobile)，也兼容旧全称 `mobile`
 - `category: pc` — 电脑端规则 (PC/Desktop)
-- `category: both` — 两端共用 (Both)，展开为 mobile + pc 两条记录，按 URL 去重只下载一次
-- 每个 AdBlock 源需 `id`（短标识，被组合规则引用）、`category`、`name`、`url` 四个字段
+- `category: bo` — 两端共用 (Both)，展开为 mobile + pc 两条记录，按 URL 去重只下载一次，也兼容旧全称 `both`
+- 每个 AdBlock 源需 `name`、`category`、`url`、`id` 四个字段（`id` 是唯一短编号，被 `custom_rules` 按 ID 引用）
 
 ```yaml
 # FilterFusion 规则源配置
-# category: mobile / pc / both（both = 两端共用，同 URL 只下载一次）
+# category: mo(手机端) / pc(电脑端) / bo(两端共用，同 URL 只下载一次)
+#   也兼容旧全称 mobile / pc / both
+# YAML 对大小写敏感，所有值建议用小写
 # 存在即启用，行首 # 注释即禁用
 
 sources:
-  # ===== 移动端 (Mobile) =====
-  - id: m1
-    category: mobile
-    name: AdGuard Mobile
+  # ===== 手机端 (Mobile) =====
+  - name: AdGuard Mobile
+    category: mo
     url: https://raw.githubusercontent.com/AdguardTeam/FiltersRegistry/master/filters/filter_11_Mobile/filter.txt
+    id: m1
 
-  - id: m2
-    category: mobile
-    name: Adguard Extra
+  - name: Adguard Extra
+    category: mo
     url: https://raw.githubusercontent.com/AdguardTeam/FiltersRegistry/master/filters/filter_5_Experimental/filter.txt
+    id: m2
 
   # ===== 两端共用 (Both) =====
-  - id: b1
-    category: both
-    name: AdGuard Chinese
+  - name: AdGuard Chinese
+    category: bo
     url: https://raw.githubusercontent.com/AdguardTeam/FiltersRegistry/master/filters/filter_224_Chinese/filter.txt
+    id: b1
 
   # ===== 电脑端 (PC) =====
-  - id: p1
+  - name: AdGuard Base
     category: pc
-    name: AdGuard Base
     url: https://raw.githubusercontent.com/AdguardTeam/FiltersRegistry/master/filters/filter_2_Base/filter.txt
+    id: p1
 
 # ===== 自定义组合规则 =====
 # 按 ID 引用已抓取的源，合并去重后输出标准 ABP 格式到 dist/
@@ -213,23 +215,22 @@ custom_rules:
 ```
 
 **配置规则**：
-- **启用规则源**: 在 `sources` 列表下添加一项，填写 `id` / `category` / `name` / `url`
+- **启用规则源**: 在 `sources` 列表下添加一项，填写 `name` / `category` / `url` / `id`
 - **禁用规则源**: 将该项用 `#` 注释掉或直接删除
 - **ID 唯一性**: 每个 AdBlock 源的 `id` 必须唯一，重复 ID 会被跳过并警告
-- **B（both）去重**: `category: both` 展开为 mobile+pc 两条记录，URL 相同时只下载一次，结果共享
+- **B（bo）去重**: `category: bo` 展开为 mobile+pc 两条记录，URL 相同时只下载一次，结果共享
 - **组合规则**: `custom_rules` 段定义所有 AdBlock 产出文件，`output` 指定文件名，`sources` 用 ID 列表引用已抓取的源，`description` 可选（自定义描述文本）
 
 当前配置了 **6 个启用的规则源**（both 源去重下载）：
 
 | ID | 源名称 | category | 类型 |
 |:--:|--------|:---:|------|
-| m1 | AdGuard Mobile | mobile | AdGuard 移动端过滤规则 |
-| m2 | Adguard Extra | mobile | AdGuard 额外优化规则 |
-| m3 | Adguard Mobilestandard | mobile | AdGuard 移动端优化版 |
-| b1 | AdGuard Chinese | both | AdGuard 中文规则（两端共用） |
-| b2 | Chaniug AdSuper | both | 作者自维护补充规则（两端共用） |
+| m1 | AdGuard Mobile | mo | AdGuard 移动端过滤规则 |
+| m2 | Adguard Extra | mo | AdGuard 额外优化规则 |
+| m3 | Adguard Mobilestandard | mo | AdGuard 移动端优化版 |
+| b1 | AdGuard Chinese | bo | AdGuard 中文规则（两端共用） |
+| b2 | Chaniug AdSuper | bo | 作者自维护补充规则（两端共用） |
 | p1 | AdGuard Base | pc | AdGuard 桌面端基础规则 |
-| EasyList | P | 经典 PC 端广告规则 |
 
 ### 4.2 统一抓取入口 (`scripts/fetch_all.py`)
 
@@ -253,7 +254,7 @@ python scripts/fetch_all.py
 **类**: `RuleFetcher`
 
 **核心逻辑**：
-1. 读取 `config/sources.yaml`，解析 `sources` 段（含 id / category / name / url）和 `custom_rules` 段（含 output / sources / 可选 description）
+1. 读取 `config/sources.yaml`，解析 `sources` 段（含 name / category / url / id）和 `custom_rules` 段（含 output / sources / 可选 description）
 2. 对每个源发起异步 HTTP GET 请求下载规则文件（`httpx.AsyncClient` + HTTP/2 多路复用）
 3. 计算下载内容的 SHA256 哈希值
 4. 保存到 `scripts/` 目录（文件名由源名称安全转换而来）
@@ -612,10 +613,10 @@ https://gh.llkk.cc/https://raw.githubusercontent.com/Chaniug/FilterFusion/main/d
 
 ```yaml
 sources:
-  - id: m4                    # 短 ID，需唯一（被组合规则引用）
-    category: mobile          # mobile / pc / both
-    name: 你的规则源名称
+  - name: 你的规则源名称
+    category: mo                 # mo=手机端 / pc=电脑端 / bo=两端共用（也兼容全称 mobile/pc/both）
     url: https://example.com/filter.txt
+    id: m4                       # 唯一短编号，被 custom_rules 按 ID 引用
 ```
 
 ### 添加自定义组合规则
@@ -640,8 +641,8 @@ sources:
 ```
 
 **格式要求**:
-- AdBlock 源使用 YAML 格式，每项含 `id` / `category` / `name` / `url` 四个字段
-- `category`: `mobile`（移动端）、`pc`（电脑端）、`both`（两端共用，同 URL 只下载一次）
+- AdBlock 源使用 YAML 格式，每项含 `name` / `category` / `url` / `id` 四个字段
+- `category`: `mo`（手机端）、`pc`（电脑端）、`bo`（两端共用，同 URL 只下载一次），也兼容旧全称 `mobile` / `pc` / `both`
 - URL 必须以 `http` 开头
 - 名称可包含中文、英文、数字和空格
 - AdBlock 规则源支持 Adblock Plus、uBlock Origin、AdGuard 等主流格式

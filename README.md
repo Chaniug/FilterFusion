@@ -208,18 +208,19 @@ example.com##.ad-banner         # 元素隐藏
 
 ```yaml
 # config/sources.yaml — AdBlock 规则源
-# category: mobile(移动端) / pc(电脑端) / both(两端共用，同 URL 只下载一次)
+# category: mo(手机端) / pc(电脑端) / bo(两端共用，同 URL 只下载一次)
+#   也兼容旧全称 mobile / pc / both；YAML 对大小写敏感，建议全小写
 # 存在即启用，行首 # 注释即禁用
 sources:
-  - id: m1
-    category: mobile
-    name: AdGuard Mobile
+  - name: AdGuard Mobile
+    category: mo
     url: https://raw.githubusercontent.com/.../filter.txt
+    id: m1
 
-  - id: b1
-    category: both
-    name: AdGuard Chinese
+  - name: AdGuard Chinese
+    category: bo
     url: https://raw.githubusercontent.com/.../filter.txt
+    id: b1
 
 # 组合规则 — 按 ID 引用源，合并去重后输出到 dist/
 # description 可选，不填则自动生成
@@ -247,8 +248,8 @@ sources:
   #   url: https://...
 ```
 
-- AdBlock 源需 `id`（短标识，被组合规则引用）、`category`、`name`、`url` 四个字段
-- `category: both` 的源同 URL 只下载一次，自动分发给 mobile 和 pc
+- AdBlock 源需 `name`、`category`、`url`、`id` 四个字段（`id` 是唯一短编号，被组合规则引用）
+- `category: bo` 的源同 URL 只下载一次，自动分发给 mo 和 pc（`mo`=手机端 / `pc`=电脑端 / `bo`=两端共用，也兼容全称 mobile/pc/both）
 - `custom_rules` 段定义所有 AdBlock 产出文件（含核心的 `adblock-mo.txt` / `adblock-pc.txt`），按 ID 引用已抓取的源，`description` 字段可选
 - DNS 源仅需 `name` 和 `url`，不支持组合规则
 
@@ -327,16 +328,16 @@ flowchart LR
 编辑 `config/sources.yaml`（AdBlock）或 `config/dns_sources.yaml`（DNS），YAML 格式：
 
 ```yaml
-# AdBlock 源（需 id / category / name / url）
+# AdBlock 源（需 name / category / url / id）
 sources:
-  - id: m1
-    category: mobile
-    name: 你的规则名
+  - name: 你的规则名
+    category: mo          # mo=手机端 / pc=电脑端 / bo=两端共用（也兼容全称）
     url: https://example.com/filter.txt
-  # - id: m2
-  #   category: mobile
-  #   name: 不需要的源
+    id: m1
+  # - name: 不需要的源
+  #   category: mo
   #   url: https://example.com/other.txt  （行首 # 注释即禁用）
+  #   id: m2
 ```
 
 规则源 URL 必须返回可直链访问的纯文本规则文件（ABP/uBlock/AdGuard 格式）。

@@ -208,18 +208,19 @@ Edit `config/sources.yaml` (AdBlock) or `config/dns_sources.yaml` (DNS) in YAML 
 
 ```yaml
 # config/sources.yaml — AdBlock rule sources
-# category: mobile / pc / both (both = shared, downloaded once)
+# category: mo(Mobile) / pc(PC) / bo(Both, same URL downloaded once)
+#   also accepts full names mobile / pc / both; YAML is case-sensitive, use lowercase
 # Presence = enabled, leading # comment = disabled
 sources:
-  - id: m1
-    category: mobile
-    name: AdGuard Mobile
+  - name: AdGuard Mobile
+    category: mo
     url: https://raw.githubusercontent.com/.../filter.txt
+    id: m1
 
-  - id: b1
-    category: both
-    name: AdGuard Chinese
+  - name: AdGuard Chinese
+    category: bo
     url: https://raw.githubusercontent.com/.../filter.txt
+    id: b1
 
 # Combination rules — reference sources by ID, merge & dedup to dist/
 # description is optional, auto-generated if omitted
@@ -247,8 +248,8 @@ sources:
   #   url: https://...
 ```
 
-- AdBlock sources require `id` (short identifier for custom rules), `category`, `name`, `url`
-- `category: both` sources are downloaded once and shared between mobile and pc
+- AdBlock sources require `name`, `category`, `url`, `id` four fields (`id` is a unique short identifier referenced by custom rules)
+- `category: bo` sources are downloaded once and shared between mo and pc (`mo`=Mobile / `pc`=PC / `bo`=Both; also accepts full names mobile/pc/both)
 - `custom_rules` section defines all AdBlock output files (including core `adblock-mo.txt` / `adblock-pc.txt`), references sources by ID, `description` field is optional
 - DNS sources only need `name` and `url`, no custom rules support
 
@@ -327,16 +328,16 @@ The project's GitHub Actions runs the fetch and merge workflow daily — rule fi
 Edit `config/sources.yaml` (AdBlock) or `config/dns_sources.yaml` (DNS) in YAML format:
 
 ```yaml
-# AdBlock sources (require id / category / name / url)
+# AdBlock sources (require name / category / url / id)
 sources:
-  - id: m1
-    category: mobile
-    name: Your Rule Name
+  - name: Your Rule Name
+    category: mo          # mo=Mobile / pc=PC / bo=Both (also accepts full names)
     url: https://example.com/filter.txt
-  # - id: m2
-  #   category: mobile
-  #   name: Unwanted Source
+    id: m1
+  # - name: Unwanted Source
+  #   category: mo
   #   url: https://example.com/other.txt  (leading # comment disables)
+  #   id: m2
 ```
 
 The source URL must return a directly accessible plain-text rule file (ABP/uBlock/AdGuard compatible).
