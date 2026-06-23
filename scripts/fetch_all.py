@@ -9,8 +9,8 @@ import asyncio
 import sys
 import time
 
-from fetch_rules import main as fetch_adblock
-from fetch_dns_rules import main as fetch_dns
+from scripts.fetch_rules import main as fetch_adblock
+from scripts.fetch_dns_rules import main as fetch_dns
 
 
 async def main() -> None:
