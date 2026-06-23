@@ -58,39 +58,37 @@ FilterFusion is a toolkit for automatically aggregating and merging multi-source
 
 ## Subscription URLs
 
+Import any of the following links into your ad-blocking tool. **Each code block contains 3 CDN sources for the same rule — copy any one line** (first line jsDelivr recommended):
+
 ### AdBlock Rules (Browser Ad-Blocking)
 
-Import any of the following links into your ad-blocking extension (uBlock Origin, AdGuard, etc.):
+**📱 Mobile**
 
-- **jsDelivr CDN** (Recommended for mainland China)
-  ```text
-  https://cdn.jsdelivr.net/gh/Chaniug/FilterFusion@main/dist/adblock-mo.txt
-  ```
-- **GitHub Raw** (Available globally)
-  ```text
-  https://raw.githubusercontent.com/Chaniug/FilterFusion/main/dist/adblock-mo.txt
-  ```
-- **gh.llkk.cc Acceleration** (Backup)
-  ```text
-  https://gh.llkk.cc/https://raw.githubusercontent.com/Chaniug/FilterFusion/main/dist/adblock-mo.txt
-  ```
+```text
+https://cdn.jsdelivr.net/gh/Chaniug/FilterFusion@main/dist/adblock-mo.txt
+https://raw.githubusercontent.com/Chaniug/FilterFusion/main/dist/adblock-mo.txt
+https://gh.llkk.cc/https://raw.githubusercontent.com/Chaniug/FilterFusion/main/dist/adblock-mo.txt
+```
+
+**🖥️ PC**
+
+```text
+https://cdn.jsdelivr.net/gh/Chaniug/FilterFusion@main/dist/adblock-pc.txt
+https://raw.githubusercontent.com/Chaniug/FilterFusion/main/dist/adblock-pc.txt
+https://gh.llkk.cc/https://raw.githubusercontent.com/Chaniug/FilterFusion/main/dist/adblock-pc.txt
+```
+
+> 📌 Three lines in order: jsDelivr CDN (mainland China) / GitHub Raw (global) / gh.llkk.cc (backup)
 
 ### DNS Filtering Rules (Network-Level Ad-Blocking)
 
-Import any of the following links into your DNS filtering tool (AdGuard Home, Pi-hole, Clash, etc.):
+```text
+https://cdn.jsdelivr.net/gh/Chaniug/FilterFusion@main/dist/dns-blocklist.txt
+https://raw.githubusercontent.com/Chaniug/FilterFusion/main/dist/dns-blocklist.txt
+https://gh.llkk.cc/https://raw.githubusercontent.com/Chaniug/FilterFusion/main/dist/dns-blocklist.txt
+```
 
-- **jsDelivr CDN** (Recommended for mainland China)
-  ```text
-  https://cdn.jsdelivr.net/gh/Chaniug/FilterFusion@main/dist/dns-blocklist.txt
-  ```
-- **GitHub Raw** (Available globally)
-  ```text
-  https://raw.githubusercontent.com/Chaniug/FilterFusion/main/dist/dns-blocklist.txt
-  ```
-- **gh.llkk.cc Acceleration** (Backup)
-  ```text
-  https://gh.llkk.cc/https://raw.githubusercontent.com/Chaniug/FilterFusion/main/dist/dns-blocklist.txt
-  ```
+> 📌 Three lines in order: jsDelivr CDN (mainland China) / GitHub Raw (global) / gh.llkk.cc (backup)
 
 ### 📋 Report Filter Issues
 
