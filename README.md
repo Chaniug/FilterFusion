@@ -307,9 +307,8 @@ flowchart LR
 | 文件 | 类型 | 说明 |
 |------|:---:|------|
 | `dist/adblock-main.txt` | AdBlock | 最新合并主规则，**订阅推荐用此链接** |
-| `dist/adblock-YYYYMMDD.txt` | AdBlock | 每日快照归档，历史版本可追溯 |
+| `dist/adblock-pc.txt` | AdBlock | PC 端合并规则 |
 | `dist/dns-blocklist.txt` | DNS | 最新合并 DNS 规则，**订阅推荐用此链接** |
-| `dist/dns-blocklist-YYYYMMDD.txt` | DNS | 每日快照归档，历史版本可追溯 |
 
 ### Q5: 规则文件多大？性能如何？
 

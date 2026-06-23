@@ -7,7 +7,6 @@ import base64
 import hashlib
 import json
 import re
-import shutil
 import sys
 import tempfile
 import unicodedata
@@ -377,19 +376,12 @@ class RuleMerger:
             print("⚠️ 警告：合并后规则数为 0，不覆盖现有文件")
             return
 
-        # 步骤7: 保存规则文件
+        # 步骤7: 保存规则文件（直接写入规范文件名，不生成日期快照）
         suffix = "main" if self.category == "mobile" else "pc"
-        rule_filename = f"adblock-{suffix}-{version}.txt"
+        rule_filename = f"adblock-{suffix}.txt"
         rule_path = self.dist_dir / rule_filename
         print(f"保存规则文件到: {rule_path}")
         rule_path.write_text(content, encoding="utf-8")
-
-        # 保存最新规则副本（直接复制内容）
-        print("步骤7: 保存最新规则副本")
-        main_path = self.dist_dir / f"adblock-{suffix}.txt"
-        if main_path.exists():
-            main_path.unlink()
-        shutil.copyfile(rule_path, main_path)
 
         # 计算处理时间
         processing_time = (datetime.now() - self.start_time).total_seconds()
@@ -405,7 +397,6 @@ class RuleMerger:
         print(f"⏱️  处理时间: {processing_time:.2f}秒")
         print(f"🔐 校验和: {checksum}")
         print(f"📄 合并规则文件: dist/{rule_filename}")
-        print(f"📄 最新规则副本: dist/adblock-{suffix}.txt")
 
         # 步骤8: 保存摘要信息
         print("步骤8: 保存摘要信息")

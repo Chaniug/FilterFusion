@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import json
-import shutil
 import sys
 import tempfile
 from datetime import UTC, datetime
@@ -230,18 +229,10 @@ class DnsRuleMerger:
             print("⚠️ 警告：合并后 DNS 规则数为 0，不覆盖现有文件")
             return
 
-        # 步骤6: 保存规则文件
-        rule_filename = f"dns-blocklist-{version}.txt"
-        rule_path = self.dist_dir / rule_filename
+        # 步骤6: 保存规则文件（直接写入规范文件名，不生成日期快照）
+        rule_path = self.dist_dir / "dns-blocklist.txt"
         print(f"保存 DNS 规则文件到: {rule_path}")
         rule_path.write_text(content, encoding="utf-8")
-
-        # 保存最新规则副本
-        print("步骤6: 保存最新 DNS 规则副本")
-        main_path = self.dist_dir / "dns-blocklist.txt"
-        if main_path.exists():
-            main_path.unlink()
-        shutil.copyfile(rule_path, main_path)
 
         # 计算处理时间
         processing_time = (datetime.now() - self.start_time).total_seconds()
@@ -255,8 +246,7 @@ class DnsRuleMerger:
         print(f"🪄 合并后规则数量: {self.final_rule_count}")
         print(f"♻️  重复规则: {self.initial_rule_count - self.final_rule_count}")
         print(f"⏱️  处理时间: {processing_time:.2f}秒")
-        print(f"📄 合并规则文件: dist/{rule_filename}")
-        print(f"📄 最新规则副本: dist/dns-blocklist.txt")
+        print(f"📄 合并规则文件: dist/dns-blocklist.txt")
 
         # 步骤7: 保存摘要信息
         print("步骤7: 保存 DNS 摘要信息")
