@@ -11,5 +11,6 @@ M>Chaniug AdSuper > https://raw.githubusercontent.com/Chaniug/AdSuper/refs/heads
 M>Adguard Extra > https://raw.githubusercontent.com/AdguardTeam/FiltersRegistry/master/filters/filter_5_Experimental/filter.txt
 
 # 下面是关闭的源（去掉行首 # 即可开启）：
+
 P>EasyList > https://easylist.to/easylist/easylist.txt
 P>EasyPrivacy > https://easylist.to/easyprivacy.txt
