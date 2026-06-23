@@ -310,7 +310,6 @@ flowchart LR
 | `dist/adblock-YYYYMMDD.txt` | AdBlock | 每日快照归档，历史版本可追溯 |
 | `dist/dns-blocklist.txt` | DNS | 最新合并 DNS 规则，**订阅推荐用此链接** |
 | `dist/dns-blocklist-YYYYMMDD.txt` | DNS | 每日快照归档，历史版本可追溯 |
-| `dist/summary.json` | 元数据 | 规则源的抓取时间、行数等统计摘要 |
 
 ### Q5: 规则文件多大？性能如何？
 

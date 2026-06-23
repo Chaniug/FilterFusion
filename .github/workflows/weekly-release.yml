@@ -32,8 +32,8 @@ jobs:
       id: stats
       run: |
         FILE_COUNT=$(ls -1 dist/adblock-*.txt dist/dns-blocklist-*.txt 2>/dev/null | wc -l)
-        ADBLOCK_COUNT=$(cat dist/adblock-main.txt dist/adblock-main-*.txt dist/adblock-pc.txt dist/adblock-pc-*.txt 2>/dev/null | grep -vcE '^\s*(!|\[|$)' || echo 0)
-        DNS_COUNT=$(cat dist/dns-blocklist-*.txt dist/dns-blocklist.txt 2>/dev/null | grep -vcE '^\s*(!|\[|$)' || echo 0)
+        ADBLOCK_COUNT=$(cat dist/adblock-main.txt dist/adblock-pc.txt 2>/dev/null | grep -vcE '^\s*(!|\[|$)' || echo 0)
+        DNS_COUNT=$(cat dist/dns-blocklist.txt 2>/dev/null | grep -vcE '^\s*(!|\[|$)' || echo 0)
         TOTAL_COUNT=$(( ADBLOCK_COUNT + DNS_COUNT ))
 
         # 格式化为千位分隔的数字，方便 Release 页面展示

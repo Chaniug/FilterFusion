@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import shutil
 import sys
 import tempfile
 from datetime import UTC, datetime
@@ -99,7 +100,7 @@ class DnsRuleMerger:
 
     def collect_and_dedup_rules(
         self, sources: list[dict[str, Any]]
-    ) -> tuple[list[str], list[dict[str, Any]]]:
+    ) -> tuple[list[str], list[dict[str, Any]], int]:
         """收集并去重 DNS 规则：主要做域名去重，不需要复杂的规则分类。"""
         # DNS 规则分类：例外规则（@@ 开头）和普通规则
         exception_rules: set[str] = set()
@@ -167,7 +168,7 @@ class DnsRuleMerger:
 
         total = len(exception_rules) + len(normal_rules)
         print(f"收集了 {total} 条唯一 DNS 规则")
-        return merged_lines, source_stats
+        return merged_lines, source_stats, total
 
     @staticmethod
     def generate_version() -> str:
@@ -197,28 +198,29 @@ class DnsRuleMerger:
 
         # 步骤3: 收集、处理和去重规则
         print("步骤3: 收集、处理和去重 DNS 规则")
-        rules, source_stats = self.collect_and_dedup_rules(sources)
+        rules, source_stats, self.final_rule_count = self.collect_and_dedup_rules(sources)
         self.initial_rule_count = sum(s["rule_count"] for s in source_stats)
-        self.final_rule_count = len(rules) - len(source_stats) * 2  # 减去分组标题行
-        # 更准确的计算：例外规则 + 普通规则
-        self.final_rule_count = sum(1 for line in rules if not line.startswith("!") and line)
 
         # 步骤4: 生成版本号
         print("步骤4: 生成版本号")
         version = self.generate_version()
 
-        # 步骤5: 生成头部
+        # 步骤5: 生成头部（单次 format_map 替代 8 次链式 replace）
         print("步骤5: 生成头部")
         source_list = self.generate_source_list(sources)
         now = datetime.now(UTC)  # 单次调用，消除重复
-        header = header_template.replace("{VERSION}", version)
-        header = header.replace("{TIMEUPDATED}", now.strftime("%Y-%m-%d %H:%M:%S UTC"))
-        header = header.replace("{SOURCE_COUNT}", str(len(success_sources)))
-        header = header.replace("{SOURCE_LIST}", source_list)
-        header = header.replace("{TOTAL_RULES}", str(self.final_rule_count))
-        header = header.replace("{DUPLICATES}", str(self.initial_rule_count - self.final_rule_count))
-        header = header.replace("{HOMEPAGE}", "https://github.com/Chaniug/FilterFusion")
-        header = header.replace("{LICENSE}", "MIT License")
+        header = header_template.format_map(
+            {
+                "VERSION": version,
+                "TIMEUPDATED": now.strftime("%Y-%m-%d %H:%M:%S UTC"),
+                "SOURCE_COUNT": str(len(success_sources)),
+                "SOURCE_LIST": source_list,
+                "TOTAL_RULES": str(self.final_rule_count),
+                "DUPLICATES": str(self.initial_rule_count - self.final_rule_count),
+                "HOMEPAGE": "https://github.com/Chaniug/FilterFusion",
+                "LICENSE": "MIT License",
+            }
+        )
 
         # 构建最终内容
         content = header.rstrip("\n") + "\n" + "\n".join(rules)
@@ -234,12 +236,12 @@ class DnsRuleMerger:
         print(f"保存 DNS 规则文件到: {rule_path}")
         rule_path.write_text(content, encoding="utf-8")
 
-        # 保存最新规则副本（直接复制内容）
+        # 保存最新规则副本
         print("步骤6: 保存最新 DNS 规则副本")
         main_path = self.dist_dir / "dns-blocklist.txt"
         if main_path.exists():
             main_path.unlink()
-        main_path.write_text(content, encoding="utf-8")
+        shutil.copyfile(rule_path, main_path)
 
         # 计算处理时间
         processing_time = (datetime.now() - self.start_time).total_seconds()

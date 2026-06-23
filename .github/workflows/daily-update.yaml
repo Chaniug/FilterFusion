@@ -41,14 +41,8 @@ jobs:
     - name: 🔄 统一抓取所有规则（AdBlock + DNS）
       run: uv run --no-project python -m scripts.fetch_all
 
-    - name: 🔀 合并 AdBlock 规则（移动端）
-      run: uv run --no-project python -m scripts.merge_rules --category mobile
-
-    - name: 🔀 合并 AdBlock 规则（电脑端）
-      run: uv run --no-project python -m scripts.merge_rules --category pc
-
-    - name: 🔀 合并 DNS 规则
-      run: uv run --no-project python -m scripts.merge_dns_rules
+    - name: 🔀 统一合并所有规则（AdBlock Mobile/PC + DNS）
+      run: uv run --no-project python -m scripts.merge_all
 
     - name: 🧹 清理旧的规则文件（仅保留今日）
       run: |

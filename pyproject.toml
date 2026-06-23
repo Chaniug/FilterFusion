@@ -28,13 +28,13 @@ build-backend = "setuptools.build_meta"
 include = ["scripts*"]
 
 [tool.mypy]
-python_version = "3.10"
+python_version = "3.14"
 strict = true
 warn_return_any = false
 warn_unused_configs = true
 
 [tool.basedpyright]
-pythonVersion = "3.10"
+pythonVersion = "3.14"
 typeCheckingMode = "standard"
 reportExplicitAny = false
 reportAny = false
