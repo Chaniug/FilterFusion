@@ -78,6 +78,13 @@ jobs:
           echo "✅ $f: $(wc -l < "$f") 行"
         done
 
+    - name: 🧹 清理临时规则文件
+      run: |
+        echo "🗑️ 清理 scripts 目录中的临时 .txt 规则文件"
+        find scripts -maxdepth 1 -type f -name '*.txt' -delete || true
+        echo "✅ scripts 目录已清理"
+        ls -1 scripts/
+
     - name: 📤 提交变更（使用 PAT 触发 Pages）
       env:
         TOKEN: ${{ secrets.PAT }}
