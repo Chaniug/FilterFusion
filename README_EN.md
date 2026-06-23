@@ -18,7 +18,7 @@
   </a>
 </p>
 
-**[中文](./README.md)** | **English** | **[日本語](./README_JP.md)** | **[한국어](./README_KO.md)**
+**[中文](./README.md)** | **English**
 
 ---
 

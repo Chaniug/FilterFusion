@@ -150,16 +150,13 @@ FilterFusion/
 │   └── __pycache__/           # Python 字节码缓存（CI 运行后自动清理）
 ├── docs/                      # 项目文档
 │   ├── PROJECT_DOCS.md        # 完整项目文档
-│   ├── PROJECT_LOG.md         # 开发日志
-│   ├── merge_optimization_plan.md  # 优化方案
-│   └── plans/                 # 历史 plan 归档
+│   └── PROJECT_LOG.md         # 开发日志
 ├── .gitignore
 ├── CNAME                      # 自定义域名（隐藏）
 ├── LICENSE                    # MIT 许可证
 ├── README.md                  # 中文说明文档
 ├── README_EN.md               # 英文说明文档
 ├── requirements.txt           # Python 依赖
-├── requirements-dev.txt       # 开发依赖
 └── pyproject.toml             # 现代 Python 项目配置
 ```
 

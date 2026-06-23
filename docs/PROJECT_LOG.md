@@ -32,8 +32,8 @@ FilterFusion — 广告过滤规则聚合工具，从多源获取过滤规则，
 
 ### 项目文档同步
 - `PROJECT_DOCS.md` → v1.6，同步所有 CI/CD 细节（并行抓取、清理、新版 Action 版本）
-- `README.md / README_EN.md / README_JP.md / README_KO.md` → Python 3.13 → 3.14 徽章与系统要求
-- 修复英文/日文/韩文 README 中快速开始的错误目录命令
+- `README.md / README_EN.md` → Python 3.13 → 3.14 徽章与系统要求
+- 修复英文 README 中快速开始的错误目录命令（精简为仅维护中/英文）
 
 ---
 
@@ -42,9 +42,9 @@ FilterFusion — 广告过滤规则聚合工具，从多源获取过滤规则，
 ### README 多语言文档修复
 - **修复问题**：
   - `README.md`「应用场景」Mermaid 图表 `subgraph S4` 缺少 `end` 闭合标签，导致图表无法渲染
-  - 中文/英文/日文/韩文四语言 README 目录（Table of Contents）均缺少 `系统要求` 和 `联系方式` 条目
+  - 中文/英文 README 目录（Table of Contents）均缺少 `系统要求` 和 `联系方式` 条目
   - 中文 README 目录顺序与文档实际结构不符（`联系方式`被错误插入到中间位置）
-- **影响文件**：`README.md`、`README_EN.md`、`README_JP.md`、`README_KO.md`
+- **影响文件**：`README.md`、`README_EN.md`
 
 ---
 
@@ -238,4 +238,4 @@ FilterFusion — 广告过滤规则聚合工具，从多源获取过滤规则，
 - **修复目录锚点链接** — 移除 `##` 标题中的 emoji，确保 VS Code 预览和 GitHub 均能正确跳转
 
 ### 影响文件
-- `README.md`、`README_EN.md`、`README_JP.md`、`README_KO.md`（4 语种全量同步）
+- `README.md`、`README_EN.md`（2 语种全量同步；日文/韩文后续已移除，精简为只维护中/英文）
