@@ -48,7 +48,8 @@ class RuleFetcher:
     def load_sources(self) -> list[SourceInfo]:
         """从 config/sources.txt 加载规则源配置。
 
-        格式: 名称 > 订阅地址；行首加 # 表示禁用。
+        格式: [M|P]>名称 > 订阅地址；行首加 # 表示禁用。
+        M: 移动端 (Mobile), P: 电脑端 (PC/Desktop)，无前缀默认为 M。
         """
         config_path = self.project_root / "config" / "sources.txt"
         print(f"配置文件路径: {config_path}")
@@ -73,12 +74,20 @@ class RuleFetcher:
                     disabled = True
                     raw = content
 
-                # 解析 名称 > URL
+                # 解析 [M|P]>名称 > URL
                 if ">" not in raw:
                     print(f"⚠️ 第 {line_num} 行格式错误（缺少 >）: {raw}")
                     continue
 
-                name, url = (part.strip() for part in raw.split(">", 1))
+                parts = [p.strip() for p in raw.split(">", 2)]
+                if len(parts) == 3:
+                    prefix, name, url = parts
+                elif len(parts) == 2:
+                    name, url = parts
+                    prefix = "M"
+                else:
+                    continue
+
                 if not name or not url:
                     print(f"⚠️ 第 {line_num} 行名称或地址为空: {raw}")
                     continue
@@ -87,9 +96,12 @@ class RuleFetcher:
                 if not url.startswith("http"):
                     continue  # 非有效 URL，视为纯注释行
 
+                category = "pc" if prefix.upper() == "P" else "mobile"
+
                 sources.append({
                     "name": name,
                     "url": url,
+                    "category": category,
                     "enabled": not disabled,
                 })
 

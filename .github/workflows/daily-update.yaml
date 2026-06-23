@@ -48,10 +48,14 @@ jobs:
         wait $pid1
         wait $pid2
 
-    - name: 🔀 合并规则（AdBlock + DNS）
-      run: |
-        uv run --no-project python -m scripts.merge_rules
-        uv run --no-project python -m scripts.merge_dns_rules
+    - name: 🔀 合并 AdBlock 规则（移动端）
+      run: uv run --no-project python -m scripts.merge_rules --category mobile
+
+    - name: 🔀 合并 AdBlock 规则（电脑端）
+      run: uv run --no-project python -m scripts.merge_rules --category pc
+
+    - name: 🔀 合并 DNS 规则
+      run: uv run --no-project python -m scripts.merge_dns_rules
 
     - name: 🧹 清理旧的规则文件（仅保留今日）
       run: |
@@ -60,7 +64,14 @@ jobs:
         echo "📅 今日日期: $today"
 
         echo "🗑️ 清理非今日的 AdBlock 规则"
-        find dist -maxdepth 1 -type f -name "adblock-[0-9]*.txt" ! -name "adblock-${today}.txt" -delete || true
+        find dist -maxdepth 1 -type f -name "adblock-main-*.txt" -o -name "adblock-pc-*.txt" | while read f; do
+          base=$(basename "$f")
+          datepart="${base##*-}"
+          datepart="${datepart%.txt}"
+          if [ "$datepart" != "$today" ]; then
+            rm -f "$f"
+          fi
+        done || true
 
         echo "🗑️ 清理非今日的 DNS 规则"
         find dist -maxdepth 1 -type f -name "dns-blocklist-[0-9]*.txt" ! -name "dns-blocklist-${today}.txt" -delete || true
@@ -68,9 +79,9 @@ jobs:
         echo "✅ 当前 dist 目录："
         ls -lh dist/
 
-    - name: ✅ 校验规则文件（AdBlock + DNS）
+    - name: ✅ 校验规则文件（AdBlock + PC + DNS）
       run: |
-        for f in dist/adblock-main.txt dist/dns-blocklist.txt; do
+        for f in dist/adblock-main.txt dist/adblock-pc.txt dist/dns-blocklist.txt; do
           if [ ! -s "$f" ]; then
             echo "❌ 错误: $f 不存在或为空"
             exit 1

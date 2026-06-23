@@ -142,7 +142,8 @@ pip install -r requirements.txt
 
 | Pipeline | Fetch | Merge & Dedup |
 |----------|-------|---------------|
-| 🟦 **AdBlock** | `python scripts/fetch_rules.py` | `python scripts/merge_rules.py` |
+| 🟦 **AdBlock (Mobile)** | `python scripts/fetch_rules.py` | `python scripts/merge_rules.py --category mobile` |
+| 🟦 **AdBlock (PC)** | `python scripts/fetch_rules.py` | `python scripts/merge_rules.py --category pc` |
 | 🟪 **DNS** | `python scripts/fetch_dns_rules.py` | `python scripts/merge_dns_rules.py` |
 
 ### 4. Use the Generated Rules
@@ -156,8 +157,10 @@ flowchart LR
         direction TB
         subgraph AD["AdBlock Pipeline"]
             A1["📋 Config<br/>sources.txt"] --> A2["⬇️ Fetch<br/>fetch_rules.py"]
-            A2 --> A3["🔀 Merge & Dedup<br/>merge_rules.py"]
-            A3 --> A4["📤 Output<br/>adblock-main.txt"]
+            A2 --> A3a["🔀 Merge Mobile<br/>merge_rules.py --category mobile"]
+            A2 --> A3b["🔀 Merge PC<br/>merge_rules.py --category pc"]
+            A3a --> A4a["📤 Output<br/>adblock-main.txt"]
+            A3b --> A4b["📤 Output<br/>adblock-pc.txt"]
         end
         subgraph DNS["DNS Pipeline"]
             D1["📋 Config<br/>dns_sources.txt"] --> D2["⬇️ Fetch<br/>fetch_dns_rules.py"]
@@ -165,7 +168,8 @@ flowchart LR
             D3 --> D4["📤 Output<br/>dns-blocklist.txt"]
         end
     end
-    A4 --> CDN["jsDelivr + GitHub Raw<br/>Multi-CDN Global Distribution"]
+    A4a --> CDN["jsDelivr + GitHub Raw<br/>Multi-CDN Global Distribution"]
+    A4b --> CDN
     D4 --> CDN
 
     style AD fill:#ebf5ff,stroke:#2196f3
@@ -216,7 +220,10 @@ AdGuard Base > https://adguardteam.github.io/AdGuardSDNSFilter/Filters/filter.tx
 ### **Fetch Rules**
 
 ```bash
-python scripts/fetch_rules.py        # AdBlock rules
+python scripts/fetch_rules.py                  # Fetch all AdBlock rules
+python scripts/merge_rules.py --category mobile # Merge mobile rules
+python scripts/merge_rules.py --category pc     # Merge PC rules
+python scripts/fetch_dns_rules.py               # Fetch DNS rules
 python scripts/fetch_dns_rules.py    # DNS rules
 ```
 

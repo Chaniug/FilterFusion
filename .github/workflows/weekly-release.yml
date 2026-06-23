@@ -25,14 +25,14 @@ jobs:
     - name: 📦 打包所有规则文件为 ZIP 压缩包
       run: |
         cd dist
-        zip ../weekly-rules.zip adblock-main.txt adblock-*.txt dns-blocklist.txt dns-blocklist-*.txt
+        zip ../weekly-rules.zip adblock-main.txt adblock-main-*.txt adblock-pc.txt adblock-pc-*.txt dns-blocklist.txt dns-blocklist-*.txt
         cd ..
 
     - name: 📊 统计规则文件数量与拦截规则条目数
       id: stats
       run: |
         FILE_COUNT=$(ls -1 dist/adblock-*.txt dist/dns-blocklist-*.txt 2>/dev/null | wc -l)
-        ADBLOCK_COUNT=$(cat dist/adblock-*.txt dist/adblock-main.txt 2>/dev/null | grep -vcE '^\s*(!|\[|$)' || echo 0)
+        ADBLOCK_COUNT=$(cat dist/adblock-main.txt dist/adblock-main-*.txt dist/adblock-pc.txt dist/adblock-pc-*.txt 2>/dev/null | grep -vcE '^\s*(!|\[|$)' || echo 0)
         DNS_COUNT=$(cat dist/dns-blocklist-*.txt dist/dns-blocklist.txt 2>/dev/null | grep -vcE '^\s*(!|\[|$)' || echo 0)
         TOTAL_COUNT=$(( ADBLOCK_COUNT + DNS_COUNT ))
 

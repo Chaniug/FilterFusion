@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import argparse
 import base64
 import hashlib
 import json
@@ -45,6 +46,7 @@ class RuleMerger:
         "project_root",
         "dist_dir",
         "rules_dir",
+        "category",
         "initial_rule_count",
         "final_rule_count",
         "start_time",
@@ -65,7 +67,8 @@ class RuleMerger:
     # 正则特殊字符：单次字符类扫描替代 14 次 any(in) 搜索
     _REGEX_CHAR_RE = re.compile(r"[.*+?\\\[\](){}^$|]")
 
-    def __init__(self) -> None:
+    def __init__(self, category: str = "mobile") -> None:
+        self.category = category
         self.project_root: Path = Path(__file__).resolve().parent.parent
         print(f"项目根目录: {self.project_root}")
 
@@ -309,13 +312,20 @@ class RuleMerger:
             print("❌ 错误：没有成功抓取的规则源，终止合并")
             sys.exit(1)
 
+        # 按类别过滤（mobile / pc）
+        filtered_sources = [s for s in success_sources if s.get("category", "mobile") == self.category]
+        if not filtered_sources:
+            print(f"⚠️ 没有匹配类别 '{self.category}' 的规则源，跳过合并")
+            return
+        print(f"🔖 类别: {self.category}，匹配规则源: {len(filtered_sources)} 个")
+
         # 步骤2: 加载头部模板
         print("步骤2: 加载头部模板")
         header_template = self.load_header_template()
 
-        # 步骤3: 收集、处理和去重规则
+        # 步骤3: 收集、处理和去重规则（只传入匹配类别的源）
         print("步骤3: 收集、处理和去重规则")
-        rules, groups, source_stats = self.collect_and_process_rules(sources)
+        rules, groups, source_stats = self.collect_and_process_rules(filtered_sources)
         self.initial_rule_count = sum(s["rule_count"] for s in source_stats)
         self.final_rule_count = sum(len(v) for v in groups.values())
 
@@ -325,6 +335,7 @@ class RuleMerger:
 
         # 步骤5: 生成头部（单次 format_map 替代 11 次链式 replace）
         print("步骤5: 生成头部")
+        desc = "FilterFusion - Ad blocking rules (Mobile)" if self.category == "mobile" else "FilterFusion - Ad blocking rules (PC)"
         source_list = self.generate_source_list(sources)
         now = datetime.now(UTC)  # 单次调用，消除重复
         header = header_template.format_map(
@@ -333,7 +344,8 @@ class RuleMerger:
                     "VERSION": version,
                     "TIMEUPDATED": now.strftime("%Y-%m-%d %H:%M:%S UTC"),
                     "TIMEUPDATED_ISO": now.isoformat(),
-                    "SOURCE_COUNT": str(len(success_sources)),
+                    "DESCRIPTION": desc,
+                    "SOURCE_COUNT": str(len(filtered_sources)),
                     "SOURCE_LIST": source_list,
                     "COMBINED_RULES": str(self.final_rule_count),
                     "TOTAL_RULES": str(self.initial_rule_count),
@@ -363,14 +375,15 @@ class RuleMerger:
             return
 
         # 步骤7: 保存规则文件
-        rule_filename = f"adblock-{version}.txt"
+        suffix = "main" if self.category == "mobile" else "pc"
+        rule_filename = f"adblock-{suffix}-{version}.txt"
         rule_path = self.dist_dir / rule_filename
         print(f"保存规则文件到: {rule_path}")
         rule_path.write_text(content, encoding="utf-8")
 
         # 保存最新规则副本（直接复制内容）
         print("步骤7: 保存最新规则副本")
-        main_path = self.dist_dir / "adblock-main.txt"
+        main_path = self.dist_dir / f"adblock-{suffix}.txt"
         if main_path.exists():
             main_path.unlink()
         shutil.copyfile(rule_path, main_path)
@@ -389,7 +402,7 @@ class RuleMerger:
         print(f"⏱️  处理时间: {processing_time:.2f}秒")
         print(f"🔐 校验和: {checksum}")
         print(f"📄 合并规则文件: dist/{rule_filename}")
-        print(f"📄 最新规则副本: dist/adblock-main.txt")
+        print(f"📄 最新规则副本: dist/adblock-{suffix}.txt")
 
         # 步骤8: 保存摘要信息
         print("步骤8: 保存摘要信息")
@@ -419,7 +432,12 @@ class RuleMerger:
 
 
 if __name__ == "__main__":
-    merger = RuleMerger()
+    parser = argparse.ArgumentParser(description="FilterFusion 规则合并工具")
+    parser.add_argument("--category", choices=["mobile", "pc"], default="mobile",
+                        help="规则类别：mobile（移动端）或 pc（电脑端）")
+    args = parser.parse_args()
+
+    merger = RuleMerger(category=args.category)
     try:
         merger.merge()
     except Exception as e:

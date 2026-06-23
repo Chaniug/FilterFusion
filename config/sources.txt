@@ -1,12 +1,15 @@
 # FilterFusion 规则源配置
-# 格式: 名称 > 订阅地址
+# 格式: [M|P]>名称 > 订阅地址
+#   M: 移动端规则 (Mobile)
+#   P: 电脑端规则 (PC/Desktop)
 # 开启: 直接写一行
 # 关闭: 行首加 #
 
-AdGuard Mobile > https://raw.githubusercontent.com/AdguardTeam/FiltersRegistry/master/filters/filter_11_Mobile/filter.txt
-AdGuard Chinese > https://raw.githubusercontent.com/AdguardTeam/FiltersRegistry/master/filters/filter_224_Chinese/filter.txt
-Chaniug AdSuper > https://raw.githubusercontent.com/Chaniug/AdSuper/refs/heads/master/adnew.txt
-Adguard Extra > https://raw.githubusercontent.com/AdguardTeam/FiltersRegistry/master/filters/filter_5_Experimental/filter.txt
+M>AdGuard Mobile > https://raw.githubusercontent.com/AdguardTeam/FiltersRegistry/master/filters/filter_11_Mobile/filter.txt
+M>AdGuard Chinese > https://raw.githubusercontent.com/AdguardTeam/FiltersRegistry/master/filters/filter_224_Chinese/filter.txt
+M>Chaniug AdSuper > https://raw.githubusercontent.com/Chaniug/AdSuper/refs/heads/master/adnew.txt
+M>Adguard Extra > https://raw.githubusercontent.com/AdguardTeam/FiltersRegistry/master/filters/filter_5_Experimental/filter.txt
 
 # 下面是关闭的源（去掉行首 # 即可开启）：
-# EasyList > https://easylist.to/easylist.txt
+P>EasyList > https://easylist.to/easylist.txt
+P>EasyPrivacy > https://easylist.to/easyprivacy.txt

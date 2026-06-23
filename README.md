@@ -135,7 +135,8 @@ pip install -r requirements.txt
 
 | 管道 | 抓取 | 合并去重 |
 |------|------|---------|
-| 🟦 **AdBlock** | `python scripts/fetch_rules.py` | `python scripts/merge_rules.py` |
+| 🟦 **AdBlock (Mobile)** | `python scripts/fetch_rules.py` | `python scripts/merge_rules.py --category mobile` |
+| 🟦 **AdBlock (PC)** | `python scripts/fetch_rules.py` | `python scripts/merge_rules.py --category pc` |
 | 🟪 **DNS** | `python scripts/fetch_dns_rules.py` | `python scripts/merge_dns_rules.py` |
 
 ### 4. 使用生成的规则
@@ -154,8 +155,10 @@ flowchart LR
         direction TB
         subgraph AD["AdBlock 管道"]
             A1["📋 配置<br/>sources.txt"] --> A2["⬇️ 抓取<br/>fetch_rules.py"]
-            A2 --> A3["🔀 合并去重<br/>merge_rules.py"]
-            A3 --> A4["📤 输出<br/>adblock-main.txt"]
+            A2 --> A3a["🔀 合并 Mobile<br/>merge_rules.py --category mobile"]
+            A2 --> A3b["🔀 合并 PC<br/>merge_rules.py --category pc"]
+            A3a --> A4a["📤 输出<br/>adblock-main.txt"]
+            A3b --> A4b["📤 输出<br/>adblock-pc.txt"]
         end
         subgraph DNS["DNS 管道"]
             D1["📋 配置<br/>dns_sources.txt"] --> D2["⬇️ 抓取<br/>fetch_dns_rules.py"]
@@ -163,7 +166,8 @@ flowchart LR
             D3 --> D4["📤 输出<br/>dns-blocklist.txt"]
         end
     end
-    A4 --> CDN["jsDelivr + GitHub Raw<br/>多 CDN 全球分发"]
+    A4a --> CDN["jsDelivr + GitHub Raw<br/>多 CDN 全球分发"]
+    A4b --> CDN
     D4 --> CDN
 
     style AD fill:#ebf5ff,stroke:#2196f3
@@ -214,7 +218,10 @@ AdGuard Base > https://adguardteam.github.io/AdGuardSDNSFilter/Filters/filter.tx
 ### **抓取规则**
 
 ```bash
-python scripts/fetch_rules.py        # AdBlock 规则
+python scripts/fetch_rules.py                  # 抓取所有 AdBlock 规则
+python scripts/merge_rules.py --category mobile # 合并移动端规则
+python scripts/merge_rules.py --category pc     # 合并电脑端规则
+python scripts/fetch_dns_rules.py               # 抓取 DNS 规则
 python scripts/fetch_dns_rules.py    # DNS 规则
 ```
 
