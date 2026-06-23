@@ -1,13 +1,11 @@
 ! Title: FilterFusion DNS Blocklist
 ! Description: FilterFusion - Merged DNS filtering rules
 ! Version: 20260623
-! Last modified: 2026-06-23 11:57:23 UTC
+! Last modified: 2026-06-23 13:12:27 UTC
 ! Homepage: https://github.com/Chaniug/FilterFusion
 ! License: MIT License
 ! --------------------------------------
 ! Sources: 1 total
-! - - HaGeZi DNS (已禁用)
-! - - StevenBlack Hosts (已禁用)
 ! - ✓ AdGuard DNS (更新: 2026-06-23)
 ! --------------------------------------
 ! Blocked domains: 158474
