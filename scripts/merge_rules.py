@@ -267,9 +267,9 @@ class RuleMerger:
 
     @staticmethod
     def generate_version() -> str:
-        """生成简单的语义化版本号（YYYYMMDD）。"""
-        today = datetime.now(UTC)
-        return f"{today.year}{today.month:02d}{today.day:02d}"
+        """生成版本号（YYYYMMDDHHMM，精确到分钟，可区分当天多次提交）。"""
+        now = datetime.now(UTC)
+        return f"{now.year}{now.month:02d}{now.day:02d}{now.hour:02d}{now.minute:02d}"
 
     def _do_merge(
         self,
