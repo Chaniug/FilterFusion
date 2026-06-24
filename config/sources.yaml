@@ -52,6 +52,12 @@ sources:
     url: https://filters.adtidy.org/android/filters/2_optimized.txt
     id: m3
 
+  # - name: 
+  #   category: mo
+  #   url:
+  #   id: m4
+
+
   # ===== 两端共用 (Both) =====
   # AdGuard 中文广告过滤规则（手机端 + 电脑端共用）
   - name: AdGuard Chinese
