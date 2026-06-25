@@ -68,7 +68,7 @@ sources:
   # 作者自维护的补充规则集（两端的额外拦截补充）
   - name: Chaniug AdSuper
     category: bo
-    url: https://raw.githubusercontent.com/Chaniug/AdSuper/refs/heads/master/adnew.txt
+    url: https://raw.githubusercontent.com/Chaniug/AdSuper/main/adnew.txt
     id: b2
 
   # ===== 电脑端 (PC) =====
