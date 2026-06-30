@@ -40,21 +40,59 @@
 
 FilterFusion 是一个自动聚合和融合多源广告过滤规则的工具集。它帮你**抓取主流规则源 → 去重合并 → 输出标准格式**，彻底告别手动维护自定义规则列表。
 
-| 对比维度 | 手动维护 | FilterFusion |
-|---------|---------|-------------|
-| 多源聚合 | 逐个打开、复制粘贴 | 自动并发抓取 |
-| 规则去重 | 肉眼比对、手动删除 | Unicode NFKC 算法自动去重 |
-| 规则分类 | 手动整理 | 按 ABP 标准 7 级自动分类 |
-| 持续更新 | 想起来才更新 | GitHub Actions 每日自动 |
-| 分发部署 | 手动上传 | jsDelivr + GitHub Raw 多 CDN 分发 |
-| 元数据统计 | 无 | 自动输出控制台摘要 |
+### 🆚 为什么选择 FilterFusion？
 
-### 核心亮点
+<p align="center">
+  <table>
+    <tr>
+      <th align="center">对比维度</th>
+      <th align="center">😰 手动维护</th>
+      <th align="center">✨ FilterFusion</th>
+    </tr>
+    <tr>
+      <td>多源聚合</td>
+      <td align="center">逐个打开、复制粘贴</td>
+      <td align="center"><b>自动并发抓取</b></td>
+    </tr>
+    <tr>
+      <td>规则去重</td>
+      <td align="center">肉眼比对、手动删除</td>
+      <td align="center"><b>Unicode NFKC 算法自动去重</b></td>
+    </tr>
+    <tr>
+      <td>规则分类</td>
+      <td align="center">手动整理</td>
+      <td align="center"><b>按 ABP 标准 7 级自动分类</b></td>
+    </tr>
+    <tr>
+      <td>持续更新</td>
+      <td align="center">想起来才更新</td>
+      <td align="center"><b>GitHub Actions 每日自动</b></td>
+    </tr>
+    <tr>
+      <td>分发部署</td>
+      <td align="center">手动上传</td>
+      <td align="center"><b>jsDelivr + GitHub Raw 多 CDN 分发</b></td>
+    </tr>
+    <tr>
+      <td>元数据统计</td>
+      <td align="center">无</td>
+      <td align="center"><b>自动输出控制台摘要</b></td>
+    </tr>
+  </table>
+</p>
 
-- **极致性能** — 异步并发 + 预编译正则，大规模规则秒级处理
-- **高度可定制** — 自由配置规则源、模板和输出格式
-- **一键自动化** — 一条命令完成抓取、合并、发布全流程
-- **双管道并行** — AdBlock 浏览器拦截 + DNS 网络级拦截独立运行
+### ✨ 核心亮点
+
+<div align="center">
+
+| 🚀 极致性能 | 🎨 高度可定制 | ⚡ 一键自动化 | 🔄 双管道并行 |
+|:---:|:---:|:---:|:---:|
+| 异步并发 + 预编译正则，大规模规则秒级处理 | 自由配置规则源、模板和输出格式 | 一条命令完成抓取、合并、发布全流程 | AdBlock 浏览器拦截 + DNS 网络级拦截独立运行 |
+
+</div>
+
+> 💡 **一句话总结**：FilterFusion = 自动抓取 + 智能去重 + 标准输出 + 每日更新，让你专注规则质量，而不是重复劳动。
 
 ## 规则订阅地址
 
