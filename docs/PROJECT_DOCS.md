@@ -1,6 +1,6 @@
 # FilterFusion 项目文档
 
-> **版本**: 1.8 | **最后更新**: 2026-06-23 | **许可证**: MIT
+> **版本**: 1.9 | **最后更新**: 2026-06-30 | **许可证**: MIT
 
 ---
 
@@ -121,9 +121,8 @@ flowchart LR
 ```
 FilterFusion/
 ├── .github/workflows/         # CI/CD 工作流
-│   ├── daily-update.yml       # 每日自动更新
-│   ├── weekly-release.yml     # 每周 Release 打包
-│   └── static.yml             # GitHub Pages 部署
+│   ├── daily-update.yml       # 每日自动更新（含 Pages 部署）
+│   └── weekly-release.yml     # 每周 Release 打包
 ├── assets/
 │   └── preview.png            # 项目预览图
 ├── config/
@@ -470,31 +469,27 @@ python scripts/merge_all.py
 
 ### 5.2 自动流水线 (GitHub Actions)
 
-项目配置了 3 个自动化工作流：
+项目配置了 2 个自动化工作流：
 
 ```mermaid
 flowchart TB
     subgraph TRIGGERS["触发条件"]
         T1["⏰ 每日 UTC 0:00"]
         T2["📅 每周日 UTC 2:00"]
-        T3["🔄 main 分支 push"]
     end
 
     subgraph WORKFLOWS["GitHub Actions 工作流"]
-        W1["daily-update.yml"]
+        W1["daily-update.yml<br/>(抓取 + 合并 + 部署)"]
         W2["weekly-release.yml"]
-        W3["static.yml"]
     end
 
     subgraph ACTIONS["执行动作"]
-        A1["并行抓取所有源<br/>合并移动端 + 电脑端<br/>清理过期文件+临时文件+缓存<br/>git commit & push"]
+        A1["抓取所有源<br/>合并移动端 + 电脑端 + DNS<br/>清理临时文件+缓存<br/>git commit & push<br/>→ 配置 Pages<br/>→ 上传产物<br/>→ 部署 GitHub Pages"]
         A2["打包 dist/ 为 ZIP<br/>创建 GitHub Release<br/>Tag: YYYY.MM.DD"]
-        A3["部署 GitHub Pages<br/>自定义域名 (隐藏)"]
     end
 
     T1 --> W1 --> A1
     T2 --> W2 --> A2
-    T3 --> W3 --> A3
 
     style TRIGGERS fill:#fff8e1,stroke:#f9a825
     style WORKFLOWS fill:#e1f5fe,stroke:#0288d1
@@ -503,21 +498,24 @@ flowchart TB
 
 | 工作流 | 触发条件 | 功能说明 |
 |--------|----------|----------|
-| **daily-update** | 每天 UTC 0:00 定时 | 并行抓取 → 分别合并移动端/电脑端/DNS → 清理 → 推送 |
+| **daily-update** | 每天 UTC 0:00 定时 + 手动触发 | 抓取 → 合并 → 推送 → 部署 GitHub Pages（单 Job 架构，零 Runner 切换成本） |
 | **weekly-release** | 每周日 UTC 2:00 定时 | 打包 `dist/` 中所有 `adblock-*.txt` 为 ZIP → 创建 GitHub Release |
-| **static** | main 分支 push 时 | 部署 dist/ 目录到 GitHub Pages |
 
 整个流水线**全自动运行**，无需人工干预。维护者只需确保规则源 URL 有效即可。
 
 **CI 技术细节**：
-- **代码检出**: `actions/checkout@v7.0.0`（`fetch-depth: 1`，仅最新提交）
+- **单 Job 架构**: `update-and-deploy` 单个 Job 完成抓取、合并、推送、部署全流程，消除第二个 Runner 冷启动（~30s）和重复 checkout（~10s），预计节省 40-50 秒
+- **代码检出**: `actions/checkout@v7.0.0`（`fetch-depth: 1`，仅最新提交，使用 PAT 触发 Pages 部署）
 - **包管理**: `astral-sh/setup-uv@v8.2.0` 安装 uv + Python 3.14
 - **依赖安装**: `uv venv && uv pip install -r requirements.txt`（轻量级，不构建项目包）
-- **并行抓取**: `scripts/fetch_all.py` 统一入口，单个 `uv run` 在同一个事件循环中用 `asyncio.gather` 并发执行 AdBlock + DNS 抓取，按 URL 去重（B 前缀源只下载一次），消除 Shell 后台任务和重复 Python 进程启动开销
-- **统一合并**: `scripts/merge_all.py` 单进程执行 DNS 合并 + AdBlock custom_rules 组合规则（含核心的 adblock-mo/pc），消除多次进程启动开销
-- **脚本执行**: `uv run --no-project python -m scripts.xxx`
+- **并行抓取**: `scripts/run_all.py` 统一入口，单个 `uv run` 在同一个事件循环中用 `asyncio.gather` 并发执行 AdBlock + DNS 抓取，按 URL 去重（B 前缀源只下载一次），消除重复 Python 进程启动开销
+- **统一合并**: `scripts/run_all.py` 单进程执行 DNS 合并 + AdBlock custom_rules 组合规则（含核心的 adblock-mo/pc），消除多次进程启动开销
+- **条件部署**: 仅当规则文件有变更时（`git diff --cached --quiet` 检测），才执行 Pages 配置、上传产物、部署步骤
+- **脚本执行**: `uv run --no-project python -m scripts.run_all`
 - **缓存**: uv 缓存 + GitHub Actions cache 双重加速
 - **运行后清理**: 提交前自动删除 `scripts/` 中的临时 `.txt` 文件和 `__pycache__` 字节码缓存
+- **Permissions**: 顶层配置 `contents: write` + `pages: write` + `id-token: write`（原分散在两个 Job）
+- **Concurrency**: 顶层配置 `group: pages, cancel-in-progress: true`（避免并发部署冲突）
 
 ---
 

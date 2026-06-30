@@ -58,7 +58,7 @@ FilterFusion is a toolkit for automatically aggregating and merging multi-source
 
 ## Subscription URLs
 
-Import any of the following links into your ad-blocking tool. **Each code block contains 3 CDN sources for the same rule — copy any one line** (first line jsDelivr recommended):
+Import any of the following links into your ad-blocking tool. **Each URL is in its own code block — click the copy button at the top-right to copy a single URL** (first line jsDelivr recommended):
 
 ### AdBlock Rules (Browser Ad-Blocking)
 
@@ -66,7 +66,11 @@ Import any of the following links into your ad-blocking tool. **Each code block 
 
 ```text
 https://cdn.jsdelivr.net/gh/Chaniug/FilterFusion@main/dist/adblock-mo.txt
+```
+```text
 https://raw.githubusercontent.com/Chaniug/FilterFusion/main/dist/adblock-mo.txt
+```
+```text
 https://gh.llkk.cc/https://raw.githubusercontent.com/Chaniug/FilterFusion/main/dist/adblock-mo.txt
 ```
 
@@ -74,21 +78,29 @@ https://gh.llkk.cc/https://raw.githubusercontent.com/Chaniug/FilterFusion/main/d
 
 ```text
 https://cdn.jsdelivr.net/gh/Chaniug/FilterFusion@main/dist/adblock-pc.txt
+```
+```text
 https://raw.githubusercontent.com/Chaniug/FilterFusion/main/dist/adblock-pc.txt
+```
+```text
 https://gh.llkk.cc/https://raw.githubusercontent.com/Chaniug/FilterFusion/main/dist/adblock-pc.txt
 ```
 
-> 📌 Three lines in order: jsDelivr CDN (mainland China) / GitHub Raw (global) / gh.llkk.cc (backup)
+> 📌 Three URLs in order: jsDelivr CDN (mainland China) / GitHub Raw (global) / gh.llkk.cc (backup)
 
 ### DNS Filtering Rules (Network-Level Ad-Blocking)
 
 ```text
 https://cdn.jsdelivr.net/gh/Chaniug/FilterFusion@main/dist/dns-blocklist.txt
+```
+```text
 https://raw.githubusercontent.com/Chaniug/FilterFusion/main/dist/dns-blocklist.txt
+```
+```text
 https://gh.llkk.cc/https://raw.githubusercontent.com/Chaniug/FilterFusion/main/dist/dns-blocklist.txt
 ```
 
-> 📌 Three lines in order: jsDelivr CDN (mainland China) / GitHub Raw (global) / gh.llkk.cc (backup)
+> 📌 Three URLs in order: jsDelivr CDN (mainland China) / GitHub Raw (global) / gh.llkk.cc (backup)
 
 ### 📋 Report Filter Issues
 
@@ -369,7 +381,7 @@ Submit an Issue to the [AdSuper project](https://github.com/Chaniug/AdSuper) wit
 
 ### Q7: Why does the daily update workflow use `secrets.PAT`?
 
-Because pushes triggered by the default `GITHUB_TOKEN` in GitHub Actions **do not trigger other workflows** (including Pages deployment). To make `.github/workflows/static.yml` redeploy GitHub Pages automatically after rule files are updated, `daily-update.yaml` uses a Personal Access Token (PAT) for checkout and push.
+Because pushes triggered by the default `GITHUB_TOKEN` in GitHub Actions **do not trigger other workflows** (including Pages deployment). To make GitHub Pages redeploy automatically after rule files are updated, `daily-update.yaml` uses a Personal Access Token (PAT) for checkout and push (pushes triggered by PAT will trigger subsequent workflows).
 
 If you fork this project to deploy it yourself, create a secret named `PAT` in **Settings → Secrets and variables → Actions** and ensure the token has at least `contents:write` permission for the repository.
 

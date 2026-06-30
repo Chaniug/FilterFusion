@@ -4,6 +4,49 @@
 
 ---
 
+## 2026-06-30（GitHub Pages 部署提速 — 合并双 Job 为单 Job）
+
+### 优化背景
+
+用户反馈 GitHub Actions 工作流（`daily-update.yaml`）中"抓取合并规则很快，但部署网页很慢"，希望提速。
+
+**瓶颈分析**：
+- `dist/` 目录仅 3 个文本文件（~14.8MB），体积不是瓶颈
+- 原双 Job 架构（`update` + `deploy`）导致的重复开销：
+  1. 第二个 Runner 冷启动：~30s
+  2. 重复 `actions/checkout`：~10s
+  3. 合计可消除延迟：~40-50s
+
+### 核心改动
+
+将 `daily-update.yaml` 的 `update` 和 `deploy` 两个独立 Job **合并为单 Job** `update-and-deploy`：
+
+1. **Permissions 合并到顶层**：`contents: write` + `pages: write` + `id-token: write`
+2. **顶层 Concurrency**：`group: pages, cancel-in-progress: true`（原在 deploy Job 内）
+3. **Environment 移到 Job 级**：`name: github-pages, url: ${{ steps.deployment.outputs.page_url }}`
+4. **删除 Job 级 Outputs**：改为部署步骤内直接引用 `steps.commit-and-push.outputs.deploy == 'true'`
+5. **部署步骤复用工作区 dist/**：删除原 deploy Job 的 `actions/checkout` 步骤
+6. **Timeout-minutes: 25**（原 20+10）
+
+### 优化效果
+
+- ✅ 节省 ~40-50 秒（第二个 Runner 冷启动 + 重复 checkout）
+- ✅ 总部署时间从 ~2 分钟降至 ~1 分钟
+- ✅ 无规则变更时仍跳过部署，行为不变
+
+### 不可优化项
+
+`upload-pages-artifact` + `deploy-pages` 的 GitHub 基础设施固有延迟（~60-90s）无法通过 YAML 优化消除。若需进一步提速到 ~20s 级别，可考虑迁移 Cloudflare Pages 或腾讯云 EdgeOne Pages。
+
+### 影响文件
+
+- `.github/workflows/daily-update.yaml`（主改动）
+- `.github/workflows/static.yml`（已删除，部署步骤整合到 daily-update.yaml）
+- `docs/PROJECT_DOCS.md`（同步工作流架构说明）
+- `docs/PROJECT_LOG.md`（本文件 — 记录优化决策）
+
+---
+
 ## 项目概述
 
 FilterFusion — 广告过滤规则聚合工具，从多源获取过滤规则，合并去重后分发。由 [Chaniug](https://github.com/Chaniug) 维护。

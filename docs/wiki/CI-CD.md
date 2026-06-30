@@ -8,7 +8,8 @@ FilterFusion 使用 GitHub Actions 实现完全自动化的规则更新和发布
 |--------|------|----------|------|
 | 每日更新 | `daily-update.yml` | `cron` + 手动 | 每天 |
 | 每周发布 | `weekly-release.yml` | `cron` + 手动 | 每周 |
-| Pages 部署 | `static.yml` | 推送 `main` 分支 | 每次推送 |
+
+> **注**：`daily-update.yml` 已整合 GitHub Pages 部署步骤（原 `static.yml`），规则文件更新后自动部署，无需单独的工作流。
 
 ## 每日更新（`daily-update.yml`）
 
@@ -77,17 +78,24 @@ FilterFusion Weekly · YYYY.MM.DD
 - 创建 Tag 前会自动检查并删除已存在的同名 Tag（避免 fatal 错误）
 - 需要先 `git pull origin main` 确保本地分支最新
 
-## Pages 部署（`static.yml`）
+## GitHub Pages 部署（整合到 `daily-update.yml`）
 
-### 功能
+> **历史说明**：原 `static.yml` 工作流已删除，部署步骤整合到 `daily-update.yml` 中。
 
-将 `dist/` 目录部署到 GitHub Pages，提供规则文件下载。
+### 部署流程
+
+`daily-update.yml` 在规则文件更新后自动部署到 GitHub Pages：
+
+1. **配置 Pages** — `actions/configure-pages@v6`
+2. **禁用 Jekyll** — 创建 `dist/.nojekyll` 文件
+3. **上传产物** — `actions/upload-pages-artifact@v5`
+4. **部署 Pages** — `actions/deploy-pages@v5`
 
 ### 优化配置
 
-- **`.nojekyll` 文件** — 跳过 Jekyll 构建，加速部署
-- **`cancel-in-progress: true`** — 避免排队等待
-- **`paths` 过滤** — 仅 `dist/**` 变更时触发，避免脚本/文档变更触发无意义部署
+- **单 Job 架构** — 抓取、合并、推送、部署在同一个 Job 中完成，消除 Runner 冷启动和重复 checkout 开销（节省 ~40-50 秒）
+- **条件部署** — 仅当规则文件有变更时才执行部署步骤
+- **并发控制** — 顶层 `concurrency: group: pages, cancel-in-progress: true`
 
 ### 自定义域名
 
