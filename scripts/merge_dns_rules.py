@@ -116,36 +116,37 @@ class DnsRuleMerger:
             source_rule_count = 0
             source_seen: set[str] = set()  # 源内去重（独立于全局）
             try:
-                with open(source_path, "r", encoding="utf-8", errors="replace") as f:
-                    for line in f:
-                        rule = line.strip()
-                        if not rule:
-                            continue
+                # 一次性读取替代逐行 IO，减少 syscall 开销
+                content = source_path.read_text(encoding="utf-8", errors="replace")
+                for line in content.splitlines():
+                    rule = line.strip()
+                    if not rule:
+                        continue
 
-                        # 跳过注释行（但以 ! 开头的注释保留在头部，这里跳过）
-                        if rule.startswith("!"):
-                            continue
+                    # 跳过注释行（但以 ! 开头的注释保留在头部，这里跳过）
+                    if rule.startswith("!"):
+                        continue
 
-                        # 跳过 AdBlock Plus 格式声明（DNS 规则不需要）
-                        if rule.startswith("[Adblock"):
-                            continue
+                    # 跳过 AdBlock Plus 格式声明（DNS 规则不需要）
+                    if rule.startswith("[Adblock"):
+                        continue
 
-                        # 源内去重计数
-                        if rule in source_seen:
-                            continue
-                        source_seen.add(rule)
-                        source_rule_count += 1
+                    # 源内去重计数
+                    if rule in source_seen:
+                        continue
+                    source_seen.add(rule)
+                    source_rule_count += 1
 
-                        # 全局去重
-                        if rule in seen_rules:
-                            continue
-                        seen_rules.add(rule)
+                    # 全局去重
+                    if rule in seen_rules:
+                        continue
+                    seen_rules.add(rule)
 
-                        # 分类：例外规则（@@ 开头）和普通规则
-                        if rule.startswith("@@"):
-                            exception_rules.add(rule)
-                        else:
-                            normal_rules.add(rule)
+                    # 分类：例外规则（@@ 开头）和普通规则
+                    if rule.startswith("@@"):
+                        exception_rules.add(rule)
+                    else:
+                        normal_rules.add(rule)
             except Exception as e:
                 print(f"⚠️ 处理 {source['name']} DNS 出错: {e}")
             source_stats.append({"name": source["name"], "rule_count": source_rule_count})

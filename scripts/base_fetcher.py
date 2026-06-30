@@ -9,14 +9,19 @@ from __future__ import annotations
 import asyncio
 import hashlib
 import json
+import random
 import sys
 import tempfile
 from datetime import UTC, datetime
 from enum import StrEnum
+from email.utils import parsedate_to_datetime
 from pathlib import Path
 from typing import Any
 
 import httpx
+
+# 并发抓取上限：对 raw.githubusercontent.com 友好的保守值，避免触发 429 限流
+_MAX_CONCURRENT_FETCH = 8
 
 type SourceInfo = dict[str, Any]
 type SourceMeta = dict[str, Any]
@@ -67,18 +72,33 @@ class BaseFetcher:
         safe_name = self.filename_prefix + name.replace(" ", "_").lower().replace(".", "")
         return f"{safe_name}.txt"
 
-    async def fetch_single_rule(self, source: SourceInfo, client: httpx.AsyncClient) -> SourceMeta:
+    async def fetch_single_rule(
+        self,
+        source: SourceInfo,
+        client: httpx.AsyncClient,
+        semaphore: asyncio.Semaphore | None = None,
+    ) -> SourceMeta:
         """异步抓取单个规则源，带 3 次重试与递增超时。
 
         日志策略：不在开始时打印（避免并发交错），只在完成时打印一行结果。
         重试时静默，仅最终结果输出。
+
+        稳定性优化：
+        - semaphore 限制并发请求数，避免触发 GitHub 429 限流
+        - 429/503 检测 Retry-After header，优先按服务器要求等待
+        - 指数退避叠加 ±25% 随机抖动，避免多源同时重试的惊群效应
         """
         retry_count = 3
         for attempt in range(1, retry_count + 1):
             try:
                 # 递增超时：35s → 50s → 65s，适配大型规则文件
                 timeout = 20 + attempt * 15
-                response = await client.get(source["url"], timeout=timeout)
+                # 并发上限：semaphore 包裹请求，acquire/release 自动管理
+                if semaphore is not None:
+                    async with semaphore:
+                        response = await client.get(source["url"], timeout=timeout)
+                else:
+                    response = await client.get(source["url"], timeout=timeout)
                 response.raise_for_status()
 
                 # 流式写入：直接写 bytes，避免编码开销
@@ -93,19 +113,66 @@ class BaseFetcher:
                 return self._build_success(source, filename, file_hash, timestamp)
             except httpx.TimeoutException:
                 if attempt < retry_count:
-                    await asyncio.sleep(1.5 ** attempt)  # 指数退避：1.5s → 2.25s
+                    # 指数退避 + ±25% 抖动：1.5^attempt × uniform(0.75, 1.25)
+                    base_delay = 1.5 ** attempt
+                    await asyncio.sleep(base_delay * random.uniform(0.75, 1.25))
                     continue
                 print(f"  ✗ {source['name']} (超时)")
                 return self._build_failure(source, "请求超时")
+            except httpx.HTTPStatusError as e:
+                # 429/503 限流：优先尊重 Retry-After header
+                status = e.response.status_code
+                if status in (429, 503) and attempt < retry_count:
+                    retry_after = self._parse_retry_after(e.response.headers.get("Retry-After"))
+                    base_delay = 1.5 ** attempt
+                    # 取 Retry-After 与指数退避的较大值，叠加抖动
+                    delay = max(retry_after, base_delay) * random.uniform(0.75, 1.25)
+                    await asyncio.sleep(delay)
+                    continue
+                if attempt < retry_count:
+                    base_delay = 1.5 ** attempt
+                    await asyncio.sleep(base_delay * random.uniform(0.75, 1.25))
+                    continue
+                print(f"  ✗ {source['name']} (HTTP {status})")
+                return self._build_failure(source, f"HTTP {status}")
             except httpx.HTTPError as e:
                 if attempt < retry_count:
-                    await asyncio.sleep(1.5 ** attempt)  # 指数退避：1.5s → 2.25s
+                    base_delay = 1.5 ** attempt
+                    await asyncio.sleep(base_delay * random.uniform(0.75, 1.25))
                     continue
                 print(f"  ✗ {source['name']} ({e})")
                 return self._build_failure(source, str(e))
 
         # 理论不可达：循环内已覆盖所有分支返回
         return self._build_failure(source, "重试次数耗尽")
+
+    @staticmethod
+    def _parse_retry_after(value: str | None) -> float:
+        """解析 Retry-After header，返回等待秒数。
+
+        支持两种格式：
+        - 秒数（如 "120"）
+        - HTTP date（如 "Wed, 21 Oct 2026 07:28:00 GMT"）
+        解析失败返回 0.0（交由调用方回退到指数退避）。
+        """
+        if not value:
+            return 0.0
+        # 优先尝试秒数
+        try:
+            return max(0.0, float(value))
+        except ValueError:
+            pass
+        # 尝试 HTTP date
+        try:
+            target = parsedate_to_datetime(value)
+            if target.tzinfo is None:
+                from datetime import timezone
+
+                target = target.replace(tzinfo=timezone.utc)
+            delay = (target - datetime.now(UTC)).total_seconds()
+            return max(0.0, delay)
+        except (TypeError, ValueError):
+            return 0.0
 
     def _build_success(self, source: SourceInfo, filename: str, file_hash: str, timestamp: str) -> SourceMeta:
         """构建成功返回的元数据。"""
@@ -185,14 +252,16 @@ class BaseFetcher:
 
         print(f"🚀 并发下载 {len(unique_sources)} 个唯一源（去重前 {len(enabled_sources)} 个）...", flush=True)
         if unique_sources:
+            # 并发上限：避免源增多时触发 GitHub 429 限流
+            semaphore = asyncio.Semaphore(_MAX_CONCURRENT_FETCH)
             async with httpx.AsyncClient(
                 http2=True,
                 headers={"User-Agent": "FilterFusion/1.0 (+https://github.com/Chaniug/FilterFusion)"},
                 follow_redirects=True,
             ) as client:
-                # asyncio.gather 原生并发，无线程开销
+                # asyncio.gather 原生并发，无线程开销；semaphore 控制实际并发数
                 fetched = await asyncio.gather(
-                    *(self.fetch_single_rule(s, client) for s in unique_sources)
+                    *(self.fetch_single_rule(s, client, semaphore) for s in unique_sources)
                 )
 
             # 将下载结果映射回所有共享该 URL 的源

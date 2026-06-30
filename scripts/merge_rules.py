@@ -51,6 +51,7 @@ class RuleMerger:
         "final_rule_count",
         "start_time",
         "_summary_list",
+        "_file_cache",
     )
 
     # AdGuard/uBlock 扩展语法（必须在元素隐藏之前判断）
@@ -83,6 +84,9 @@ class RuleMerger:
         self.start_time: datetime = datetime.now()
         # 累积多个 custom 规则的摘要，供 save_summary 统一写入 config/summary.json
         self._summary_list: list[dict[str, Any]] = []
+        # 跨 custom_rule 文件读取缓存：adblock-mo 和 adblock-pc 共享 b1/b2 源，
+        # 缓存避免重复读取+解析。键为文件名，值为 splitlines() 结果。
+        self._file_cache: dict[str, list[str]] = {}
 
     def load_metadata(self) -> dict[str, Any]:
         meta_path = Path(tempfile.gettempdir()) / "filterfusion" / "fetch_meta.json"
@@ -218,31 +222,43 @@ class RuleMerger:
         for source in sources:
             if source.get("status") != "success":
                 continue
-            source_path = self.rules_dir / source["file"]
-            if not source_path.exists():
+            filename = source.get("file", "")
+            source_path = self.rules_dir / filename if filename else None
+            if not source_path or not source_path.exists():
                 continue
+
+            # 跨 custom_rule 文件缓存：命中则复用 splitlines 结果，避免重复 IO+解析
+            if filename in self._file_cache:
+                lines = self._file_cache[filename]
+            else:
+                try:
+                    content = source_path.read_text(encoding="utf-8", errors="replace")
+                    lines = content.splitlines()
+                    self._file_cache[filename] = lines
+                except Exception as e:
+                    print(f"⚠️ 读取 {source['name']} 出错: {e}")
+                    continue
 
             source_rule_count = 0
             source_seen: set[str] = set()  # 源内去重（独立于全局）
             try:
-                with open(source_path, "r", encoding="utf-8", errors="replace") as f:
-                    for line in f:
-                        typ, rule = self.process_rule(line)
-                        if not typ or not rule:
-                            continue
-                        # 跳过注释
-                        if typ == RuleType.COMMENT:
-                            continue
-                        # 源内去重计数
-                        if rule in source_seen:
-                            continue
-                        source_seen.add(rule)
-                        source_rule_count += 1
-                        # 全局去重
-                        if rule in seen_rules:
-                            continue
-                        seen_rules.add(rule)
-                        groups[typ].add(rule)
+                for line in lines:
+                    typ, rule = self.process_rule(line)
+                    if not typ or not rule:
+                        continue
+                    # 跳过注释
+                    if typ == RuleType.COMMENT:
+                        continue
+                    # 源内去重计数
+                    if rule in source_seen:
+                        continue
+                    source_seen.add(rule)
+                    source_rule_count += 1
+                    # 全局去重
+                    if rule in seen_rules:
+                        continue
+                    seen_rules.add(rule)
+                    groups[typ].add(rule)
             except Exception as e:
                 print(f"⚠️ 处理 {source['name']} 出错: {e}")
             source_stats.append({"name": source["name"], "rule_count": source_rule_count})
