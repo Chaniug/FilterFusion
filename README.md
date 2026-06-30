@@ -40,7 +40,7 @@
 
 FilterFusion 是一个自动聚合和融合多源广告过滤规则的工具集。它帮你**抓取主流规则源 → 去重合并 → 输出标准格式**，彻底告别手动维护自定义规则列表。
 
-### 🆚 为什么选择 FilterFusion？
+### VS 为什么选择 FilterFusion？
 
 <p align="center">
   <table>

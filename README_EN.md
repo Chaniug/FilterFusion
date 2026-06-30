@@ -40,21 +40,59 @@
 
 FilterFusion is a toolkit for automatically aggregating and merging multi-source ad-blocking filter rules. It lets you **fetch mainstream sources → merge & deduplicate → output standard formats**, completely eliminating manual maintenance of custom rule lists.
 
-| Comparison | Manual Maintenance | FilterFusion |
-|-----------|-------------------|-------------|
-| Multi-source aggregation | Open each site, copy-paste | Automated concurrent fetching |
-| Rule deduplication | Manual visual comparison | Unicode NFKC algorithmic dedup |
-| Rule classification | Manual sorting | Auto-classified by ABP 7-tier standard |
-| Continuous updates | Update when you remember | GitHub Actions daily automation |
-| Distribution | Manual upload | jsDelivr + GitHub Raw multi-CDN |
-| Metadata/Stats | None | Auto-generated console summary |
+### VS Why Choose FilterFusion?
+
+<p align="center">
+  <table>
+    <tr>
+      <th align="center">Comparison</th>
+      <th align="center">Manual Maintenance</th>
+      <th align="center">FilterFusion</th>
+    </tr>
+    <tr>
+      <td>Multi-source aggregation</td>
+      <td align="center">Open each site, copy-paste</td>
+      <td align="center"><b>Automated concurrent fetching</b></td>
+    </tr>
+    <tr>
+      <td>Rule deduplication</td>
+      <td align="center">Manual visual comparison</td>
+      <td align="center"><b>Unicode NFKC algorithmic dedup</b></td>
+    </tr>
+    <tr>
+      <td>Rule classification</td>
+      <td align="center">Manual sorting</td>
+      <td align="center"><b>Auto-classified by ABP 7-tier standard</b></td>
+    </tr>
+    <tr>
+      <td>Continuous updates</td>
+      <td align="center">Update when you remember</td>
+      <td align="center"><b>GitHub Actions daily automation</b></td>
+    </tr>
+    <tr>
+      <td>Distribution</td>
+      <td align="center">Manual upload</td>
+      <td align="center"><b>jsDelivr + GitHub Raw multi-CDN</b></td>
+    </tr>
+    <tr>
+      <td>Metadata/Stats</td>
+      <td align="center">None</td>
+      <td align="center"><b>Auto-generated console summary</b></td>
+    </tr>
+  </table>
+</p>
 
 ### Key Features
 
-- **Blazing Performance** — Async concurrency + precompiled regex, massive rules processed in seconds
-- **Highly Customizable** — Configure rule sources, templates, and output formats freely
-- **One-Click Automation** — A single command covers fetch, merge, and publish
-- **Dual Pipelines** — AdBlock browser-level + DNS network-level filtering, running independently
+<div align="center">
+
+| Blazing Performance | Highly Customizable | One-Click Automation | Dual Pipelines |
+|:---:|:---:|:---:|:---:|
+| Async concurrency + precompiled regex, massive rules processed in seconds | Configure rule sources, templates, and output formats freely | A single command covers fetch, merge, and publish | AdBlock browser-level + DNS network-level filtering, running independently |
+
+</div>
+
+> **One-line summary**: FilterFusion = auto-fetch + smart dedup + standard output + daily updates, so you focus on rule quality, not repetitive work.
 
 ## Subscription URLs
 
@@ -159,7 +197,10 @@ pip install -r requirements.txt
 ### 4. Use the Generated Rules
 ## How It Works
 
-FilterFusion operates in four stages through two independent pipelines running in parallel:
+FilterFusion operates in four stages through two independent pipelines running in parallel.
+
+<details>
+<summary>Click to view detailed workflow diagram and technical details</summary>
 
 ```mermaid
 flowchart LR
@@ -176,16 +217,16 @@ flowchart LR
             D1["📋 Config<br/>dns_sources.yaml"] --> D2["⬇️ Fetch<br/>fetch_dns_rules.py"]
             D2 --> D3["🔀 Merge<br/>merge_dns_rules.py"]
             D3 --> D4["📤 Output<br/>dns-blocklist.txt"]
-        end
-    end
+        end>
+    end>
     A4a --> CDN["jsDelivr + GitHub Raw<br/>Multi-CDN Global Distribution"]
-    A4b --> CDN
-    A4c --> CDN
-    D4 --> CDN
+    A4b --> CDN>
+    A4c --> CDN>
+    D4 --> CDN>
 
-    style AD fill:#ebf5ff,stroke:#2196f3
-    style DNS fill:#f3e5f5,stroke:#9c27b0
-    style CDN fill:#e8f5e9,stroke:#4caf50
+    style AD fill:#ebf5ff,stroke:#2196f3>
+    style DNS fill:#f3e5f5,stroke:#9c27b0>
+    style CDN fill:#e8f5e9,stroke:#4caf50>
 ```
 
 **Rule Formats**: Adblock Plus (ABP) / uBlock Origin / EasyList / any ABP-compatible format.
@@ -202,13 +243,14 @@ The merge engine automatically sorts rules into the following 7-tier classificat
 
 | Level | Type | Example | Description |
 |:---:|------|---------|-------------|
-| 🟢 1 | Domain Blocking | `\|\|doubleclick.net^` | Block known ad domains |
-| 🔵 2 | Third-party Blocking | `\|\|adservice.google.com^$third-party` | Block only third-party ad requests |
-| 🟡 3 | Element Hiding | `example.com##.ad-banner` | Hide ad elements on pages |
-| 🟠 4 | Whitelist | `@@\|\|trusted.com^$document` | Allow falsely blocked domains |
-| 🔴 5 | Regex Rules | `/ads\.example\.com/` | Advanced pattern matching |
-| 🟣 6 | DNS Level | `0.0.0.0 ad.example.com` | Network-level blocking |
-| ⚪ 7 | Other / Unclassified | — | Non-standard rules |
+| 1 | Domain Blocking | `\|\|doubleclick.net^` | Block known ad domains |
+| 2 | Third-party Blocking | `\|\|adservice.google.com^$third-party` | Block only third-party ad requests |
+| 3 | Element Hiding | `example.com##.ad-banner` | Hide ad elements on pages |
+| 4 | Whitelist | `@@\|\|trusted.com^$document` | Allow falsely blocked domains |
+| 5 | Regex Rules | `/ads\.example\.com/` | Advanced pattern matching |
+| 6 | DNS Level | `0.0.0.0 ad.example.com` | Network-level blocking |
+| 7 | Other / Unclassified | — | Non-standard rules |
+</details>
 
 ---
 
@@ -216,7 +258,10 @@ The merge engine automatically sorts rules into the following 7-tier classificat
 
 ### **Configure Rule Sources**
 
-Edit `config/sources.yaml` (AdBlock) or `config/dns_sources.yaml` (DNS) in YAML format, with syntax highlighting on GitHub:
+Edit `config/sources.yaml` (AdBlock) or `config/dns_sources.yaml` (DNS) in YAML format, with syntax highlighting on GitHub.
+
+<details>
+<summary>Click to view detailed configuration instructions and YAML examples</summary>
 
 ```yaml
 # config/sources.yaml — AdBlock rule sources
@@ -237,8 +282,10 @@ sources:
     url: https://raw.githubusercontent.com/.../filter.txt
     id: b1
 
-# Combination rules — reference sources by ID, merge & dedup to dist/
-# description is optional, auto-generated if omitted
+# Combination rules (custom_rules) — reference sources by ID, merge & dedup to dist/
+#   output      : output filename (saved to dist/ directory, customizable)
+#   sources     : reference id list defined in sources above (combine sources by id to produce output file)
+#   description : optional, description text for the rule file (written as comment at file start, auto-generated if omitted)
 custom_rules:
   # Core rules (filenames unchanged, subscription links stay the same)
   - output: adblock-mo.txt
@@ -250,8 +297,9 @@ custom_rules:
     sources: [p1, b1, b2]
 
   # Example: add custom rules (uncomment to enable)
-  # - output: exten.txt
-  #   sources: [m1, b1]
+  # - output: exten.txt           # output filename (customizable, e.g. my-rules.txt)
+  #   description: My custom rules  # optional, auto-generated if omitted
+  #   sources: [m1, b1]          # which sources to merge (fill id list), merge & dedup then output to exten.txt
 ```
 
 ```yaml
@@ -263,10 +311,21 @@ sources:
   #   url: https://...
 ```
 
-- AdBlock sources require `name`, `category`, `url`, `id` four fields (`id` is a unique short identifier referenced by custom rules)
-- `category: bo` sources are downloaded once and shared between mo and pc (`mo`=Mobile / `pc`=PC / `bo`=Both; also accepts full names mobile/pc/both)
-- `custom_rules` section defines all AdBlock output files (including core `adblock-mo.txt` / `adblock-pc.txt`), references sources by ID, `description` field is optional
-- DNS sources only need `name` and `url`, no custom rules support
+**Configuration Instructions**:
+
+- **AdBlock sources** (`sources` section): require `name`, `category`, `url`, `id` four fields
+  - `id` is a unique short identifier (e.g. `m1`, `b1`, `p1`), referenced by `custom_rules`
+  - `category: bo` sources are downloaded once and shared between mo and pc
+  - `mo`=Mobile / `pc`=PC / `bo`=Both (also accepts full names `mobile`/`pc`/`both`)
+
+- **Combination rules** (`custom_rules` section): defines all AdBlock output files
+  - `output`: output filename (saved to `dist/` directory, customizable, e.g. `exten.txt`, `my-rules.txt`)
+  - `sources`: reference `id` list defined in `sources` (e.g. `[m1, b1]` means merge `m1` and `b1` two sources)
+  - `description`: optional, description text for the rule file (written as comment at file start, auto-generated if omitted)
+  - **Add custom rules**: uncomment example lines (line 253-255), modify `output`, `sources`, `description`
+
+- **DNS sources** (`config/dns_sources.yaml`): only need `name` and `url`, no custom rules support
+</details>
 
 ### **Fetch Rules**
 
@@ -297,6 +356,9 @@ Auto-classification → NFKC normalization dedup → output to `dist/`.
 
 ### Compatible Tools at a Glance
 
+<details>
+<summary>Click to view supported tools list</summary>
+
 | Tool | Platform | AdBlock Rules | DNS Rules |
 |------|----------|:---:|:---:|
 | uBlock Origin | Browser extension | ✅ | ❌ |
@@ -306,6 +368,7 @@ Auto-classification → NFKC normalization dedup → output to `dist/`.
 | Pi-hole | DNS server | ❌ | ✅ |
 | AdGuard for Windows/Mac | Desktop app | ✅ | ✅ |
 | Clash / Sing-Box / Surge | Proxy client | ❌ | ✅ |
+</details>
 
 ## Use Cases
 
@@ -333,6 +396,9 @@ flowchart LR
 ```
 
 ## FAQ
+
+<details>
+<summary>Click to view frequently asked questions (7 total)</summary>
 
 ### Q1: How often are rules updated?
 
@@ -384,6 +450,8 @@ Submit an Issue to the [AdSuper project](https://github.com/Chaniug/AdSuper) wit
 Because pushes triggered by the default `GITHUB_TOKEN` in GitHub Actions **do not trigger other workflows** (including Pages deployment). To make GitHub Pages redeploy automatically after rule files are updated, `daily-update.yaml` uses a Personal Access Token (PAT) for checkout and push (pushes triggered by PAT will trigger subsequent workflows).
 
 If you fork this project to deploy it yourself, create a secret named `PAT` in **Settings → Secrets and variables → Actions** and ensure the token has at least `contents:write` permission for the repository.
+
+</details>
 
 ---
 
