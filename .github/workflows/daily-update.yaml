@@ -41,11 +41,8 @@ jobs:
         uv venv
         uv pip install -r requirements.txt
 
-    - name: 🔄 统一抓取所有规则（AdBlock + DNS）
-      run: uv run --no-project python -m scripts.fetch_all
-
-    - name: 🔀 统一合并所有规则（AdBlock custom_rules + DNS）
-      run: uv run --no-project python -m scripts.merge_all
+    - name: 🚀 抓取 + 合并所有规则（单进程）
+      run: uv run --no-project python -m scripts.run_all
 
     - name: ✅ 校验规则文件（AdBlock + PC + DNS + 自定义）
       run: |

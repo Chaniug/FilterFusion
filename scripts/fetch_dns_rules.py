@@ -60,7 +60,7 @@ class DnsRuleFetcher(BaseFetcher):
                 "enabled": True,
             })
 
-        print(f"加载了 {len(sources)} 个 DNS 规则源")
+        print(f"加载了 {len(sources)} 个 DNS 规则源", flush=True)
         return sources
 
 

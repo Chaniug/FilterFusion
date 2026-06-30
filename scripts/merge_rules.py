@@ -14,6 +14,8 @@ from enum import StrEnum
 from pathlib import Path
 from typing import Any
 
+from scripts.utils import generate_version
+
 
 class RuleType(StrEnum):
     """规则语义分类（符合 AdGuard/ABP/uBlock 标准）。"""
@@ -141,6 +143,9 @@ class RuleMerger:
         5. 元素隐藏规则 (##, #@#)
         6. 特殊参数规则 ($badfilter, $important 等)
         7. 普通屏蔽规则
+
+        性能优化：取首字符门控分发。
+        所有分支逻辑与原串行 startswith 实现完全等价。
         """
         # 去除不可见字符和多余空白
         rule = line.strip()
@@ -150,17 +155,20 @@ class RuleMerger:
         if not rule.isascii():
             rule = unicodedata.normalize("NFKC", rule)
 
-        # 1. 注释规则（排除 ##, #@#, #%#, #$#, #?#, #+# 等规则指令）
-        if rule.startswith("!") or rule.startswith("["):
+        # 首字符门控分发（rule 非空，rule[0] 安全）
+        first = rule[0]
+
+        # 1. 注释规则（! 开头或 [ 开头，如 [Adblock Plus]）
+        if first == "!" or first == "[":
             return (RuleType.COMMENT, rule)
 
         # 2. 例外规则 (@@) - 最高优先级（例外规则可能包含其他语法）
-        if rule.startswith("@@"):
+        if first == "@" and rule.startswith("@@"):
             return (RuleType.EXCEPTION, rule)
 
         # 3. 正则规则 (Adblock Plus 格式: /pattern/flags)
         # 标准: 以 / 开头，以 / 结尾，中间是正则模式，尾部可有标志 (i, g, m)
-        if rule.startswith("/") and not rule.startswith("//"):
+        if first == "/" and not rule.startswith("//"):
             last_slash = rule.rfind("/")
             if last_slash > 0:
                 flags = rule[last_slash + 1 :]
@@ -171,6 +179,8 @@ class RuleMerger:
                         return (RuleType.REGEX, rule)
 
         # 4. AdGuard/uBlock 扩展语法（必须在元素隐藏之前判断）
+        # 正则含 # 开头模式（#%# 等）和非 # 模式（$removeparam, scriptlet( 等），
+        # 因此不能按首字符跳过，需对所有规则执行
         if self._HTML_FILTER_RE.search(rule):
             return (RuleType.HTML_FILTER, rule)
 
@@ -270,9 +280,8 @@ class RuleMerger:
 
     @staticmethod
     def generate_version() -> str:
-        """生成版本号（YYYYMMDDHHMM，精确到分钟，可区分当天多次提交）。"""
-        now = datetime.now(UTC)
-        return f"{now.year}{now.month:02d}{now.day:02d}{now.hour:02d}{now.minute:02d}"
+        """生成版本号（委托给 scripts.utils.generate_version）。"""
+        return generate_version()
 
     def _do_merge(
         self,

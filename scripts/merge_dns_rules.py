@@ -9,6 +9,8 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
+from scripts.utils import generate_version
+
 
 class DnsRuleMerger:
     """DNS 规则合并器：读取抓取产物 → 去重 → 输出标准格式。
@@ -165,9 +167,8 @@ class DnsRuleMerger:
 
     @staticmethod
     def generate_version() -> str:
-        """生成版本号（YYYYMMDDHHMM，精确到分钟，可区分当天多次提交）。"""
-        now = datetime.now(UTC)
-        return f"{now.year}{now.month:02d}{now.day:02d}{now.hour:02d}{now.minute:02d}"
+        """生成版本号（委托给 scripts.utils.generate_version）。"""
+        return generate_version()
 
     def merge(self) -> None:
         # 步骤1: 加载元数据
