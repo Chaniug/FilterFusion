@@ -40,6 +40,8 @@ def main() -> None:
                 description = rule.get("description", "")
                 if output and source_ids:
                     merger.merge_custom(output, source_ids, description)
+            # 统一落盘累积的摘要到 config/summary.json
+            merger.flush_summary()
         else:
             print("\n⚠️ 没有定义任何 custom_rules，跳过 AdBlock 规则合并")
 

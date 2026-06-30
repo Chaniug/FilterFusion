@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import argparse
 import base64
 import hashlib
 import json
@@ -44,11 +43,12 @@ class RuleMerger:
     __slots__ = (
         "project_root",
         "dist_dir",
+        "config_dir",
         "rules_dir",
-        "category",
         "initial_rule_count",
         "final_rule_count",
         "start_time",
+        "_summary_list",
     )
 
     # AdGuard/uBlock 扩展语法（必须在元素隐藏之前判断）
@@ -66,18 +66,21 @@ class RuleMerger:
     # 正则特殊字符：单次字符类扫描替代 14 次 any(in) 搜索
     _REGEX_CHAR_RE = re.compile(r"[.*+?\\\[\](){}^$|]")
 
-    def __init__(self, category: str = "mobile") -> None:
-        self.category = category
+    def __init__(self) -> None:
         self.project_root: Path = Path(__file__).resolve().parent.parent
 
         self.dist_dir: Path = self.project_root / "dist"
         self.dist_dir.mkdir(parents=True, exist_ok=True)
+        self.config_dir: Path = self.project_root / "config"
+        self.config_dir.mkdir(parents=True, exist_ok=True)
         self.rules_dir: Path = self.project_root / "scripts"
 
         # 统计信息
         self.initial_rule_count: int = 0
         self.final_rule_count: int = 0
         self.start_time: datetime = datetime.now()
+        # 累积多个 custom 规则的摘要，供 save_summary 统一写入 config/summary.json
+        self._summary_list: list[dict[str, Any]] = []
 
     def load_metadata(self) -> dict[str, Any]:
         meta_path = Path(tempfile.gettempdir()) / "filterfusion" / "fetch_meta.json"
@@ -343,47 +346,6 @@ class RuleMerger:
 
         return initial_count, final_count, processing_time, source_stats, checksum
 
-    def merge(self) -> None:
-        # 步骤1: 加载元数据
-        metadata = self.load_metadata()
-        sources = metadata["sources"]
-
-        # 检查是否有成功抓取的源
-        success_sources = [s for s in sources if s.get("status") == "success"]
-        if not success_sources:
-            print("❌ 没有成功抓取的规则源，终止合并")
-            sys.exit(1)
-
-        # 按类别过滤（mobile / pc）
-        filtered_sources = [s for s in success_sources if s.get("category", "mobile") == self.category]
-        if not filtered_sources:
-            print(f"⚠️ 没有匹配类别 '{self.category}' 的规则源，跳过合并")
-            return
-        print(f"🔖 AdBlock [{self.category}]: {len(filtered_sources)} 个源", flush=True)
-
-        # 按类别过滤所有源（含失败/禁用，用于头部 SOURCE_LIST）
-        category_sources = [s for s in sources if s.get("category", "mobile") == self.category]
-
-        # 生成描述
-        desc = "FilterFusion - Ad blocking rules (Mobile)" if self.category == "mobile" else "FilterFusion - Ad blocking rules (PC)"
-        suffix = "mo" if self.category == "mobile" else "pc"
-        output_filename = f"adblock-{suffix}.txt"
-
-        # 调用通用合并方法
-        initial_count, final_count, processing_time, source_stats, checksum = self._do_merge(
-            sources_to_merge=filtered_sources,
-            sources_for_header=category_sources,
-            output_filename=output_filename,
-            description=desc,
-            log_tag=self.category,
-        )
-
-        # 保存摘要信息
-        version = self.generate_version()
-        self.initial_rule_count = initial_count
-        self.final_rule_count = final_count
-        self.save_summary(version, checksum, source_stats, processing_time)
-
     def merge_custom(
         self, output_filename: str, source_ids: list[str], description: str = ""
     ) -> None:
@@ -439,7 +401,7 @@ class RuleMerger:
         self.start_time = datetime.now()
 
         # 调用通用合并方法（头部 SOURCE_LIST 用合并的源列表）
-        self._do_merge(
+        initial_count, final_count, processing_time, source_stats, checksum = self._do_merge(
             sources_to_merge=sources_to_merge,
             sources_for_header=sources_to_merge,
             output_filename=output_filename,
@@ -447,38 +409,39 @@ class RuleMerger:
             log_tag=output_filename,
         )
 
-    def save_summary(
-        self,
-        version: str,
-        checksum: str,
-        source_stats: list[dict[str, Any]],
-        processing_time: float,
-    ) -> None:
-        """打印合并摘要信息到控制台。"""
-        summary = {
+        # 累积摘要（暂存内存，由 flush_summary 统一落盘到 config/summary.json）
+        version = self.generate_version()
+        self._summary_list.append({
+            "output": output_filename,
             "version": version,
             "date": datetime.now(UTC).isoformat(),
-            "total_source_rules": self.initial_rule_count,
-            "unique_rules": self.final_rule_count,
-            "duplicates_removed": self.initial_rule_count - self.final_rule_count,
+            "total_source_rules": initial_count,
+            "unique_rules": final_count,
+            "duplicates_removed": initial_count - final_count,
             "merge_time_seconds": round(processing_time, 2),
             "checksum": checksum,
             "sources": source_stats,
-        }
+        })
 
-        print("📊 合并摘要:")
-        print(json.dumps(summary, indent=2, ensure_ascii=False))
+    def flush_summary(self) -> None:
+        """将累积的所有 custom 规则摘要写入 config/summary.json。
+
+        每次 merge_custom 调用会把摘要追加到 _summary_list，
+        最后由 merge_all 统一调用本方法落盘，避免多次覆盖。
+        """
+        if not self._summary_list:
+            return
+        summary_path = self.config_dir / "summary.json"
+        summary = {
+            "generated_at": datetime.now(UTC).isoformat(),
+            "rule_sets": self._summary_list,
+        }
+        summary_path.write_text(
+            json.dumps(summary, indent=2, ensure_ascii=False), encoding="utf-8"
+        )
+        print(f"📝 AdBlock 摘要已写入 config/summary.json（{len(self._summary_list)} 个规则集）")
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="FilterFusion 规则合并工具")
-    parser.add_argument("--category", choices=["mobile", "pc"], default="mobile",
-                        help="规则类别：mobile（移动端）或 pc（电脑端）")
-    args = parser.parse_args()
-
-    merger = RuleMerger(category=args.category)
-    try:
-        merger.merge()
-    except Exception as e:
-        print(f"❌ 合并过程中发生致命错误: {e}")
-        sys.exit(1)
+    print("此模块不直接运行，请使用统一入口：python -m scripts.merge_all")
+    sys.exit(1)

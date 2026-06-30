@@ -22,6 +22,7 @@ class DnsRuleMerger:
     __slots__ = (
         "project_root",
         "dist_dir",
+        "config_dir",
         "rules_dir",
         "initial_rule_count",
         "final_rule_count",
@@ -33,6 +34,8 @@ class DnsRuleMerger:
 
         self.dist_dir: Path = self.project_root / "dist"
         self.dist_dir.mkdir(parents=True, exist_ok=True)
+        self.config_dir: Path = self.project_root / "config"
+        self.config_dir.mkdir(parents=True, exist_ok=True)
         self.rules_dir: Path = self.project_root / "scripts"
 
         # 统计信息
@@ -232,7 +235,7 @@ class DnsRuleMerger:
         source_stats: list[dict[str, Any]],
         processing_time: float,
     ) -> None:
-        """打印 DNS 合并摘要信息到控制台。"""
+        """打印 DNS 合并摘要到控制台，并写入 config/dns_summary.json。"""
         summary = {
             "version": version,
             "date": datetime.now(UTC).isoformat(),
@@ -243,8 +246,15 @@ class DnsRuleMerger:
             "sources": source_stats,
         }
 
+        # 落盘到 config/dns_summary.json
+        summary_path = self.config_dir / "dns_summary.json"
+        summary_path.write_text(
+            json.dumps(summary, indent=2, ensure_ascii=False), encoding="utf-8"
+        )
+
         print("📊 DNS 合并摘要:")
         print(json.dumps(summary, indent=2, ensure_ascii=False))
+        print(f"📝 DNS 摘要已写入 config/dns_summary.json")
 
 
 if __name__ == "__main__":

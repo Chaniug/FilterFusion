@@ -109,8 +109,6 @@ class RuleFetcher(BaseFetcher):
                     record["id"] = source_id
                 sources.append(record)
 
-            # 同时记录用于组合规则的 id → name/url 映射（仅首次出现时）
-
         # 解析 custom_rules 段
         raw_custom = data.get("custom_rules") or []
         for item in raw_custom:

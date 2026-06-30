@@ -31,5 +31,9 @@ Thumbs.db
 /scripts/fetch_meta.json
 /scripts/dns_fetch_meta.json
 
+# Auto-generated merge summaries (regenerated on each CI run)
+/config/summary.json
+/config/dns_summary.json
+
 # Don't ignore dist/ directory - we want to track generated files
 !dist/

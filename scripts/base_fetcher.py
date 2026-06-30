@@ -93,11 +93,13 @@ class BaseFetcher:
                 return self._build_success(source, filename, file_hash, timestamp)
             except httpx.TimeoutException:
                 if attempt < retry_count:
+                    await asyncio.sleep(1.5 ** attempt)  # 指数退避：1.5s → 2.25s
                     continue
                 print(f"  ✗ {source['name']} (超时)")
                 return self._build_failure(source, "请求超时")
             except httpx.HTTPError as e:
                 if attempt < retry_count:
+                    await asyncio.sleep(1.5 ** attempt)  # 指数退避：1.5s → 2.25s
                     continue
                 print(f"  ✗ {source['name']} ({e})")
                 return self._build_failure(source, str(e))
