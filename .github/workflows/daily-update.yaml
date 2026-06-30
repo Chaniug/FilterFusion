@@ -7,17 +7,21 @@ on:
 
 permissions:
   contents: write
+  pages: write
+  id-token: write
 
+# Pages 部署并发控制（防止手动触发与定时任务并发部署冲突）
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: false
+  group: pages
+  cancel-in-progress: true
 
 jobs:
-  update:
+  update-and-deploy:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
-    outputs:
-      deploy: ${{ steps.commit-and-push.outputs.deploy }}
+    timeout-minutes: 25
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
 
     steps:
     - name: 🛠️ 检出仓库
@@ -92,7 +96,7 @@ jobs:
         git add dist config scripts
 
         if git diff --cached --quiet; then
-          echo "ℹ️ 没有规则变更，跳过提交"
+          echo "ℹ️ 没有规则变更，跳过提交与部署"
           echo "deploy=false" >> "$GITHUB_OUTPUT"
         else
           git commit -m "FilterFusion自动更新: $(date -u +'%Y-%m-%d %H:%M UTC')"
@@ -101,39 +105,22 @@ jobs:
           echo "deploy=true" >> "$GITHUB_OUTPUT"
         fi
 
-  deploy:
-    needs: update
-    if: needs.update.outputs.deploy == 'true'
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    permissions:
-      contents: read
-      pages: write
-      id-token: write
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    concurrency:
-      group: "pages"
-      cancel-in-progress: true
-
-    steps:
-    - name: 🛠️ 检出仓库
-      uses: actions/checkout@v7.0.0
-      with:
-        fetch-depth: 1
-
+    # ============ 部署阶段（复用同一 Runner + 工作区，零切换成本） ============
     - name: ⚙️ 配置 Pages
+      if: steps.commit-and-push.outputs.deploy == 'true'
       uses: actions/configure-pages@v6
 
     - name: 🚫 禁用 Jekyll
+      if: steps.commit-and-push.outputs.deploy == 'true'
       run: touch dist/.nojekyll    # ✅ 禁止 Jekyll 处理，纯静态文件提速
 
     - name: 📦 上传产物
+      if: steps.commit-and-push.outputs.deploy == 'true'
       uses: actions/upload-pages-artifact@v5
       with:
         path: 'dist'
 
     - name: 🚀 部署到 GitHub Pages
       id: deployment
+      if: steps.commit-and-push.outputs.deploy == 'true'
       uses: actions/deploy-pages@v5
