@@ -170,11 +170,6 @@ python --version
 
 ## 🚀 Quick Start
 
-### **Clone the Repository**
-```bash
-git clone https://github.com/Chaniug/FilterFusion.git
-cd FilterFusion
-
 ### 1. Clone the Repository
 ```bash
 git clone https://github.com/Chaniug/FilterFusion.git
@@ -190,11 +185,22 @@ pip install -r requirements.txt
 
 | Pipeline | Fetch | Merge & Dedup |
 |----------|-------|---------------|
-| 🟦 **AdBlock (Mobile)** | `python scripts/fetch_rules.py` | `python scripts/merge_rules.py --category mobile` |
-| 🟦 **AdBlock (PC)** | `python scripts/fetch_rules.py` | `python scripts/merge_rules.py --category pc` |
-| 🟪 **DNS** | `python scripts/fetch_dns_rules.py` | `python scripts/merge_dns_rules.py` |
+| 🟦 **AdBlock (Mobile)** | `python -m scripts.fetch_rules` | `python -m scripts.merge_all` |
+| 🟦 **AdBlock (PC)** | `python -m scripts.fetch_rules` | `python -m scripts.merge_all` |
+| 🟪 **DNS** | `python -m scripts.fetch_dns_rules` | `python -m scripts.merge_dns_rules` |
 
 ### 4. Use the Generated Rules
+
+Generated rules are written to `dist/`:
+- `adblock-mo.txt` — AdBlock rules for mobile
+- `adblock-pc.txt` — AdBlock rules for PC
+- `custom.txt` — custom rules driven by `custom_rules` config
+- `dns-blocklist.txt` — DNS blocklist
+
+Subscribe your ad-blocker / DNS tool to the public CDN URLs (jsDelivr / GitHub Raw), or run `python -m scripts.run_all` to regenerate everything in one shot.
+
+---
+
 ## How It Works
 
 FilterFusion operates in four stages through two independent pipelines running in parallel.
@@ -217,16 +223,16 @@ flowchart LR
             D1["📋 Config<br/>dns_sources.yaml"] --> D2["⬇️ Fetch<br/>fetch_dns_rules.py"]
             D2 --> D3["🔀 Merge<br/>merge_dns_rules.py"]
             D3 --> D4["📤 Output<br/>dns-blocklist.txt"]
-        end>
-    end>
+        end
+    end
     A4a --> CDN["jsDelivr + GitHub Raw<br/>Multi-CDN Global Distribution"]
-    A4b --> CDN>
-    A4c --> CDN>
-    D4 --> CDN>
+    A4b --> CDN
+    A4c --> CDN
+    D4 --> CDN
 
-    style AD fill:#ebf5ff,stroke:#2196f3>
-    style DNS fill:#f3e5f5,stroke:#9c27b0>
-    style CDN fill:#e8f5e9,stroke:#4caf50>
+    style AD fill:#ebf5ff,stroke:#2196f3
+    style DNS fill:#f3e5f5,stroke:#9c27b0
+    style CDN fill:#e8f5e9,stroke:#4caf50
 ```
 
 **Rule Formats**: Adblock Plus (ABP) / uBlock Origin / EasyList / any ABP-compatible format.
@@ -330,11 +336,11 @@ sources:
 ### **Fetch Rules**
 
 ```bash
-python scripts/fetch_rules.py                  # Fetch all AdBlock rules
-python scripts/merge_rules.py --category mobile # Merge mobile rules
-python scripts/merge_rules.py --category pc     # Merge PC rules
-python scripts/fetch_dns_rules.py               # Fetch DNS rules
-python scripts/fetch_dns_rules.py    # DNS rules
+python -m scripts.fetch_rules                  # Fetch all AdBlock rules
+python -m scripts.merge_all # Merge mobile rules
+python -m scripts.merge_all     # Merge PC rules
+python -m scripts.fetch_dns_rules               # Fetch DNS rules
+python -m scripts.fetch_dns_rules    # DNS rules
 ```
 
 Async concurrent download of all sources, format validation, and caching to `scripts/`.
@@ -342,8 +348,8 @@ Async concurrent download of all sources, format validation, and caching to `scr
 ### **Merge & Deduplicate**
 
 ```bash
-python scripts/merge_rules.py        # AdBlock rules
-python scripts/merge_dns_rules.py    # DNS rules
+python -m scripts.merge_all        # AdBlock rules
+python -m scripts.merge_dns_rules    # DNS rules
 ```
 
 Auto-classification → NFKC normalization dedup → output to `dist/`.
