@@ -185,9 +185,9 @@ pip install -r requirements.txt
 
 | 管道 | 抓取 | 合并去重 |
 |------|------|---------|
-| 🟦 **AdBlock (Mobile)** | `python scripts/fetch_rules.py` | `python scripts/merge_rules.py --category mobile` |
-| 🟦 **AdBlock (PC)** | `python scripts/fetch_rules.py` | `python scripts/merge_rules.py --category pc` |
-| 🟪 **DNS** | `python scripts/fetch_dns_rules.py` | `python scripts/merge_dns_rules.py` |
+| 🟦 **AdBlock (Mobile)** | `python -m scripts.fetch_rules` | `python -m scripts.merge_all` |
+| 🟦 **AdBlock (PC)** | `python -m scripts.fetch_rules` | `python -m scripts.merge_all` |
+| 🟪 **DNS** | `python -m scripts.fetch_dns_rules` | `python -m scripts.merge_dns_rules` |
 
 ### 4. 使用生成的规则
 - 生成的规则文件位于 `dist/` 目录
@@ -330,11 +330,11 @@ sources:
 ### **抓取规则**
 
 ```bash
-python scripts/fetch_rules.py                  # 抓取所有 AdBlock 规则
-python scripts/merge_rules.py --category mobile # 合并移动端规则
-python scripts/merge_rules.py --category pc     # 合并电脑端规则
-python scripts/fetch_dns_rules.py               # 抓取 DNS 规则
-python scripts/fetch_dns_rules.py    # DNS 规则
+python -m scripts.fetch_rules                  # 抓取所有 AdBlock 规则
+python -m scripts.merge_all # 合并移动端规则
+python -m scripts.merge_all     # 合并电脑端规则
+python -m scripts.fetch_dns_rules               # 抓取 DNS 规则
+python -m scripts.fetch_dns_rules    # DNS 规则
 ```
 
 异步并发下载所有源，验证格式并缓存到 `scripts/`。
@@ -342,8 +342,8 @@ python scripts/fetch_dns_rules.py    # DNS 规则
 ### **合并去重**
 
 ```bash
-python scripts/merge_rules.py        # AdBlock 规则
-python scripts/merge_dns_rules.py    # DNS 规则
+python -m scripts.merge_all        # AdBlock 规则
+python -m scripts.merge_dns_rules    # DNS 规则
 ```
 
 自动分类 → NFKC 规范化去重 → 输出到 `dist/`。
