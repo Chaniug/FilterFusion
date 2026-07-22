@@ -66,8 +66,6 @@ class RuleMerger:
         r"badfilter|important|app=|domain=|csp=|replace=|popup|third-party"
     )
 
-    # 正则特殊字符：单次字符类扫描替代 14 次 any(in) 搜索
-    _REGEX_CHAR_RE = re.compile(r"[.*+?\\\[\](){}^$|]")
 
     def __init__(self) -> None:
         self.project_root: Path = Path(__file__).resolve().parent.parent
