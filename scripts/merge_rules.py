@@ -177,10 +177,7 @@ class RuleMerger:
             if last_slash > 0:
                 flags = rule[last_slash + 1 :]
                 if all(c in "igm" for c in flags) or not flags:
-                    pattern = rule[1:last_slash]
-                    # 类级预编译正则单次扫描，替代 14 次 any(in)
-                    if self._REGEX_CHAR_RE.search(pattern):
-                        return (RuleType.REGEX, rule)
+                    return (RuleType.REGEX, rule)
 
         # 4. AdGuard/uBlock 扩展语法（必须在元素隐藏之前判断）
         # 正则含 # 开头模式（#%# 等）和非 # 模式（$removeparam, scriptlet( 等），
@@ -306,10 +303,10 @@ class RuleMerger:
         output_filename: str,
         description: str,
         log_tag: str = "",
-    ) -> tuple[int, int, float, list[dict[str, Any]], str]:
+    ) -> tuple[int, int, float, list[dict[str, Any]], str, str]:
         """通用合并方法：加载头部 → 收集去重 → 校验和 → 保存到 dist/。
 
-        返回 (initial_count, final_count, processing_time, source_stats, checksum)。
+        返回 (initial_count, final_count, processing_time, source_stats, checksum, version)。
         """
         # 加载头部模板
         header_template = self.load_header_template()
@@ -369,7 +366,7 @@ class RuleMerger:
         tag = f" [{log_tag}]" if log_tag else ""
         print(f"✅ AdBlock{tag} 合并完成: {initial_count} → {final_count} 条 (去重 {initial_count - final_count}, {processing_time:.2f}s) → dist/{output_filename}")
 
-        return initial_count, final_count, processing_time, source_stats, checksum
+        return initial_count, final_count, processing_time, source_stats, checksum, version
 
     def merge_custom(
         self, output_filename: str, source_ids: list[str], description: str = ""
@@ -426,7 +423,7 @@ class RuleMerger:
         self.start_time = datetime.now()
 
         # 调用通用合并方法（头部 SOURCE_LIST 用合并的源列表）
-        initial_count, final_count, processing_time, source_stats, checksum = self._do_merge(
+        initial_count, final_count, processing_time, source_stats, checksum, version = self._do_merge(
             sources_to_merge=sources_to_merge,
             sources_for_header=sources_to_merge,
             output_filename=output_filename,
@@ -435,7 +432,6 @@ class RuleMerger:
         )
 
         # 累积摘要（暂存内存，由 flush_summary 统一落盘到 config/summary.json）
-        version = self.generate_version()
         self._summary_list.append({
             "output": output_filename,
             "version": version,
