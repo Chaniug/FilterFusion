@@ -161,7 +161,7 @@ If you find **false positives, false negatives**, or want to suggest new rules, 
 | 🐍 **Python** | 3.14+ |
 | 💻 **OS** | Windows / macOS / Linux |
 | 🌐 **Network** | Internet connection required to fetch rule sources |
-| 📦 **Dependency** | `httpx[http2]>=0.27.0` (only one) |
+| 📦 **Dependency** | `httpx[http2]>=0.27.0`, `pyyaml>=6.0` |
 
 ```bash
 # Check Python version
@@ -245,17 +245,19 @@ example.com##.ad-banner         # Element hiding
 
 ### Rule Classification System
 
-The merge engine automatically sorts rules into the following 7-tier classification:
+The merge engine (`merge_rules.py`) recognizes each rule as one of 7 semantic types, then groups and outputs by type (comment type is not written to the output):
 
-| Level | Type | Example | Description |
-|:---:|------|---------|-------------|
-| 1 | Domain Blocking | `\|\|doubleclick.net^` | Block known ad domains |
-| 2 | Third-party Blocking | `\|\|adservice.google.com^$third-party` | Block only third-party ad requests |
-| 3 | Element Hiding | `example.com##.ad-banner` | Hide ad elements on pages |
-| 4 | Whitelist | `@@\|\|trusted.com^$document` | Allow falsely blocked domains |
-| 5 | Regex Rules | `/ads\.example\.com/` | Advanced pattern matching |
-| 6 | DNS Level | `0.0.0.0 ad.example.com` | Network-level blocking |
-| 7 | Other / Unclassified | — | Non-standard rules |
+| Type | Detected by | Example |
+|------|-------------|---------|
+| 💬 Comment | starts with `!` or `[Adblock Plus]` | `! Title: ...` |
+| 🟠 Exception / Whitelist | starts with `@@` | `@@\|\|trusted.com^$document` |
+| 🔴 Regex Rule | `/pattern/flags` form | `/ads\.example\.com/` |
+| 🟣 HTML / Scriptlet Injection | `#%#`, `#@%#`, `#?`, scriptlet, etc. | `example.com#%#//script:inject(...)` |
+| 🟡 Element Hiding | contains `##` | `example.com##.ad-banner` |
+| 🔵 Special Option | `$` followed by `badfilter`/`important`/`third-party` etc. | `\|\|ad.com^$important` |
+| 🟢 Plain Blocking | everything else (domain/network blocking) | `\|\|doubleclick.net^` |
+
+> Output is split into 6 groups (comment excluded): exception, element hiding, HTML/scriptlet, regex, special option, plain blocking. DNS rules are handled by a separate `merge_dns_rules.py` pipeline and are not part of this classification.
 </details>
 
 ---
@@ -328,7 +330,7 @@ sources:
   - `output`: output filename (saved to `dist/` directory, customizable, e.g. `exten.txt`, `my-rules.txt`)
   - `sources`: reference `id` list defined in `sources` (e.g. `[m1, b1]` means merge `m1` and `b1` two sources)
   - `description`: optional, description text for the rule file (written as comment at file start, auto-generated if omitted)
-  - **Add custom rules**: uncomment example lines (line 253-255), modify `output`, `sources`, `description`
+  - **Add custom rules**: uncomment the example lines under "示例：新增自定义规则", modify `output`, `sources`, `description`
 
 - **DNS sources** (`config/dns_sources.yaml`): only need `name` and `url`, no custom rules support
 </details>
@@ -336,11 +338,8 @@ sources:
 ### **Fetch Rules**
 
 ```bash
-python -m scripts.fetch_rules                  # Fetch all AdBlock rules
-python -m scripts.merge_all # Merge mobile rules
-python -m scripts.merge_all     # Merge PC rules
-python -m scripts.fetch_dns_rules               # Fetch DNS rules
-python -m scripts.fetch_dns_rules    # DNS rules
+python -m scripts.fetch_rules        # Fetch all AdBlock rule sources (async)
+python -m scripts.fetch_dns_rules    # Fetch all DNS rule sources (async)
 ```
 
 Async concurrent download of all sources, format validation, and caching to `scripts/`.
