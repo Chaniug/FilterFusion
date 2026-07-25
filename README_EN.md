@@ -250,7 +250,7 @@ The merge engine (`merge_rules.py`) recognizes each rule as one of 7 semantic ty
 | Type | Detected by | Example |
 |------|-------------|---------|
 | 💬 Comment | starts with `!` or `[Adblock Plus]` | `! Title: ...` |
-| 🟠 Exception / Whitelist | starts with `@@` | `@@\|\|trusted.com^$document` |
+| 🟠 Exception / Whitelist | starts with `@@`, or `#@#` element-hide exception | `@@\|\|trusted.com^$document` |
 | 🔴 Regex Rule | `/pattern/flags` form | `/ads\.example\.com/` |
 | 🟣 HTML / Scriptlet Injection | `#%#`, `#@%#`, `#?`, scriptlet, etc. | `example.com#%#//script:inject(...)` |
 | 🟡 Element Hiding | contains `##` | `example.com##.ad-banner` |
