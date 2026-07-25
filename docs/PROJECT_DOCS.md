@@ -121,7 +121,7 @@ flowchart LR
 ```
 FilterFusion/
 ├── .github/workflows/         # CI/CD 工作流
-│   ├── daily-update.yml       # 每日自动更新（含 Pages 部署）
+│   ├── daily-update.yaml      # 每日自动更新（含 Pages 部署）
 │   └── weekly-release.yml     # 每周 Release 打包
 ├── assets/
 │   └── preview.png            # 项目预览图
@@ -251,7 +251,7 @@ await asyncio.gather(fetch_adblock(), fetch_dns())
 
 **命令行使用**:
 ```bash
-python scripts/fetch_all.py
+python -m scripts.fetch_all
 ```
 
 ### 4.3 抓取脚本 (`scripts/fetch_rules.py`)
@@ -273,12 +273,12 @@ python scripts/fetch_all.py
 
 **命令行使用**:
 ```bash
-python scripts/fetch_rules.py
+python -m scripts.fetch_rules
 ```
 
 ### 4.3 合并脚本 (`scripts/merge_rules.py`)
 
-> **注意**: 合并结果摘要不再写入 JSON 文件，改为格式化打印至控制台（CI 日志可见）。
+> **注意**: 合并结果摘要由 `merge_all` 统一写入 `config/summary.json`（关键数据同时打印至控制台 / CI 日志）。
 
 **类**: `RuleMerger`
 
@@ -318,7 +318,7 @@ python scripts/fetch_rules.py
 
 **命令行使用**:
 ```bash
-python scripts/merge_all.py
+python -m scripts.merge_all
 ```
 
 > 所有 AdBlock 规则（含 `adblock-mo.txt` / `adblock-pc.txt`）均由 `custom_rules` 配置驱动，通过 `merge_custom` 方法产出。
@@ -388,7 +388,7 @@ sources:
 
 **命令行使用**:
 ```bash
-python scripts/fetch_dns_rules.py
+python -m scripts.fetch_dns_rules
 ```
 
 ### 4.7 DNS 规则合并脚本 (`scripts/merge_dns_rules.py`)
@@ -413,7 +413,7 @@ python scripts/fetch_dns_rules.py
 
 **命令行使用**:
 ```bash
-python scripts/merge_dns_rules.py
+python -m scripts.merge_dns_rules
 ```
 
 ### 4.8 DNS 输出头部模板 (`config/dns.header`)
@@ -443,14 +443,14 @@ python scripts/merge_dns_rules.py
 
 ```bash
 # 统一入口：单进程并发抓取 AdBlock + DNS 所有规则源
-python scripts/fetch_all.py
+python -m scripts.fetch_all
 ```
 
 #### 统一合并（推荐）
 
 ```bash
 # 统一入口：DNS 合并 + AdBlock custom_rules 组合规则
-python scripts/merge_all.py
+python -m scripts.merge_all
 ```
 
 **输出文件**：
@@ -460,12 +460,12 @@ python scripts/merge_all.py
 
 | 管道 | 抓取 | 合并去重 |
 |------|------|---------|
-| 🟦 **AdBlock** | `python scripts/fetch_all.py` | `python scripts/merge_all.py`（custom_rules 驱动） |
-| 🟪 **DNS** | `python scripts/fetch_all.py` | `python scripts/merge_all.py`（DNS 管道独立） |
+| 🟦 **AdBlock** | `python -m scripts.fetch_all` | `python -m scripts.merge_all`（custom_rules 驱动） |
+| 🟪 **DNS** | `python -m scripts.fetch_all` | `python -m scripts.merge_all`（DNS 管道独立） |
 
 **依赖要求**:
 - Python 3.14+（CI 锁定 3.14 确保可重现性）
-- `httpx[http2] >= 0.27.0`
+- `httpx[http2] >= 0.27.0`、`pyyaml >= 6.0`
 
 ### 5.2 自动流水线 (GitHub Actions)
 
@@ -479,7 +479,7 @@ flowchart TB
     end
 
     subgraph WORKFLOWS["GitHub Actions 工作流"]
-        W1["daily-update.yml<br/>(抓取 + 合并 + 部署)"]
+        W1["daily-update.yaml<br/>(抓取 + 合并 + 部署)"]
         W2["weekly-release.yml"]
     end
 
@@ -536,7 +536,7 @@ flowchart TB
 > **注意**: 不再生成日期快照归档文件。如需历史版本，可通过 git 历史获取。
 
 #### AdBlock 合并摘要
-> 不再写入文件。合并统计信息（规则数、去重数、耗时、各源明细）会以 JSON 格式打印至 CI 控制台日志。
+> 写入 `config/summary.json`。合并统计信息（规则数、去重数、耗时、各源明细）同时打印至 CI 控制台日志。
 
 ### 组合规则
 
@@ -557,7 +557,7 @@ flowchart TB
 > **注意**: 不再生成日期快照归档文件。
 
 #### DNS 合并摘要
-> 不再写入文件。DNS 合并统计信息（规则数、去重数、耗时、各源明细）会以 JSON 格式打印至 CI 控制台日志。
+> 写入 `config/dns_summary.json`。DNS 合并统计信息同时打印至 CI 控制台日志。
 
 ---
 
