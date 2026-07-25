@@ -52,6 +52,7 @@ class RuleMerger:
         "start_time",
         "_summary_list",
         "_file_cache",
+        "_metadata",
     )
 
     # AdGuard/uBlock 扩展语法（必须在元素隐藏之前判断）
@@ -85,8 +86,13 @@ class RuleMerger:
         # 跨 custom_rule 文件读取缓存：adblock-mo 和 adblock-pc 共享 b1/b2 源，
         # 缓存避免重复读取+解析。键为文件名，值为 splitlines() 结果。
         self._file_cache: dict[str, list[str]] = {}
+        # 元数据缓存：同一次 merge_all 中多个 custom_rules 共享，避免重复 I/O+JSON 解析
+        self._metadata: dict[str, Any] | None = None
 
     def load_metadata(self) -> dict[str, Any]:
+        # 缓存：同一次 merge_all 中多个 custom_rules 共享元数据，避免重复 I/O+JSON 解析
+        if self._metadata is not None:
+            return self._metadata
         meta_path = Path(tempfile.gettempdir()) / "filterfusion" / "fetch_meta.json"
 
         if not meta_path.exists():
@@ -95,6 +101,7 @@ class RuleMerger:
 
         try:
             data = json.loads(meta_path.read_text(encoding="utf-8"))
+            self._metadata = data
             return data
         except json.JSONDecodeError as e:
             print(f"❌ 元数据文件格式不正确 {e}")
