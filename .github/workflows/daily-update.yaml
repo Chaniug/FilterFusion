@@ -126,7 +126,6 @@ jobs:
       uses: actions/deploy-pages@v5
     - name: 🔥 主动刷新 Cloudflare 缓存
       if: steps.commit-and-push.outputs.deploy == 'true'
-      continue-on-error: true
       env:
         CF_ZONE_ID: ${{ secrets.CF_ZONE_ID }}
         CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
@@ -135,5 +134,5 @@ jobs:
           echo "INFO: CF_ZONE_ID/CF_API_TOKEN not set, skip Purge"
           exit 0
         fi
-        curl -sS -X POST "https://api.cloudflare.com/client/v4/zones/$CF_ZONE_ID/purge_cache" -H "Authorization: Bearer $CF_API_TOKEN" -H "Content-Type: application/json" --data '{"purge_everything":true}'
+        curl -fsS -X POST "https://api.cloudflare.com/client/v4/zones/$CF_ZONE_ID/purge_cache" -H "Authorization: Bearer $CF_API_TOKEN" -H "Content-Type: application/json" --data '{"purge_everything":true}'
         echo "OK: Cloudflare edge cache purged, new rules take effect immediately"
