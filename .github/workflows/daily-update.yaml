@@ -130,6 +130,9 @@ jobs:
         CF_ZONE_ID: ${{ secrets.CF_ZONE_ID }}
         CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
       run: |
+        # 清理 Secret 复制时可能带入的换行/回车/空格（避免 curl URL malformed）
+        CF_ZONE_ID="$(printf '%s' "$CF_ZONE_ID" | tr -d '[:space:]')"
+        CF_API_TOKEN="$(printf '%s' "$CF_API_TOKEN" | tr -d '[:space:]')"
         if [ -z "$CF_ZONE_ID" ] || [ -z "$CF_API_TOKEN" ]; then
           echo "INFO: CF_ZONE_ID/CF_API_TOKEN not set, skip Purge"
           exit 0
