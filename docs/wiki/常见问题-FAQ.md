@@ -152,14 +152,19 @@ ls dist/
 
 ### Q12：Python 版本要求为什么是 3.14+？
 
-FilterFusion 使用了 Python 3.14 的现代特性：
+FilterFusion 要求 Python 3.14+ 作为最低运行版本（CI 锁定 3.14 以保证构建可重现性），
+代码中实际采用的现代语法特性如下（均为 3.7–3.12 既有特性，非 3.14 专属）：
 
-- `datetime.UTC`（替代 `datetime.utcnow()`）
-- `StrEnum`（类型安全的枚举）
-- `from __future__ import annotations`（延迟类型求值）
-- `__slots__`（减少实例内存）
+- `from __future__ import annotations`（3.7+，延迟类型求值）
+- 内置泛型注解 `list[dict[str, Any]]` / `dict[str, set[str]]`（3.9+）
+- `X | Y` 联合类型（3.10+）
+- `StrEnum`（3.11，类型安全且 JSON 友好的枚举）
+- `datetime.UTC`（3.11，替代 `datetime.utcnow()`）
+- `type` 语句类型别名（3.12，PEP 695）
 
-这些特性提升了代码质量和运行效率。
+这些特性能提升代码质量与可读性；Python 3.14 本身主要是性能与稳健性改进，
+并未引入需要代码主动采用的新语法，因此将最低版本设为 3.14 主要是为了统一运行环境，
+而非语法上的硬依赖。
 
 ## 下一步
 
