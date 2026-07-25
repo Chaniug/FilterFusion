@@ -149,12 +149,12 @@ class RuleMerger:
         2. 例外规则 (@@)
         3. 正则规则 (/pattern/flags)
         4. HTML/脚本注入规则 (#%#, #$#, scriptlet 等)
-        5. 元素隐藏规则 (##, #@#)
-        6. 特殊参数规则 ($badfilter, $important 等)
-        7. 普通屏蔽规则
+        5. 元素隐藏例外规则 (#@#) —— 归为例外（EXCEPTION）
+        6. 元素隐藏规则 (##)
+        7. 特殊参数规则 ($badfilter, $important 等)
+        8. 普通屏蔽规则
 
         性能优化：取首字符门控分发。
-        所有分支逻辑与原串行 startswith 实现完全等价。
         """
         # 去除不可见字符和多余空白
         rule = line.strip()
@@ -190,18 +190,24 @@ class RuleMerger:
         if self._HTML_FILTER_RE.search(rule):
             return (RuleType.HTML_FILTER, rule)
 
-        # 5. 元素隐藏规则
+        # 5. 元素隐藏例外规则（#@#）—— 归为例外（EXCEPTION）
+        # #@# 不含连续 ##，且 #@#+js( scriptlet 已在上方 HTML_FILTER 分支捕获，
+        # 此处单独识别不会误伤 scriptlet 例外
+        if "#@#" in rule:
+            return (RuleType.EXCEPTION, rule)
+
+        # 6. 元素隐藏规则
         if "##" in rule:
             return (RuleType.ELEMENT_HIDE, rule)
 
-        # 6. 特殊参数规则（限定在选项部分：$ 之后）
+        # 7. 特殊参数规则（限定在选项部分：$ 之后）
         if "$" in rule:
             option_part = rule.split("$", 1)[1]
             # 类级预编译正则单次扫描，替代 8 次 any(in)
             if self._SPECIAL_RE.search(option_part):
                 return (RuleType.SPECIAL, rule)
 
-        # 7. 普通屏蔽规则
+        # 8. 普通屏蔽规则
         return (RuleType.NORMAL, rule)
 
     def collect_and_process_rules(
