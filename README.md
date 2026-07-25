@@ -161,7 +161,7 @@ https://gh.llkk.cc/https://raw.githubusercontent.com/Chaniug/FilterFusion/main/d
 | 🐍 **Python** | 3.14+ |
 | 💻 **操作系统** | Windows / macOS / Linux |
 | 🌐 **网络** | 需要互联网连接以抓取规则源 |
-| 📦 **依赖** | `httpx[http2]>=0.27.0`（仅此一个） |
+| 📦 **依赖** | `httpx[http2]>=0.27.0`、`pyyaml>=6.0` |
 
 ```bash
 # 检查 Python 版本
@@ -239,17 +239,19 @@ example.com##.ad-banner         # 元素隐藏
 
 ### 规则分类体系
 
-合并引擎会自动将规则按以下 7 级分类标准整理：
+合并引擎（`merge_rules.py`）会把每条规则识别为以下 7 种语义类型之一，并按类型分组输出（注释类不写入产物）：
 
-| 级别 | 类型 | 示例 | 说明 |
-|:---:|------|------|------|
-| 🟢 1 | 通用域名屏蔽 | `\|\|doubleclick.net^` | 拦截已知广告域名 |
-| 🔵 2 | 第三方拦截 | `\|\|adservice.google.com^$third-party` | 仅拦截第三方请求的广告 |
-| 🟡 3 | 元素隐藏 | `example.com##.ad-banner` | 隐藏页面中的广告元素 |
-| 🟠 4 | 白名单 | `@@\|\|trusted.com^$document` | 放行被误拦截的域名 |
-| 🔴 5 | 正则规则 | `/ads\.example\.com/` | 使用正则表达式匹配 |
-| 🟣 6 | DNS 级别 | `0.0.0.0 ad.example.com` | 网络层直接拦截 |
-| ⚪ 7 | 其他/未分类 | — | 无法归类的特殊规则 |
+| 类型 | 识别特征 | 示例 |
+|------|----------|------|
+| 💬 注释 | `!` 或 `[Adblock Plus]` 开头 | `! Title: ...` |
+| 🟠 例外/白名单 | `@@` 开头 | `@@\|\|trusted.com^$document` |
+| 🔴 正则规则 | `/pattern/flags` 形式 | `/ads\.example\.com/` |
+| 🟣 HTML/脚本注入 | `#%#`、`#@%#`、`#?`、scriptlet 等 | `example.com#%#//script:inject(...)` |
+| 🟡 元素隐藏 | 含 `##` | `example.com##.ad-banner` |
+| 🔵 特殊参数 | `$` 后带 `badfilter`/`important`/`third-party` 等 | `\|\|ad.com^$important` |
+| 🟢 普通屏蔽 | 其余（域名/网络屏蔽） | `\|\|doubleclick.net^` |
+
+> 实际输出分为 6 组（注释除外）：例外、元素隐藏、HTML/脚本注入、正则、特殊参数、普通屏蔽。DNS 规则由独立的 `merge_dns_rules.py` 管道处理，不在此列。
 </details>
 
 ---
@@ -322,7 +324,7 @@ sources:
   - `output`：输出文件名（保存到 `dist/` 目录下，可自定义，如 `exten.txt`、`my-rules.txt`）
   - `sources`：引用 `sources` 里定义的 `id` 列表（如 `[m1, b1]` 表示合并 `m1` 和 `b1` 两个源）
   - `description`：可选，规则文件的描述文本（会写入输出文件开头作为注释，不填则自动生成）
-  - **新增自定义规则**：取消注释示例行（第 253-255 行），修改 `output`、`sources`、`description` 即可
+  - **新增自定义规则**：取消注释「示例：新增自定义规则」下的示例行，修改 `output`、`sources`、`description` 即可
 
 - **DNS 源**（`config/dns_sources.yaml`）：仅需 `name` 和 `url`，不支持组合规则
 </details>
@@ -330,11 +332,8 @@ sources:
 ### **抓取规则**
 
 ```bash
-python -m scripts.fetch_rules                  # 抓取所有 AdBlock 规则
-python -m scripts.merge_all # 合并移动端规则
-python -m scripts.merge_all     # 合并电脑端规则
-python -m scripts.fetch_dns_rules               # 抓取 DNS 规则
-python -m scripts.fetch_dns_rules    # DNS 规则
+python -m scripts.fetch_rules        # 抓取所有 AdBlock 规则源（异步并发）
+python -m scripts.fetch_dns_rules    # 抓取所有 DNS 规则源（异步并发）
 ```
 
 异步并发下载所有源，验证格式并缓存到 `scripts/`。
