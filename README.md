@@ -244,7 +244,7 @@ example.com##.ad-banner         # 元素隐藏
 | 类型 | 识别特征 | 示例 |
 |------|----------|------|
 | 💬 注释 | `!` 或 `[Adblock Plus]` 开头 | `! Title: ...` |
-| 🟠 例外/白名单 | `@@` 开头 | `@@\|\|trusted.com^$document` |
+| 🟠 例外/白名单 | `@@` 开头，或 `#@#` 元素隐藏例外 | `@@\|\|trusted.com^$document` |
 | 🔴 正则规则 | `/pattern/flags` 形式 | `/ads\.example\.com/` |
 | 🟣 HTML/脚本注入 | `#%#`、`#@%#`、`#?`、scriptlet 等 | `example.com#%#//script:inject(...)` |
 | 🟡 元素隐藏 | 含 `##` | `example.com##.ad-banner` |
