@@ -6,16 +6,16 @@ FilterFusion 使用 GitHub Actions 实现完全自动化的规则更新和发布
 
 | 工作流 | 文件 | 触发方式 | 频率 |
 |--------|------|----------|------|
-| 每日更新 | `daily-update.yml` | `cron` + 手动 | 每天 |
+| 每日更新 | `daily-update.yaml` | `cron` + 手动 | 每天 |
 | 每周发布 | `weekly-release.yml` | `cron` + 手动 | 每周 |
 
-> **注**：`daily-update.yml` 已整合 GitHub Pages 部署步骤（原 `static.yml`），规则文件更新后自动部署，无需单独的工作流。
+> **注**：`daily-update.yaml` 已整合 GitHub Pages 部署步骤（原 `static.yml`），规则文件更新后自动部署，无需单独的工作流。
 
-## 每日更新（`daily-update.yml`）
+## 每日更新（`daily-update.yaml`）
 
 ### 功能
 
-1. **抓取规则** — 同时抓取 AdBlock + DNS 规则源（Shell 后台任务并行）
+1. **抓取规则** — 单进程执行 `python -m scripts.run_all`，内部异步并发抓取 AdBlock + DNS 规则源
 2. **合并规则** — 按类别合并去重，生成最终规则文件
 3. **校验** — 检查生成的规则文件是否有效
 4. **提交推送** — 自动提交到 `main` 分支
@@ -29,10 +29,10 @@ cron 触发（每天）
     ↓
 设置 Python 3.14 + uv
     ↓
-──── 并行 ────
+──── 异步并发（单进程）────
 │ 抓取 AdBlock 规则      │
 │ 抓取 DNS 规则         │
-──── 并行结束 ────
+──── 并发结束 ────
     ↓
 合并所有规则（merge_all.py）
     ↓
@@ -78,13 +78,13 @@ FilterFusion Weekly · YYYY.MM.DD
 - 创建 Tag 前会自动检查并删除已存在的同名 Tag（避免 fatal 错误）
 - 需要先 `git pull origin main` 确保本地分支最新
 
-## GitHub Pages 部署（整合到 `daily-update.yml`）
+## GitHub Pages 部署（整合到 `daily-update.yaml`）
 
-> **历史说明**：原 `static.yml` 工作流已删除，部署步骤整合到 `daily-update.yml` 中。
+> **历史说明**：原 `static.yml` 工作流已删除，部署步骤整合到 `daily-update.yaml` 中。
 
 ### 部署流程
 
-`daily-update.yml` 在规则文件更新后自动部署到 GitHub Pages：
+`daily-update.yaml` 在规则文件更新后自动部署到 GitHub Pages：
 
 1. **配置 Pages** — `actions/configure-pages@v6`
 2. **禁用 Jekyll** — 创建 `dist/.nojekyll` 文件
@@ -124,6 +124,8 @@ chaniug.github.io
 ```yaml
 permissions:
   contents: write
+  pages: write
+  id-token: write
 ```
 
 用于自动提交规则更新和创建 Release Tag。
