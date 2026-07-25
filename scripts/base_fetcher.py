@@ -259,9 +259,12 @@ class BaseFetcher:
                 headers={"User-Agent": "FilterFusion/1.0 (+https://github.com/Chaniug/FilterFusion)"},
                 follow_redirects=True,
             ) as client:
-                # asyncio.gather 原生并发，无线程开销；semaphore 控制实际并发数
+                # asyncio.gather 原生并发，无线程开销；semaphore 控制实际并发数。
+                # return_exceptions=True：即便某源抛出未预期异常（如配置缺字段导致 KeyError），
+                # 也不会让整个 gather 中断、已下载的成功结果丢失；异常源在下方降级为 failed。
                 fetched = await asyncio.gather(
-                    *(self.fetch_single_rule(s, client, semaphore) for s in unique_sources)
+                    *(self.fetch_single_rule(s, client, semaphore) for s in unique_sources),
+                    return_exceptions=True,
                 )
 
             # 将下载结果映射回所有共享该 URL 的源
