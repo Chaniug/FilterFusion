@@ -34,15 +34,15 @@
 然后运行：
 
 ```bash
-python scripts/fetch_rules.py
-python scripts/merge_rules.py --category mobile  # 或 pc
+python -m scripts.fetch_rules
+python -m scripts.merge_all
 ```
 
 ### Q3：GitHub Actions 每天自动运行吗？
 
-是的。`daily-update.yml` 使用 `cron` 表达式每天自动触发。
+是的。`daily-update.yaml` 使用 `cron` 表达式每天自动触发。
 
-如果需要修改运行时间，编辑 `.github/workflows/daily-update.yml` 的 `cron` 字段：
+如果需要修改运行时间，编辑 `.github/workflows/daily-update.yaml` 的 `cron` 字段：
 
 ```yaml
 schedule:
