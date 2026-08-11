@@ -15,6 +15,7 @@ venv/
 .vscode/
 .idea/
 .codebuddy/
+.workbuddy/
 
 # Wiki repo (cloned separately, not part of main repo)
 wiki-repo/
@@ -27,9 +28,9 @@ Thumbs.db
 *.log
 *.tmp
 
-# Auto-generated fetch metadata (regenerated on each CI run, stored in temp dir)
-/scripts/fetch_meta.json
-/scripts/dns_fetch_meta.json
+# Auto-generated fetch metadata (regenerated on each CI run) is written to the
+# system temp dir: <temp>/filterfusion/*.json — it is NOT inside the repo, so there
+# is nothing to ignore here. If metadata is ever moved into the repo, ignore that path.
 
 # Auto-generated merge summaries (regenerated on each CI run)
 /config/summary.json

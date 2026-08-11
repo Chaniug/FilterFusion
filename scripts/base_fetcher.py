@@ -120,18 +120,17 @@ class BaseFetcher:
                 print(f"  ✗ {source['name']} (超时)")
                 return self._build_failure(source, "请求超时")
             except httpx.HTTPStatusError as e:
-                # 429/503 限流：优先尊重 Retry-After header
                 status = e.response.status_code
-                if status in (429, 503) and attempt < retry_count:
+                # 仅对可重试的状态码退避：429（限流）与 5xx（服务端错误）。
+                # 4xx 客户端错误（404/401/403 等）属永久性失败，重试毫无意义，
+                # 直接标记失败，避免 CI 在失效源上浪费 3 次 × 退避时间。
+                retryable = status == 429 or status >= 500
+                if retryable and attempt < retry_count:
                     retry_after = self._parse_retry_after(e.response.headers.get("Retry-After"))
                     base_delay = 1.5 ** attempt
                     # 取 Retry-After 与指数退避的较大值，叠加抖动
                     delay = max(retry_after, base_delay) * random.uniform(0.75, 1.25)
                     await asyncio.sleep(delay)
-                    continue
-                if attempt < retry_count:
-                    base_delay = 1.5 ** attempt
-                    await asyncio.sleep(base_delay * random.uniform(0.75, 1.25))
                     continue
                 print(f"  ✗ {source['name']} (HTTP {status})")
                 return self._build_failure(source, f"HTTP {status}")
@@ -269,6 +268,12 @@ class BaseFetcher:
 
             # 将下载结果映射回所有共享该 URL 的源
             for unique_source, result in zip(unique_sources, fetched, strict=True):
+                # 防御性降级：gather(return_exceptions=True) 会收集到非 httpx 异常
+                # （例如第 107 行 write_bytes 抛出的 OSError/IOError），这些不是 dict，
+                # 若直接 result["status"] 下标会抛 TypeError，导致整个流程崩溃。
+                # 此处先把它们降级为失败记录，与下方“异常源降级为 failed”的设计意图一致。
+                if isinstance(result, Exception):
+                    result = self._build_failure(unique_source, f"未预期异常: {result}")
                 url = unique_source["url"]
                 indices = url_groups[url]
                 for idx in indices:
