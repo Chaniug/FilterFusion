@@ -177,10 +177,12 @@ class DnsRuleMerger:
         sources = metadata["sources"]
 
         # 检查是否有成功抓取的源
+        # 注意：此处只能跳过 DNS 合并，不能 sys.exit —— 否则会中断 merge_all
+        # 中独立的 AdBlock 管道（DNS 源失败不应影响 AdBlock 规则更新）。
         success_sources = [s for s in sources if s.get("status") == "success"]
         if not success_sources:
-            print("❌ 没有成功抓取的 DNS 规则源，终止合并")
-            sys.exit(1)
+            print("⚠️ 没有成功抓取的 DNS 规则源，跳过 DNS 合并（dist/dns-blocklist.txt 保留上次版本）")
+            return
 
         print(f"🔖 DNS: {len(success_sources)} 个源", flush=True)
 
