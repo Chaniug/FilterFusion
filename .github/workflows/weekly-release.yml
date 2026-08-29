@@ -157,3 +157,25 @@ jobs:
           weekly-rules.zip
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: 🧹 清理旧 Release，仅保留最新数个
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        KEEP_RELEASES: 4   # ← 想保留的 Release 数量，改这一个数字即可
+      run: |
+        REPO="${{ github.repository }}"
+        echo "🧹 开始清理，仅保留最新 $KEEP_RELEASES 个 Release"
+
+        gh release list --repo "$REPO" --limit 100 \
+          --json tagName --jq '.[].tagName' \
+          | tail -n +$((KEEP_RELEASES + 1)) \
+          | while read -r tag; do
+              [ -z "$tag" ] && continue
+              echo "  🗑️ 删除 $tag"
+              gh release delete "$tag" --repo "$REPO" --yes --cleanup-tag \
+                || gh api -X DELETE "repos/$REPO/git/refs/tags/$tag" >/dev/null 2>&1 \
+                || true
+            done
+
+        echo "✅ 清理完成，当前剩余 Release："
+        gh release list --repo "$REPO" --limit 10 --json tagName --jq '.[].tagName'
