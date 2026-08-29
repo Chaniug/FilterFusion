@@ -9,6 +9,7 @@ permissions:
   contents: write
   pages: write
   id-token: write
+  deployments: write
 
 # Pages 部署并发控制（防止手动触发与定时任务并发部署冲突）
 concurrency:
@@ -119,6 +120,14 @@ jobs:
       uses: actions/upload-pages-artifact@v5
       with:
         path: 'dist'
+
+    - name: 🧹 清空 github-pages 历史部署记录（仅保留最新）
+      if: steps.commit-and-push.outputs.deploy == 'true'
+      uses: strumwolf/delete-deployment-environment@v2
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        environment: github-pages
+        onlyRemoveDeployments: true
 
     - name: 🚀 部署到 GitHub Pages
       id: deployment
