@@ -1,5 +1,5 @@
 [Adblock Plus 2.0]
-! Checksum: 2QpSHXshNDZNVjtBL1LTUg==
+! Checksum: LUQ1q+134IBfODr6WPBSAA
 ! Title: FilterFusion Rules
 ! Description: FilterFusion - Ad blocking rules (PC)
 ! Version: 202610110426
@@ -13354,7 +13354,6 @@ znaki.edu.pl#@#ins.adsbygoogle[data-ad-slot]
 zol.com.cn#@##search_ad
 zstacklife.com#@#[href^="https://zstacklife.com/"] img
 zznews.cn#@#.ad-wrapper
-
 ! === 元素隐藏规则 Element Hiding Rules ===
 ###AC_ad
 ###AD_160
@@ -67051,7 +67050,6 @@ zzzyk.com###Tinfo
 ~www.wp.pl,wp.pl###aSlot3
 ~www.wp.pl,wp.pl##[class^="_"] > [class^="_"][class*=" _"]:has(>[class^="_"] > [class*="_"] > a[href] > [style*="background-image: url("])
 ~www.wp.pl,wp.pl##div[class^="_"] > div[class^="_"][class*="_"]:has(> img[src^="https://v.wpimg.pl/"][src$="=="][alt="WP"])
-
 ! === AdGuard/HTML Scriptlet Rules ===
 #$#.ezoic-ad { position: absolute !important; left: -3000px !important; }
 #$#.pub_728x90.text-ad.textAd.text_ad.text_ads.text-ads.text-ad-links { display: block !important; }
@@ -77790,7 +77788,6 @@ zzbaike.com#?#.ceo-margin-bottom:has(img[width="340"])
 ~h5.dilidili.wang,dilidili.wang#$#a[href*=".11h5."] img { position: absolute!important; left: -3000px!important; }
 ~sports.qq.com,~work.weixin.qq.com,qq.com#%#//scriptlet('json-prune', 'ad')
 ~www.wp.pl,wp.pl#?#[class^="_"] > [class^="_"][class*=" _"]:has(>[class^="_"] > [class*=" "] > [class]:first-child:contains(REKLAMA))
-
 ! === 正则规则 Regex Rules ===
 /(https?:\/\/)104\.154\..{100,}/
 /(https?:\/\/)104\.197\..{100,}/
@@ -77823,7 +77820,6 @@ zzbaike.com#?#.ceo-margin-bottom:has(img[width="340"])
 /js/sextb.js$domain=sextb.date|sextb.net,replace=/if\(checkads\(\)==false\)/if(!0)/
 /pa.dajiahao*.top/
 /wp-content/plugins/gplinks-flow/assets/js/flow.js$replace=/var shown = false;/return;/
-
 ! === 特殊参数/实验性规则 Special/Experimental ===
 $$div[style="display: none !important;"]:contains(!function(){function a(a){var _idx=)
 $$div[style="display: none !important;"]:contains('ed2k://)
@@ -86709,7 +86705,6 @@ zefoy.com#$?#ins.adsbygoogle[data-ad-slot] { height: 0 !important; }
 ||zybrdr.com^$popup
 ||zype.com^$third-party,domain=bossip.com|hiphopwired.com|madamenoire.com
 ||zzad.com^$third-party
-
 ! === 屏蔽规则 Blocking Rules ===
 #$?#html > div[style="position: fixed; inset: 0px; z-index: 2147483647; pointer-events: auto;"] { remove: true; }
 $$script[wildcard="*adcashMacros*zoneSett*"][min-length="2000"][max-length="25000"]

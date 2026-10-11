@@ -276,27 +276,21 @@ class RuleMerger:
         if groups[RuleType.EXCEPTION]:
             merged_lines.append("! === 例外规则 Exception Rules ===")
             merged_lines.extend(sorted(groups[RuleType.EXCEPTION]))
-            merged_lines.append("")
         if groups[RuleType.ELEMENT_HIDE]:
             merged_lines.append("! === 元素隐藏规则 Element Hiding Rules ===")
             merged_lines.extend(sorted(groups[RuleType.ELEMENT_HIDE]))
-            merged_lines.append("")
         if groups[RuleType.HTML_FILTER]:
             merged_lines.append("! === AdGuard/HTML Scriptlet Rules ===")
             merged_lines.extend(sorted(groups[RuleType.HTML_FILTER]))
-            merged_lines.append("")
         if groups[RuleType.REGEX]:
             merged_lines.append("! === 正则规则 Regex Rules ===")
             merged_lines.extend(sorted(groups[RuleType.REGEX]))
-            merged_lines.append("")
         if groups[RuleType.SPECIAL]:
             merged_lines.append("! === 特殊参数/实验性规则 Special/Experimental ===")
             merged_lines.extend(sorted(groups[RuleType.SPECIAL]))
-            merged_lines.append("")
         if groups[RuleType.NORMAL]:
             merged_lines.append("! === 屏蔽规则 Blocking Rules ===")
             merged_lines.extend(sorted(groups[RuleType.NORMAL]))
-            merged_lines.append("")
 
         total = sum(len(v) for v in groups.values())
         print(f"收集了 {total} 条唯一规则")
@@ -354,12 +348,22 @@ class RuleMerger:
         # 构建最终内容
         content = header.rstrip("\n") + "\n" + "\n".join(rules)
 
-        # 计算校验和（ABP 标准：MD5 + Base64）
+        # 剔除所有空行：AdGuard 的两种 checksum 实现（TS 端把连续换行折叠为单个、
+        # Rust 端逐行保留空行）只有在文件不含空行时才得到一致结果，
+        # 否则同一文件会被其中一种引擎判为 invalid checksum。
+        # AdGuard 官方发布的过滤器同样是 0 空行。
+        content = "\n".join(line for line in content.split("\n") if line.strip())
+
+        # 计算校验和（AdGuard 规范：删除 checksum 行 → 其余行原样保留 → MD5 → Base64）
+        # 关键：Base64 末尾的 '=' 填充必须去掉。
+        # Rust 端（filter-list-manager）用 BASE64_STANDARD_NO_PAD 编码，
+        # TS 端（FiltersDownloader / FiltersRegistry）用 .replace(/=+$/g, '')，
+        # 二者都是「无 padding」比较；若声明值带了 '=' 会被判为 invalid checksum。
         content_for_checksum = "\n".join(
             line for line in content.split("\n") if not line.startswith("! Checksum:")
         )
         md5_hash = hashlib.md5(content_for_checksum.encode("utf-8")).digest()
-        checksum = base64.b64encode(md5_hash).decode("utf-8")
+        checksum = base64.b64encode(md5_hash).decode("utf-8").rstrip("=")
         content = content.replace("{CHECKSUM}", checksum)
 
         # 保存前检查规则数是否为 0
