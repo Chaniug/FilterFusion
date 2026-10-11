@@ -2,13 +2,8 @@ name: 📦 双周规则快照发布
 
 on:
   schedule:
-    - cron: '0 2 * * 0'  # 每周日 UTC 02:00（北京时间 10:00）触发；奇偶周判断在下方步骤内完成
+    - cron: '0 2 * * 0'  # 每周日 UTC 02:00（北京时间 10:00）触发；奇偶周判断在下方 gate 步骤内完成
   workflow_dispatch:      # 手动触发时跳过奇偶周判断，立即发布
-    inputs:
-      force:
-        description: '强制发布（跳过错开周判断）'
-        type: boolean
-        default: true
 
 permissions:
   contents: write  # 授予创建 Tag 和 Release 的权限
