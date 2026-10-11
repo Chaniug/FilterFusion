@@ -14,8 +14,9 @@ permissions:
   contents: write  # 授予创建 Tag 和 Release 的权限
 
 concurrency:
-  group: biweekly-release
-  cancel-in-progress: false  # 避免并发执行导致冲突
+  # 与 daily-update.yaml 共用同一组，避免二者同时改 main（都会 git push）
+  group: repo-write
+  cancel-in-progress: false  # 排队而非取消，避免打断发布
 
 jobs:
   release:

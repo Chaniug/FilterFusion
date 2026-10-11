@@ -13,8 +13,9 @@ permissions:
 
 # Pages 部署并发控制（防止手动触发与定时任务并发部署冲突）
 concurrency:
-  group: pages
-  cancel-in-progress: true
+  # 与 weekly-release.yml 共用同一组，确保两者不会同时改 main
+  group: repo-write
+  cancel-in-progress: false  # 排队而非取消，避免打断生成流程
 
 jobs:
   update-and-deploy:
@@ -102,7 +103,29 @@ jobs:
         else
           git commit -m "FilterFusion自动更新: $(date -u +'%Y-%m-%d %H:%M UTC')"
           git remote set-url origin "https://x-access-token:${TOKEN}@github.com/${{ github.repository }}.git"
-          git push origin HEAD:main
+
+          # 推送带重试：若远端在本次运行期间有新的提交（如 weekly 发布、
+          # 人工合入），push 会被拒绝。此时以远端为基准重建提交后重推，最多 3 次。
+          # 由于待提交内容就是工作区中已生成的 dist 文件，直接 reset --soft
+          # 到远端最新并重新提交即可，无需 rebase（浅克隆下 rebase 不可靠）。
+          pushed=false
+          for attempt in 1 2 3; do
+            if git push origin HEAD:main; then
+              pushed=true
+              break
+            fi
+            echo "⚠️ 第 $attempt 次推送被拒，以远端为基准重建提交后重试…"
+            git fetch --depth=1 origin main
+            git reset --soft origin/main
+            git add dist config scripts
+            git commit -m "FilterFusion自动更新: $(date -u +'%Y-%m-%d %H:%M UTC')"
+            sleep $((attempt * 3))
+          done
+
+          if [ "$pushed" != "true" ]; then
+            echo "❌ 重试 3 次后仍无法推送，请检查远端状态"
+            exit 1
+          fi
           echo "deploy=true" >> "$GITHUB_OUTPUT"
         fi
 
