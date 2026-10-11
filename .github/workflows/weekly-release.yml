@@ -104,16 +104,16 @@ jobs:
         git fetch --depth=1 origin main
         git reset --hard origin/main
 
-        # 若同名标签已存在，则先删除再重建，保证版本覆盖正确
-        if git rev-parse "$DATE" >/dev/null 2>&1; then
-          echo "⚠️ 检测到 Tag $DATE 已存在，正在删除旧标签并重建..."
-          git tag -d "$DATE"
-          git push origin ":refs/tags/$DATE"
+        # 若远程同名标签已存在，则先删除再重建，保证版本覆盖正确。
+        # 注意：浅克隆不会拉取 tags，必须查询远程（ls-remote）而非本地 rev-parse。
+        if git ls-remote --tags origin "refs/tags/$DATE" | grep -q .; then
+          echo "⚠️ 远程已存在 Tag $DATE，正在删除旧标签并重建..."
+          git push origin ":refs/tags/$DATE" || true
         fi
 
-        # 创建并推送新标签
-        git tag "$DATE"
-        git push origin "$DATE"
+        # 创建并推送新标签（--force 兜底，避免并发/残留导致的拒绝）
+        git tag -f "$DATE"
+        git push origin "$DATE" --force
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
