@@ -72,7 +72,7 @@ FilterFusion 是一个自动聚合和融合多源广告过滤规则的工具集�
     <tr>
       <td>分发部署</td>
       <td align="center">手动上传</td>
-      <td align="center"><b>jsDelivr + GitHub Raw 多 CDN 分发</b></td>
+      <td align="center"><b>多 CDN 自动分发（jsDelivr / GitHub Raw）</b></td>
     </tr>
     <tr>
       <td>元数据统计</td>
@@ -419,7 +419,9 @@ flowchart LR
 
 ### Q1: 多久更新一次规则？
 
-项目的 GitHub Actions 每日自动运行抓取和合并流程，`dist/` 下的规则文件始终保持最新。如果你本地使用，建议每天或每周执行一次脚本。
+规则本身**每日自动更新**：GitHub Actions 每天自动运行抓取与合并流程，`dist/` 下的规则文件始终保持最新，**通过上方订阅链接获取即可，无需关注版本**。
+
+此外，项目**每两周**发布一次带版本号的离线快照（[Releases](../../releases)），内含 `weekly-rules.zip`，适合离线部署、内网环境或批量导入场景。若你需要本地自行生成规则，执行 `python -m scripts.run_all` 即可。
 
 ### Q2: 如何自定义规则源？
 

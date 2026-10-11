@@ -72,7 +72,7 @@ FilterFusion is a toolkit for automatically aggregating and merging multi-source
     <tr>
       <td>Distribution</td>
       <td align="center">Manual upload</td>
-      <td align="center"><b>jsDelivr + GitHub Raw multi-CDN</b></td>
+      <td align="center"><b>Multi-CDN distribution (jsDelivr / GitHub Raw)</b></td>
     </tr>
     <tr>
       <td>Metadata/Stats</td>
@@ -425,7 +425,9 @@ flowchart LR
 
 ### Q1: How often are rules updated?
 
-The project's GitHub Actions runs the fetch and merge workflow daily — rule files in `dist/` are always up-to-date. For local usage, we recommend running the scripts daily or weekly.
+The rules themselves are **updated daily**: GitHub Actions runs the fetch and merge workflow every day, so the files under `dist/` are always up-to-date — simply use the subscription links above, no need to track versions.
+
+In addition, the project publishes a **versioned offline snapshot every two weeks** ([Releases](../../releases)) containing `weekly-rules.zip`, suited for offline deployment, intranet environments, or bulk imports. To generate the rules locally instead, run `python -m scripts.run_all`.
 
 ### Q2: How do I customize rule sources?
 

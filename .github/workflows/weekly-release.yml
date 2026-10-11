@@ -1,15 +1,20 @@
-name: 🗓️ 每周自动打包发布 
+name: 📦 双周规则快照发布
 
 on:
   schedule:
-    - cron: '0 2 * * 0'  # 每周日 UTC 时间 02:00（北京时间 10:00）自动触发更新流程
-  workflow_dispatch:      # 同时支持手动触发，方便临时发布
+    - cron: '0 2 * * 0'  # 每周日 UTC 02:00（北京时间 10:00）触发；奇偶周判断在下方步骤内完成
+  workflow_dispatch:      # 手动触发时跳过奇偶周判断，立即发布
+    inputs:
+      force:
+        description: '强制发布（跳过错开周判断）'
+        type: boolean
+        default: true
 
 permissions:
   contents: write  # 授予创建 Tag 和 Release 的权限
 
 concurrency:
-  group: weekly-release
+  group: biweekly-release
   cancel-in-progress: false  # 避免并发执行导致冲突
 
 jobs:
@@ -22,13 +27,34 @@ jobs:
       with:
         fetch-depth: 1  # 仅拉取最新提交，加快检出速度
 
+    - name: ⏱️ 判断是否为本期发布周（每两周一次）
+      id: gate
+      run: |
+        # 手动触发：强制发布；定时触发：ISO 周数为奇数才发布（等效「每两周一次」）
+        if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+          echo "ℹ️ 手动触发，跳过错开周判断，直接发布"
+          echo "should_release=true" >> "$GITHUB_OUTPUT"
+          exit 0
+        fi
+
+        WEEK=$(date -u +'%V')   # ISO 8601 周数（01-53）
+        if [ $((10#$WEEK % 2)) -eq 1 ]; then
+          echo "✅ 当前 ISO 周 $WEEK 为奇数周 → 本期发布"
+          echo "should_release=true" >> "$GITHUB_OUTPUT"
+        else
+          echo "⏭️ 当前 ISO 周 $WEEK 为偶数周 → 跳过本次发布（下期发布）"
+          echo "should_release=false" >> "$GITHUB_OUTPUT"
+        fi
+
     - name: 📦 打包所有规则文件为 ZIP 压缩包
+      if: steps.gate.outputs.should_release == 'true'
       run: |
         cd dist
         zip ../weekly-rules.zip *.txt
         cd ..
 
     - name: 📊 统计规则文件数量与拦截规则条目数
+      if: steps.gate.outputs.should_release == 'true'
       id: stats
       run: |
         FILE_COUNT=$(ls -1 dist/*.txt 2>/dev/null | wc -l)
@@ -60,14 +86,15 @@ jobs:
         echo "TOTAL_FMT=$TOTAL_FMT" >> $GITHUB_ENV
 
     - name: 🏷️ 自动生成版本号与 Git 标签
+      if: steps.gate.outputs.should_release == 'true'
       id: version
       run: |
         DATE=$(date +'%Y.%m.%d')
-        WEEK_END=$(date -u +'%Y-%m-%d')
-        WEEK_START=$(date -u -d '6 days ago' +'%m/%d')
+        PERIOD_END=$(date -u +'%Y-%m-%d')
+        PERIOD_START=$(date -u -d '13 days ago' +'%m/%d')
         echo "VERSION=$DATE" >> $GITHUB_ENV
-        echo "WEEK_START=$WEEK_START" >> $GITHUB_ENV
-        echo "WEEK_END=$WEEK_END" >> $GITHUB_ENV
+        echo "PERIOD_START=$PERIOD_START" >> $GITHUB_ENV
+        echo "PERIOD_END=$PERIOD_END" >> $GITHUB_ENV
 
         # 配置 Git 提交身份信息
         git config user.name "github-actions[bot]"
@@ -91,23 +118,25 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     - name: 🚀 创建 GitHub Release 并上传附件
+      if: steps.gate.outputs.should_release == 'true'
       uses: softprops/action-gh-release@v3
       with:
         tag_name: "${{ env.VERSION }}"
-        name: "FilterFusion Weekly · ${{ env.VERSION }}"
+        name: "FilterFusion 规则快照 · ${{ env.VERSION }}"
         body: |
-          🎉 **FilterFusion Weekly · ${{ env.VERSION }}** 🎉
+          🎉 **FilterFusion 规则快照 · ${{ env.VERSION }}** 🎉
 
-          欢迎来到本周的 FilterFusion 规则更新！本期的规则数据已经过全自动抓取、智能合并和精准去重处理，现正式发布，供大家订阅使用。
+          本期快照已生成。规则数据经全自动抓取、智能合并与精准去重处理，随附离线压缩包，供不便使用在线订阅的场景使用。
 
-          > 📅 **覆盖周期：** ${{ env.WEEK_START }} — ${{ env.WEEK_END }}
+          > 📅 **覆盖周期：** ${{ env.PERIOD_START }} — ${{ env.PERIOD_END }}（近两周）
           > ⚙️ **处理流程：** 自动抓取上游源 → 智能合并去重 → 多格式分发
+          > 🔄 **发布节奏：** 每两周一次（每日自动更新请使用下方订阅链接）
 
           ---
 
-          ## 📋 本周更新概要
+          ## 📋 本期更新概要
 
-          本周共整理了两大管道的规则数据，全面覆盖浏览器端和网络端的广告拦截场景：
+          本期整理了两大管道的规则数据，全面覆盖浏览器端与网络端的广告拦截场景：
 
           | 管道 | 规则数量 | 适用场景 |
           |------|:-------:|----------|
@@ -124,29 +153,41 @@ jobs:
           | 🌍 DNS 拦截规则 | ${{ env.DNS_FMT }} 条 |
           | 📝 **累计拦截规则** | **${{ env.TOTAL_FMT }}** 条 |
 
-          ## 🎯 快速订阅链接
+          ## 🎯 在线订阅（推荐）
 
-          将以下链接添加到您的广告拦截工具中即可自动获取更新，推荐首选订阅方式，无需手动下载：
+          订阅链接每日自动更新，**无需关注 Release 版本**，添加一次即可长期自动获取最新规则。每条地址独立可用，**若某条导入失败请直接换下一条重试**。
 
           **🚫 AdBlock（浏览器端 — uBlock Origin / AdGuard 浏览器扩展）**
           ```
-          https://cdn.jsdelivr.net/gh/Chaniug/FilterFusion@main/dist/adblock-mo.txt
+          https://fastly.jsdelivr.net/gh/Chaniug/FilterFusion@main/dist/adblock-mo.txt
+          ```
+          ```
+          https://raw.githubusercontent.com/Chaniug/FilterFusion/main/dist/adblock-mo.txt
+          ```
+          ```
+          https://gh.llkk.cc/https://raw.githubusercontent.com/Chaniug/FilterFusion/main/dist/adblock-mo.txt
           ```
 
           **🌍 DNS 过滤（网络级 — AdGuard Home / Pi‑hole 等）**
           ```
-          https://cdn.jsdelivr.net/gh/Chaniug/FilterFusion@main/dist/dns-blocklist.txt
+          https://fastly.jsdelivr.net/gh/Chaniug/FilterFusion@main/dist/dns-blocklist.txt
+          ```
+          ```
+          https://raw.githubusercontent.com/Chaniug/FilterFusion/main/dist/dns-blocklist.txt
+          ```
+          ```
+          https://gh.llkk.cc/https://raw.githubusercontent.com/Chaniug/FilterFusion/main/dist/dns-blocklist.txt
           ```
 
           ## 📦 附件说明
 
           | 文件 | 说明 |
           |------|------|
-          | `weekly-rules.zip` | 包含本周所有 AdBlock 和 DNS 规则文件，解压即用，适合离线部署或批量导入 |
+          | `weekly-rules.zip` | 包含本期所有 AdBlock 与 DNS 规则文件，解压即用，适合离线部署或批量导入 |
 
           ---
 
-          💡 **小贴士：** 推荐使用上方的在线订阅链接实现自动更新，这样每次发布新版本后，您的工具会自动拉取最新规则，无需手动下载替换。
+          💡 **小贴士：** 在线订阅可自动获取每日更新；本快照适用离线/内网/批量导入场景，每两周归档一次。
 
           🙏 **发现误杀或漏拦截？** 欢迎[提交 Issue](https://github.com/Chaniug/FilterFusion/issues) 反馈问题，我们会及时排查处理！
 
@@ -159,9 +200,10 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     - name: 🧹 清理旧 Release，仅保留最新数个
+      if: steps.gate.outputs.should_release == 'true'
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        KEEP_RELEASES: 4   # ← 想保留的 Release 数量，改这一个数字即可
+        KEEP_RELEASES: 6   # ← 想保留的 Release 数量，改这一个数字即可（每两周发布 → 6 期≈3 个月）
       run: |
         REPO="${{ github.repository }}"
         echo "🧹 开始清理，仅保留最新 $KEEP_RELEASES 个 Release"
