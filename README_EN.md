@@ -96,14 +96,14 @@ FilterFusion is a toolkit for automatically aggregating and merging multi-source
 
 ## Subscription URLs
 
-Import any of the following links into your ad-blocking tool. **Each URL is in its own code block — click the copy button at the top-right to copy a single URL** (first line jsDelivr recommended):
+Import any of the following links into your ad-blocking tool. **Each URL is in its own code block — click the copy button at the top-right to copy a single URL** (the first one is recommended; reachability varies by network, **if one fails just try the next**):
 
 ### AdBlock Rules (Browser Ad-Blocking)
 
 **📱 Mobile**
 
 ```text
-https://cdn.jsdelivr.net/gh/Chaniug/FilterFusion@main/dist/adblock-mo.txt
+https://fastly.jsdelivr.net/gh/Chaniug/FilterFusion@main/dist/adblock-mo.txt
 ```
 ```text
 https://raw.githubusercontent.com/Chaniug/FilterFusion/main/dist/adblock-mo.txt
@@ -115,7 +115,7 @@ https://gh.llkk.cc/https://raw.githubusercontent.com/Chaniug/FilterFusion/main/d
 **🖥️ PC**
 
 ```text
-https://cdn.jsdelivr.net/gh/Chaniug/FilterFusion@main/dist/adblock-pc.txt
+https://fastly.jsdelivr.net/gh/Chaniug/FilterFusion@main/dist/adblock-pc.txt
 ```
 ```text
 https://raw.githubusercontent.com/Chaniug/FilterFusion/main/dist/adblock-pc.txt
@@ -124,12 +124,12 @@ https://raw.githubusercontent.com/Chaniug/FilterFusion/main/dist/adblock-pc.txt
 https://gh.llkk.cc/https://raw.githubusercontent.com/Chaniug/FilterFusion/main/dist/adblock-pc.txt
 ```
 
-> 📌 Three URLs in order: jsDelivr CDN (mainland China) / GitHub Raw (global) / gh.llkk.cc (backup)
+> 📌 Three URLs in order: **jsDelivr CDN (recommended, `fastly` edge) / GitHub Raw (global) / gh.llkk.cc (backup)**. Reachability varies by network — **if one fails to import, simply try the next one**.
 
 ### DNS Filtering Rules (Network-Level Ad-Blocking)
 
 ```text
-https://cdn.jsdelivr.net/gh/Chaniug/FilterFusion@main/dist/dns-blocklist.txt
+https://fastly.jsdelivr.net/gh/Chaniug/FilterFusion@main/dist/dns-blocklist.txt
 ```
 ```text
 https://raw.githubusercontent.com/Chaniug/FilterFusion/main/dist/dns-blocklist.txt
@@ -138,7 +138,7 @@ https://raw.githubusercontent.com/Chaniug/FilterFusion/main/dist/dns-blocklist.t
 https://gh.llkk.cc/https://raw.githubusercontent.com/Chaniug/FilterFusion/main/dist/dns-blocklist.txt
 ```
 
-> 📌 Three URLs in order: jsDelivr CDN (mainland China) / GitHub Raw (global) / gh.llkk.cc (backup)
+> 📌 Three URLs in order: **jsDelivr CDN (recommended, `fastly` edge) / GitHub Raw (global) / gh.llkk.cc (backup)**. Reachability varies by network — **if one fails to import, simply try the next one**.
 
 ### 📋 Report Filter Issues
 
@@ -358,6 +358,24 @@ Auto-classification → NFKC normalization dedup → output to `dist/`.
 **AdBlock** (uBlock Origin / AdGuard / Brave etc.): Open extension settings → Filter lists → Paste subscription link → Import.
 
 **DNS** (AdGuard Home / Pi-hole / Clash etc.): Admin panel → DNS blocklists → Add subscription link.
+
+### Import Failed? Three-Step Self-Check
+
+Reachability of these URLs can differ completely across networks. If an import fails, check in this order:
+
+**① Switch URL**: Try all three URLs above one by one. The same URL can succeed on one network and fail on another — whichever downloads successfully is the right one for you.
+
+**② Check the file header**: Open the URL in a browser and verify line 2 looks like:
+
+```text
+! Checksum: <22 chars, without any = sign>
+```
+
+The value **must not end with `=`** (AdGuard requires Base64 without padding). If you see a value ending with `==`, you are hitting a stale CDN cache — wait for it to expire (usually within 1 hour) or switch to another URL.
+
+**③ Check DNS**: If **the browser can open it but your blocking tool cannot**, it is usually a DNS resolution problem (such subscription domains are easily poisoned in some regions). Try a different system DNS (e.g. `223.5.5.5`, `119.29.29.29`), or configure an upstream proxy in your blocking tool.
+
+> 💡 Rule of thumb: **switch URL → check file header → check DNS**.
 
 ### Compatible Tools at a Glance
 

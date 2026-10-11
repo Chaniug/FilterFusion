@@ -96,14 +96,14 @@ FilterFusion 是一个自动聚合和融合多源广告过滤规则的工具集�
 
 ## 规则订阅地址
 
-将对应链接导入你的广告拦截工具即可。**每个地址为独立代码块，点击右上角复制按钮即可复制单个地址**（推荐第一行 jsDelivr）：
+将对应链接导入你的广告拦截工具即可。**每个地址为独立代码块，点击右上角复制按钮即可复制单个地址**（推荐第一条；不同网络环境下各条可达性不同，**若某条不通请直接换下一条**）：
 
 ### 🟦 AdBlock 规则（浏览器广告拦截）
 
 **📱 移动端（Mobile）**
 
 ```text
-https://cdn.jsdelivr.net/gh/Chaniug/FilterFusion@main/dist/adblock-mo.txt
+https://fastly.jsdelivr.net/gh/Chaniug/FilterFusion@main/dist/adblock-mo.txt
 ```
 ```text
 https://raw.githubusercontent.com/Chaniug/FilterFusion/main/dist/adblock-mo.txt
@@ -115,7 +115,7 @@ https://gh.llkk.cc/https://raw.githubusercontent.com/Chaniug/FilterFusion/main/d
 **🖥️ 电脑端（PC）**
 
 ```text
-https://cdn.jsdelivr.net/gh/Chaniug/FilterFusion@main/dist/adblock-pc.txt
+https://fastly.jsdelivr.net/gh/Chaniug/FilterFusion@main/dist/adblock-pc.txt
 ```
 ```text
 https://raw.githubusercontent.com/Chaniug/FilterFusion/main/dist/adblock-pc.txt
@@ -124,12 +124,12 @@ https://raw.githubusercontent.com/Chaniug/FilterFusion/main/dist/adblock-pc.txt
 https://gh.llkk.cc/https://raw.githubusercontent.com/Chaniug/FilterFusion/main/dist/adblock-pc.txt
 ```
 
-> 📌 三个地址依次为：jsDelivr CDN（中国大陆推荐）/ GitHub Raw（全球）/ gh.llkk.cc（备用）
+> 📌 三条依次为：**jsDelivr CDN（推荐，`fastly` 节点）/ GitHub Raw（全球）/ gh.llkk.cc（备用）**。三者可达性因网络环境而异，**某条导入失败请直接换下一条重试**。
 
 ### 🟪 DNS 过滤规则（网络级广告拦截）
 
 ```text
-https://cdn.jsdelivr.net/gh/Chaniug/FilterFusion@main/dist/dns-blocklist.txt
+https://fastly.jsdelivr.net/gh/Chaniug/FilterFusion@main/dist/dns-blocklist.txt
 ```
 ```text
 https://raw.githubusercontent.com/Chaniug/FilterFusion/main/dist/dns-blocklist.txt
@@ -138,7 +138,7 @@ https://raw.githubusercontent.com/Chaniug/FilterFusion/main/dist/dns-blocklist.t
 https://gh.llkk.cc/https://raw.githubusercontent.com/Chaniug/FilterFusion/main/dist/dns-blocklist.txt
 ```
 
-> 📌 三个地址依次为：jsDelivr CDN（中国大陆推荐）/ GitHub Raw（全球）/ gh.llkk.cc（备用）
+> 📌 三条依次为：**jsDelivr CDN（推荐，`fastly` 节点）/ GitHub Raw（全球）/ gh.llkk.cc（备用）**。三者可达性因网络环境而异，**某条导入失败请直接换下一条重试**。
 
 ### 📋 规则反馈
 
@@ -352,6 +352,24 @@ python -m scripts.merge_dns_rules    # DNS 规则
 **AdBlock**（uBlock Origin / AdGuard / Brave 等）：打开扩展设置 → Filter lists → 粘贴订阅链接 → 导入。
 
 **DNS**（AdGuard Home / Pi-hole / Clash 等）：管理界面 → DNS blocklists → 添加订阅链接。
+
+### 导入失败？三步自查
+
+订阅地址在不同网络环境下的可达性可能完全不同，遇到导入报错时请按顺序排查：
+
+**① 换地址**：把上方三条地址**挨个试一遍**。同一条地址在不同网络下结果可能相反——能成功下载的那条就是好地址。
+
+**② 看文件头**：用浏览器打开该地址，确认第 2 行形如：
+
+```text
+! Checksum: <22 位字符，不带 = 号>
+```
+
+其值**不能以 `=` 结尾**（AdGuard 规范要求无 Base64 padding）。若看到以 `==` 结尾的值，说明命中了 CDN 旧缓存，等待缓存过期（通常 1 小时内）或先换一条地址。
+
+**③ 查 DNS**：若**浏览器能打开、拦截工具却打不开**，通常是 DNS 解析问题（此类订阅域名在国内易被污染）。可尝试更换系统 DNS（如 `223.5.5.5`、`119.29.29.29`），或在拦截工具中配置上游代理。
+
+> 💡 排查口诀：**先换地址 → 再看文件头 → 最后查 DNS**。
 
 ### 兼容工具速览
 
