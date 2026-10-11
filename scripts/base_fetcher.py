@@ -10,11 +10,10 @@ import asyncio
 import hashlib
 import json
 import random
-import sys
 import tempfile
 from datetime import UTC, datetime
-from enum import StrEnum
 from email.utils import parsedate_to_datetime
+from enum import StrEnum
 from pathlib import Path
 from typing import Any
 
@@ -114,7 +113,7 @@ class BaseFetcher:
             except httpx.TimeoutException:
                 if attempt < retry_count:
                     # 指数退避 + ±25% 抖动：1.5^attempt × uniform(0.75, 1.25)
-                    base_delay = 1.5 ** attempt
+                    base_delay = 1.5**attempt
                     await asyncio.sleep(base_delay * random.uniform(0.75, 1.25))
                     continue
                 print(f"  ✗ {source['name']} (超时)")
@@ -127,7 +126,7 @@ class BaseFetcher:
                 retryable = status == 429 or status >= 500
                 if retryable and attempt < retry_count:
                     retry_after = self._parse_retry_after(e.response.headers.get("Retry-After"))
-                    base_delay = 1.5 ** attempt
+                    base_delay = 1.5**attempt
                     # 取 Retry-After 与指数退避的较大值，叠加抖动
                     delay = max(retry_after, base_delay) * random.uniform(0.75, 1.25)
                     await asyncio.sleep(delay)
@@ -136,7 +135,7 @@ class BaseFetcher:
                 return self._build_failure(source, f"HTTP {status}")
             except httpx.HTTPError as e:
                 if attempt < retry_count:
-                    base_delay = 1.5 ** attempt
+                    base_delay = 1.5**attempt
                     await asyncio.sleep(base_delay * random.uniform(0.75, 1.25))
                     continue
                 print(f"  ✗ {source['name']} ({e})")
@@ -272,7 +271,7 @@ class BaseFetcher:
                 # （例如第 107 行 write_bytes 抛出的 OSError/IOError），这些不是 dict，
                 # 若直接 result["status"] 下标会抛 TypeError，导致整个流程崩溃。
                 # 此处先把它们降级为失败记录，与下方“异常源降级为 failed”的设计意图一致。
-                if isinstance(result, Exception):
+                if isinstance(result, BaseException):
                     result = self._build_failure(unique_source, f"未预期异常: {result}")
                 url = unique_source["url"]
                 indices = url_groups[url]
@@ -322,9 +321,9 @@ class BaseFetcher:
         self.meta_file.write_text(json.dumps(meta, indent=2), encoding="utf-8")
 
         # 统计
-        success = sum(1 for s in results if s["status"] == FetchStatus.SUCCESS)
-        failed = sum(1 for s in results if s["status"] == FetchStatus.FAILED)
+        success_count = sum(1 for s in results if s["status"] == FetchStatus.SUCCESS)
+        failed_count = sum(1 for s in results if s["status"] == FetchStatus.FAILED)
 
-        print(f"✅ {self.log_tag}抓取完成: 成功 {success}, 失败 {failed}")
+        print(f"✅ {self.log_tag}抓取完成: 成功 {success_count}, 失败 {failed_count}")
 
         return meta

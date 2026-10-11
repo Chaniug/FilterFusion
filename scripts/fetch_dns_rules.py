@@ -54,11 +54,13 @@ class DnsRuleFetcher(BaseFetcher):
                 print(f"⚠️ 第 {idx} 个 DNS 源 url 无效: {url}")
                 continue
 
-            sources.append({
-                "name": name,
-                "url": url,
-                "enabled": True,
-            })
+            sources.append(
+                {
+                    "name": name,
+                    "url": url,
+                    "enabled": True,
+                }
+            )
 
         print(f"加载了 {len(sources)} 个 DNS 规则源", flush=True)
         return sources

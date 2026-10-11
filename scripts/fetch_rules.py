@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import asyncio
 import sys
-from pathlib import Path
 from typing import Any
 
 import yaml
@@ -17,8 +16,8 @@ CATEGORY_MAP: dict[str, str] = {
     "mo": "mobile",
     "pc": "pc",
     "bo": "both",
-    "mobile": "mobile",   # 兼容旧写法
-    "both": "both",       # 兼容旧写法
+    "mobile": "mobile",  # 兼容旧写法
+    "both": "both",  # 兼容旧写法
 }
 
 

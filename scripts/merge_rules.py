@@ -63,10 +63,7 @@ class RuleMerger:
     )
 
     # 特殊参数关键词：单次正则扫描替代 8 次 any(in) 子串搜索
-    _SPECIAL_RE = re.compile(
-        r"badfilter|important|app=|domain=|csp=|replace=|popup|third-party"
-    )
-
+    _SPECIAL_RE = re.compile(r"badfilter|important|app=|domain=|csp=|replace=|popup|third-party")
 
     def __init__(self) -> None:
         self.project_root: Path = Path(__file__).resolve().parent.parent
@@ -359,9 +356,7 @@ class RuleMerger:
         # Rust 端（filter-list-manager）用 BASE64_STANDARD_NO_PAD 编码，
         # TS 端（FiltersDownloader / FiltersRegistry）用 .replace(/=+$/g, '')，
         # 二者都是「无 padding」比较；若声明值带了 '=' 会被判为 invalid checksum。
-        content_for_checksum = "\n".join(
-            line for line in content.split("\n") if not line.startswith("! Checksum:")
-        )
+        content_for_checksum = "\n".join(line for line in content.split("\n") if not line.startswith("! Checksum:"))
         md5_hash = hashlib.md5(content_for_checksum.encode("utf-8")).digest()
         checksum = base64.b64encode(md5_hash).decode("utf-8").rstrip("=")
         content = content.replace("{CHECKSUM}", checksum)
@@ -369,7 +364,7 @@ class RuleMerger:
         # 保存前检查规则数是否为 0
         if final_count == 0:
             print("⚠️ 合并后规则数为 0，不覆盖现有文件")
-            return initial_count, final_count, 0.0, source_stats, checksum
+            return initial_count, final_count, 0.0, source_stats, checksum, version
 
         # 保存规则文件
         rule_path = self.dist_dir / output_filename
@@ -379,13 +374,13 @@ class RuleMerger:
         processing_time = (datetime.now() - self.start_time).total_seconds()
 
         tag = f" [{log_tag}]" if log_tag else ""
-        print(f"✅ AdBlock{tag} 合并完成: {initial_count} → {final_count} 条 (去重 {initial_count - final_count}, {processing_time:.2f}s) → dist/{output_filename}")
+        print(
+            f"✅ AdBlock{tag} 合并完成: {initial_count} → {final_count} 条 (去重 {initial_count - final_count}, {processing_time:.2f}s) → dist/{output_filename}"
+        )
 
         return initial_count, final_count, processing_time, source_stats, checksum, version
 
-    def merge_custom(
-        self, output_filename: str, source_ids: list[str], description: str = ""
-    ) -> None:
+    def merge_custom(self, output_filename: str, source_ids: list[str], description: str = "") -> None:
         """合并自定义组合规则：按 ID 查找源 → 按 file 去重 → 合并去重 → 输出到 dist/。
 
         Args:
@@ -447,17 +442,19 @@ class RuleMerger:
         )
 
         # 累积摘要（暂存内存，由 flush_summary 统一落盘到 config/summary.json）
-        self._summary_list.append({
-            "output": output_filename,
-            "version": version,
-            "date": datetime.now(UTC).isoformat(),
-            "total_source_rules": initial_count,
-            "unique_rules": final_count,
-            "duplicates_removed": initial_count - final_count,
-            "merge_time_seconds": round(processing_time, 2),
-            "checksum": checksum,
-            "sources": source_stats,
-        })
+        self._summary_list.append(
+            {
+                "output": output_filename,
+                "version": version,
+                "date": datetime.now(UTC).isoformat(),
+                "total_source_rules": initial_count,
+                "unique_rules": final_count,
+                "duplicates_removed": initial_count - final_count,
+                "merge_time_seconds": round(processing_time, 2),
+                "checksum": checksum,
+                "sources": source_stats,
+            }
+        )
 
     def flush_summary(self) -> None:
         """将累积的所有 custom 规则摘要写入 config/summary.json。
@@ -472,9 +469,7 @@ class RuleMerger:
             "generated_at": datetime.now(UTC).isoformat(),
             "rule_sets": self._summary_list,
         }
-        summary_path.write_text(
-            json.dumps(summary, indent=2, ensure_ascii=False), encoding="utf-8"
-        )
+        summary_path.write_text(json.dumps(summary, indent=2, ensure_ascii=False), encoding="utf-8")
         print(f"📝 AdBlock 摘要已写入 config/summary.json（{len(self._summary_list)} 个规则集）")
 
 

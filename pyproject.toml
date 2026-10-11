@@ -8,17 +8,18 @@ authors = [
 license = "MIT"
 requires-python = ">=3.14"
 dependencies = [
-    "httpx[http2]>=0.27.0",
-    "pyyaml>=6.0"
+    "httpx[http2]>=0.28.1",
+    "pyyaml>=6.0.3"
 ]
 
 [project.optional-dependencies]
 dev = [
-    "mypy>=1.13.0",
-    "pytest>=8.0.0",
-    "basedpyright>=1.19.0",
-    "black>=24.10.0",
-    "isort>=5.13.0"
+    "mypy>=2.4.0",
+    "pytest>=9.1.1",
+    "basedpyright>=1.40.2",
+    "black>=26.10.1",
+    "isort>=9.0.2",
+    "types-PyYAML>=6.0.12"
 ]
 
 [build-system]

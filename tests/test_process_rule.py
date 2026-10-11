@@ -62,9 +62,7 @@ CASES: list[tuple[str, RuleType | None]] = [
 
 
 @pytest.mark.parametrize("line,expected", CASES)
-def test_process_rule_classification(
-    merger: RuleMerger, line: str, expected: RuleType | None
-) -> None:
+def test_process_rule_classification(merger: RuleMerger, line: str, expected: RuleType | None) -> None:
     typ, rule = merger.process_rule(line)
     assert typ == expected, f"输入 {line!r} 期望 {expected}，实际 {typ}"
     # 空行返回 (None, None)；非空行 rule 为 strip/NFKC 后的非空字符串

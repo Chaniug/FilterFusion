@@ -95,9 +95,7 @@ class DnsRuleMerger:
             source_info.append(f"! - {status_icon} {source['name']}{update_info}")
         return "\n".join(source_info)
 
-    def collect_and_dedup_rules(
-        self, sources: list[dict[str, Any]]
-    ) -> tuple[list[str], list[dict[str, Any]], int]:
+    def collect_and_dedup_rules(self, sources: list[dict[str, Any]]) -> tuple[list[str], list[dict[str, Any]], int]:
         """收集并去重 DNS 规则：主要做域名去重，不需要复杂的规则分类。"""
         # DNS 规则分类：例外规则（@@ 开头）和普通规则
         exception_rules: set[str] = set()
@@ -228,7 +226,9 @@ class DnsRuleMerger:
         processing_time = (datetime.now() - self.start_time).total_seconds()
 
         # 显示摘要
-        print(f"✅ DNS 合并完成: {self.initial_rule_count} → {self.final_rule_count} 条 (去重 {self.initial_rule_count - self.final_rule_count}, {processing_time:.2f}s) → dist/dns-blocklist.txt")
+        print(
+            f"✅ DNS 合并完成: {self.initial_rule_count} → {self.final_rule_count} 条 (去重 {self.initial_rule_count - self.final_rule_count}, {processing_time:.2f}s) → dist/dns-blocklist.txt"
+        )
 
         # 步骤7: 保存摘要信息
         self.save_summary(version, source_stats, processing_time)
@@ -252,9 +252,7 @@ class DnsRuleMerger:
 
         # 落盘到 config/dns_summary.json
         summary_path = self.config_dir / "dns_summary.json"
-        summary_path.write_text(
-            json.dumps(summary, indent=2, ensure_ascii=False), encoding="utf-8"
-        )
+        summary_path.write_text(json.dumps(summary, indent=2, ensure_ascii=False), encoding="utf-8")
 
         print("📊 DNS 合并摘要:")
         print(json.dumps(summary, indent=2, ensure_ascii=False))
