@@ -1,6 +1,6 @@
 # FilterFusion 项目文档
 
-> **版本**: 1.9 | **最后更新**: 2026-06-30 | **许可证**: MIT
+> **版本**: 2.0 | **最后更新**: 2026-11-06 | **许可证**: MIT
 
 ---
 
@@ -38,7 +38,7 @@ FilterFusion 是一个**自动化广告过滤规则聚合工具**，由 [Chaniug
 | 分类输出 | 按规则语义（例外/HTML过滤/正则/特殊参数/普通屏蔽）分类组织（AdBlock 规则） |
 | 简化合并 | DNS 规则合并简化（主要是域名去重，不需要复杂分类） |
 | 自动更新 | GitHub Actions 每日自动抓取、合并、发布（AdBlock + DNS） |
-| 多 CDN 分发 | 支持 GitHub Raw / jsDelivr / FastGit 等多条订阅线路 |
+| 多 CDN 分发 | 支持 fastly.jsdelivr.net（首推）/ GitHub Raw / gh.llkk.cc 三条订阅线路 |
 
 ### 适用范围
 
@@ -130,7 +130,8 @@ FilterFusion/
 │   ├── dns.header             # DNS 规则输出头部模板
 │   ├── sources.yaml           # AdBlock 规则源配置（YAML）
 │   ├── dns_sources.yaml       # DNS 规则源配置（YAML）
-│   └── _cdnauth.txt           # CDN 认证令牌
+│   ├── summary.json           # AdBlock 合并摘要（自动生成，不入库）
+│   └── dns_summary.json       # DNS 合并摘要（自动生成，不入库）
 ├── dist/                      # 输出产物（自动生成，核心文件 + 可选自定义组合文件）
 │   ├── adblock-mo.txt         # AdBlock 移动端规则（custom_rules 驱动）
 │   ├── adblock-pc.txt         # AdBlock 电脑端规则（custom_rules 驱动）
@@ -139,6 +140,9 @@ FilterFusion/
 ├── scripts/
 │   ├── __init__.py             # Python 包标识
 │   ├── base_fetcher.py        # 抓取基类（共享逻辑 + URL 去重下载）
+│   ├── run_all.py             # CI 一键入口（单进程抓取 + 合并）
+│   ├── utils.py               # 公共纯函数（版本号生成）
+│   └── validate_dist.py       # 产物完整性校验（只读）
 │   ├── fetch_all.py           # 统一抓取入口（并发执行 AdBlock + DNS 抓取）
 │   ├── fetch_rules.py         # AdBlock 规则抓取脚本
 │   ├── merge_all.py           # 统一合并入口（DNS 合并 + AdBlock custom_rules 组合规则）
@@ -150,7 +154,8 @@ FilterFusion/
 │   └── __pycache__/           # Python 字节码缓存（CI 运行后自动清理）
 ├── docs/                      # 项目文档
 │   ├── PROJECT_DOCS.md        # 完整项目文档
-│   └── PROJECT_LOG.md         # 开发日志
+│   ├── PROJECT_LOG.md         # 开发日志
+│   └── wiki/                  # 分篇 Wiki
 ├── .gitignore
 ├── CNAME                      # 自定义域名（隐藏）
 ├── LICENSE                    # MIT 许可证
@@ -337,9 +342,9 @@ python -m scripts.merge_all
 
 | 占位符 | 说明 |
 |--------|------|
-| `{VERSION}` | 版本号（日期，如 `20260612`） |
+| `{VERSION}` | 版本号（UTC 精确到分钟，如 `202611060527`） |
 | `{TIMEUPDATED}` | 更新时间 |
-| `{CHECKSUM}` | MD5 + Base64 校验和（ABP 标准格式，24字符） |
+| `{CHECKSUM}` | MD5 + Base64 校验和（ABP 标准，去掉 `=` padding 后 22 字符） |
 | `{HOMEPAGE}` | 项目 GitHub 主页 |
 | `{LICENSE}` | 许可证声明 |
 | `{SOURCE_COUNT}` | 成功抓取的 AdBlock 规则源数量 |
@@ -408,7 +413,7 @@ python -m scripts.fetch_dns_rules
 - 输出格式：按例外规则、普通规则分组即可
 
 5. 去重：使用集合（set）数据结构，O(1) 查找
-6. 输出到 `dist/dns-blocklist.txt` 和按日期归档的文件
+6. 输出到 `dist/dns-blocklist.txt`（不再生成日期快照归档）
 7. 输出摘要到控制台（CI 日志可查看）
 
 **命令行使用**:
@@ -422,7 +427,7 @@ python -m scripts.merge_dns_rules
 
 | 占位符 | 说明 |
 |--------|------|
-| `{VERSION}` | 版本号（日期，如 `20260612`） |
+| `{VERSION}` | 版本号（UTC 精确到分钟，如 `202611060527`） |
 | `{TIMEUPDATED}` | 更新时间 |
 | `{HOMEPAGE}` | 项目 GitHub 主页 |
 | `{LICENSE}` | 许可证声明 |
@@ -465,7 +470,7 @@ python -m scripts.merge_all
 
 **依赖要求**:
 - Python 3.14+（CI 锁定 3.14 确保可重现性）
-- `httpx[http2] >= 0.27.0`、`pyyaml >= 6.0`
+- `httpx[http2]>=0.28.1,<0.29`、`pyyaml>=6.0.3,<7`（`requirements.txt` 与 `pyproject.toml` 两处声明须同步；httpx 为 0.x，锁定上界防破坏性更新）
 
 ### 5.2 自动流水线 (GitHub Actions)
 
@@ -475,7 +480,7 @@ python -m scripts.merge_all
 flowchart TB
     subgraph TRIGGERS["触发条件"]
         T1["⏰ 每日 UTC 0:00"]
-        T2["📅 每周日 UTC 2:00"]
+        T2["📅 每周日 UTC 2:00<br/>奇数 ISO 周才发布"]
     end
 
     subgraph WORKFLOWS["GitHub Actions 工作流"]
@@ -499,7 +504,7 @@ flowchart TB
 | 工作流 | 触发条件 | 功能说明 |
 |--------|----------|----------|
 | **daily-update** | 每天 UTC 0:00 定时 + 手动触发 | 抓取 → 合并 → 推送 → 部署 GitHub Pages（单 Job 架构，零 Runner 切换成本） |
-| **weekly-release** | 每周日 UTC 2:00 定时 | 打包 `dist/` 中所有 `adblock-*.txt` 为 ZIP → 创建 GitHub Release |
+| **weekly-release** | 每周日 UTC 2:00 触发（奇数 ISO 周才发布）+ 手动 | 打包 `dist/` 中所有 `*.txt` 为 ZIP → 创建 GitHub Release（每两周一次） |
 
 整个流水线**全自动运行**，无需人工干预。维护者只需确保规则源 URL 有效即可。
 
@@ -512,10 +517,12 @@ flowchart TB
 - **统一合并**: `scripts/run_all.py` 单进程执行 DNS 合并 + AdBlock custom_rules 组合规则（含核心的 adblock-mo/pc），消除多次进程启动开销
 - **条件部署**: 仅当规则文件有变更时（`git diff --cached --quiet` 检测），才执行 Pages 配置、上传产物、部署步骤
 - **脚本执行**: `uv run --no-project python -m scripts.run_all`
+- **产物完整性校验**: `python -m scripts.validate_dist` 只读检查规则数下限、`! Version`、Checksum 无 padding、头部占位符与 AdBlock 空行；异常时阻止部署
+- **缓存刷新**: 部署成功后调用 Cloudflare `purge_cache`（需配置 `CF_ZONE_ID` / `CF_API_TOKEN`；未配置则自动跳过）
 - **缓存**: uv 缓存 + GitHub Actions cache 双重加速
 - **运行后清理**: 提交前自动删除 `scripts/` 中的临时 `.txt` 文件和 `__pycache__` 字节码缓存
 - **Permissions**: 顶层配置 `contents: write` + `pages: write` + `id-token: write`（原分散在两个 Job）
-- **Concurrency**: 顶层配置 `group: pages, cancel-in-progress: true`（避免并发部署冲突）
+- **Concurrency**: 两个工作流共用 `group: repo-write, cancel-in-progress: false`（串行排队，避免同时改 main）
 
 ---
 
@@ -575,7 +582,7 @@ flowchart TB
 **📱 移动端（Mobile）**
 
 ```text
-https://cdn.jsdelivr.net/gh/Chaniug/FilterFusion@main/dist/adblock-mo.txt
+https://fastly.jsdelivr.net/gh/Chaniug/FilterFusion@main/dist/adblock-mo.txt
 https://raw.githubusercontent.com/Chaniug/FilterFusion/main/dist/adblock-mo.txt
 https://gh.llkk.cc/https://raw.githubusercontent.com/Chaniug/FilterFusion/main/dist/adblock-mo.txt
 ```
@@ -583,7 +590,7 @@ https://gh.llkk.cc/https://raw.githubusercontent.com/Chaniug/FilterFusion/main/d
 **🖥️ 电脑端（PC）**
 
 ```text
-https://cdn.jsdelivr.net/gh/Chaniug/FilterFusion@main/dist/adblock-pc.txt
+https://fastly.jsdelivr.net/gh/Chaniug/FilterFusion@main/dist/adblock-pc.txt
 https://raw.githubusercontent.com/Chaniug/FilterFusion/main/dist/adblock-pc.txt
 https://gh.llkk.cc/https://raw.githubusercontent.com/Chaniug/FilterFusion/main/dist/adblock-pc.txt
 ```
@@ -594,7 +601,7 @@ https://gh.llkk.cc/https://raw.githubusercontent.com/Chaniug/FilterFusion/main/d
 
 - **jsDelivr CDN**（中国大陆推荐）
   ```text
-  https://cdn.jsdelivr.net/gh/Chaniug/FilterFusion@main/dist/dns-blocklist.txt
+  https://fastly.jsdelivr.net/gh/Chaniug/FilterFusion@main/dist/dns-blocklist.txt
   ```
 - **GitHub Raw**（全球）
   ```text
@@ -752,7 +759,8 @@ flowchart TD
 
 - 每个源下载后计算 **SHA256** 哈希，存入系统临时目录的 `fetch_meta.json`（运行后自动消失）
 - 用于增量判断源是否有更新
-- 最终合并文件整体计算 SHA256 校验和，写入文件头部，方便用户验证文件完整性
+- 最终 AdBlock 文件按 ABP 规范计算 **MD5 + Base64** 校验和写入 `! Checksum:`（去掉 padding），DNS 文件不含校验和
+- 产物中不含空行，以兼容 AdGuard TS / Rust 两种 checksum 实现
 
 ### 安全性
 

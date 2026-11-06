@@ -28,8 +28,8 @@
 
 | 规则 | 地址 |
 |------|------|
-| 手机端 AdBlock | `https://cdn.jsdelivr.net/gh/Chaniug/FilterFusion@main/dist/adblock-mo.txt` |
-| 电脑端 AdBlock | `https://cdn.jsdelivr.net/gh/Chaniug/FilterFusion@main/dist/adblock-pc.txt` |
-| DNS 过滤 | `https://cdn.jsdelivr.net/gh/Chaniug/FilterFusion@main/dist/dns-blocklist.txt` |
+| 手机端 AdBlock | `https://fastly.jsdelivr.net/gh/Chaniug/FilterFusion@main/dist/adblock-mo.txt` |
+| 电脑端 AdBlock | `https://fastly.jsdelivr.net/gh/Chaniug/FilterFusion@main/dist/adblock-pc.txt` |
+| DNS 过滤 | `https://fastly.jsdelivr.net/gh/Chaniug/FilterFusion@main/dist/dns-blocklist.txt` |
 
 > 完整订阅指南见 [订阅地址](/wiki/订阅地址) 页面。

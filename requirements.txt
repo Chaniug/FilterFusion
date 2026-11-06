@@ -1,2 +1,6 @@
-httpx[http2]>=0.28.1
-pyyaml>=6.0.3
+# 运行时依赖 —— CI 的「📥 安装依赖」步骤只读本文件（uv pip install -r requirements.txt）。
+# 修改时必须同步 pyproject.toml 的 [project].dependencies，两处保持一致。
+# httpx 仍为 0.x 语义版本（允许破坏性变更），锁定上界避免上游发版让每日流水线突然失败；
+# 升级到 0.29+ 时请先在隔离环境跑通 `python -m scripts.run_all` 再同步放开两处。
+httpx[http2]>=0.28.1,<0.29
+pyyaml>=6.0.3,<7

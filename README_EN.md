@@ -161,7 +161,7 @@ If you find **false positives, false negatives**, or want to suggest new rules, 
 | 🐍 **Python** | 3.14+ |
 | 💻 **OS** | Windows / macOS / Linux |
 | 🌐 **Network** | Internet connection required to fetch rule sources |
-| 📦 **Dependency** | `httpx[http2]>=0.27.0`, `pyyaml>=6.0` |
+| 📦 **Dependency** | `httpx[http2]>=0.28.1,<0.29`, `pyyaml>=6.0.3,<7` |
 
 ```bash
 # Check Python version
@@ -188,6 +188,9 @@ pip install -r requirements.txt
 | 🟦 **AdBlock (Mobile)** | `python -m scripts.fetch_rules` | `python -m scripts.merge_all` |
 | 🟦 **AdBlock (PC)** | `python -m scripts.fetch_rules` | `python -m scripts.merge_all` |
 | 🟪 **DNS** | `python -m scripts.fetch_dns_rules` | `python -m scripts.merge_dns_rules` |
+
+> 💡 **One-shot**: `python -m scripts.run_all` is the CI entry point (fetch + merge in one process).
+> Run `python -m scripts.validate_dist` afterwards to verify rule count, checksum and header fields.
 
 ### 4. Use the Generated Rules
 

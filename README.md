@@ -161,7 +161,7 @@ https://gh.llkk.cc/https://raw.githubusercontent.com/Chaniug/FilterFusion/main/d
 | 🐍 **Python** | 3.14+ |
 | 💻 **操作系统** | Windows / macOS / Linux |
 | 🌐 **网络** | 需要互联网连接以抓取规则源 |
-| 📦 **依赖** | `httpx[http2]>=0.27.0`、`pyyaml>=6.0` |
+| 📦 **依赖** | `httpx[http2]>=0.28.1,<0.29`、`pyyaml>=6.0.3,<7` |
 
 ```bash
 # 检查 Python 版本
@@ -188,6 +188,9 @@ pip install -r requirements.txt
 | 🟦 **AdBlock (Mobile)** | `python -m scripts.fetch_rules` | `python -m scripts.merge_all` |
 | 🟦 **AdBlock (PC)** | `python -m scripts.fetch_rules` | `python -m scripts.merge_all` |
 | 🟪 **DNS** | `python -m scripts.fetch_dns_rules` | `python -m scripts.merge_dns_rules` |
+
+> 💡 **一键完成**：`python -m scripts.run_all`（CI 使用的入口，单进程抓取 + 合并）。
+> 生成后可用 `python -m scripts.validate_dist` 校验产物完整性（规则数、Checksum、头部字段）。
 
 ### 4. 使用生成的规则
 - 生成的规则文件位于 `dist/` 目录

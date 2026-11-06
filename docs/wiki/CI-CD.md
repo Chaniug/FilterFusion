@@ -7,7 +7,7 @@ FilterFusion 使用 GitHub Actions 实现完全自动化的规则更新和发布
 | 工作流 | 文件 | 触发方式 | 频率 |
 |--------|------|----------|------|
 | 每日更新 | `daily-update.yaml` | `cron` + 手动 | 每天 |
-| 每周发布 | `weekly-release.yml` | `cron` + 手动 | 每周 |
+| 双周快照 | `weekly-release.yml` | `cron` + 手动 | 每两周（奇数 ISO 周） |
 
 > **注**：`daily-update.yaml` 已整合 GitHub Pages 部署步骤（原 `static.yml`），规则文件更新后自动部署，无需单独的工作流。
 
@@ -17,7 +17,7 @@ FilterFusion 使用 GitHub Actions 实现完全自动化的规则更新和发布
 
 1. **抓取规则** — 单进程执行 `python -m scripts.run_all`，内部异步并发抓取 AdBlock + DNS 规则源
 2. **合并规则** — 按类别合并去重，生成最终规则文件
-3. **校验** — 检查生成的规则文件是否有效
+3. **校验** — 检查文件非空，再由 `scripts.validate_dist` 校验规则数、Checksum 与头部字段
 4. **提交推送** — 自动提交到 `main` 分支
 
 ### 执行流程
@@ -36,7 +36,7 @@ cron 触发（每天）
     ↓
 合并所有规则（merge_all.py）
     ↓
-校验规则文件
+校验规则文件 + 产物完整性校验
     ↓
 提交并推送（filterfusion-bot）
 ```
@@ -44,19 +44,19 @@ cron 触发（每天）
 ### 并发控制
 
 - 使用 `concurrency` 组，防止同一时间多次触发导致竞态
-- 如果上次运行未完成，自动取消本次运行
+- 两个工作流共用同一并发组，排队执行而非取消，避免同时改 `main`
 
 ### 清理策略
 
 - 提交前自动清理临时规则文件和 `__pycache__`
 - 保持 `scripts/` 目录干净
 
-## 每周发布（`weekly-release.yml`）
+## 双周快照（`weekly-release.yml`）
 
 ### 功能
 
 1. **创建 Release Tag** — 格式 `YYYY.MM.DD`
-2. **生成 Release Notes** — 自动汇总本周的变更
+2. **生成 Release Notes** — 自动汇总本期规则统计
 3. **打包规则文件** — 将所有 `.txt` 文件打包到 Release
 
 ### Tag 格式
@@ -69,14 +69,14 @@ YYYY.MM.DD
 ### Release 标题
 
 ```
-FilterFusion Weekly · YYYY.MM.DD
-例：FilterFusion Weekly · 2026.06.23
+FilterFusion 规则快照 · YYYY.MM.DD
+例：FilterFusion 规则快照 · 2026.11.06
 ```
 
 ### 注意事项
 
-- 创建 Tag 前会自动检查并删除已存在的同名 Tag（避免 fatal 错误）
-- 需要先 `git pull origin main` 确保本地分支最新
+- 创建 Tag 前通过 `git ls-remote --tags` 查询远程同名 Tag（浅克隆不拉 tags），存在则删除重建
+- 本地推送代码前请先 `git fetch` + `git pull --rebase origin main`（每日 CI 会自动推送）
 
 ## GitHub Pages 部署（整合到 `daily-update.yaml`）
 
@@ -90,22 +90,19 @@ FilterFusion Weekly · YYYY.MM.DD
 2. **禁用 Jekyll** — 创建 `dist/.nojekyll` 文件
 3. **上传产物** — `actions/upload-pages-artifact@v5`
 4. **部署 Pages** — `actions/deploy-pages@v5`
+5. **刷新 CDN 缓存** — 调用 Cloudflare `purge_cache`（未配置 Secret 时自动跳过）
 
 ### 优化配置
 
 - **单 Job 架构** — 抓取、合并、推送、部署在同一个 Job 中完成，消除 Runner 冷启动和重复 checkout 开销（节省 ~40-50 秒）
 - **条件部署** — 仅当规则文件有变更时才执行部署步骤
-- **并发控制** — 顶层 `concurrency: group: pages, cancel-in-progress: true`
+- **并发控制** — 两个工作流共用 `group: repo-write, cancel-in-progress: false`（排队而非取消）
 
 ### 自定义域名
 
-项目使用自定义域名，配置在 `CNAME` 文件中：
+项目使用自定义域名，配置在仓库根目录的 `CNAME` 文件中（Pages 绑定用）。
 
-```
-chaniug.github.io
-```
-
-> 实际域名请在 `CNAME` 文件中确认。
+> 具体域名请直接查看仓库中的 `CNAME` 文件。
 
 ## 手动触发
 

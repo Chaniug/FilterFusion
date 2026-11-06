@@ -70,6 +70,11 @@ jobs:
           esac
         done
 
+        # 产物完整性校验（只读，不改任何输出路径）：规则数下限、头部字段、
+        # checksum 占位符/空行。正常产物必然通过，异常时返回非 0 阻止部署。
+        echo "🔎 产物完整性校验"
+        uv run --no-project python -m scripts.validate_dist
+
     - name: 🧹 清理临时规则文件与缓存
       run: |
         echo "🗑️ 清理 scripts 目录中的临时 .txt 规则文件"

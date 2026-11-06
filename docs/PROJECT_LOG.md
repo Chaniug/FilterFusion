@@ -4,6 +4,25 @@
 
 ---
 
+## 2026-11-06（产物完整性校验 + 依赖防御 + 仓库精简 + 文档同步）
+
+### 可靠性
+- 新增 `scripts/validate_dist.py`：只读校验 3 个核心产物（规则数下限 1000、`! Version`、Checksum 无 padding、头部占位符残留、AdBlock 空行）。**刻意不校验时间戳**，因 GitHub cron 排队常延迟数小时，日期判断会造假失败。
+- `daily-update.yaml` 在原有「校验规则文件」步骤末尾追加 2 行调用；不改并发组、不改推送重试、不加代码质量门禁。
+
+### 依赖与配置
+- `requirements.txt` 与 `pyproject.toml` 同步为 `httpx[http2]>=0.28.1,<0.29`、`pyyaml>=6.0.3,<7`：httpx 仍是 0.x，锁定上界避免上游破坏性更新让每日流水线突然失败。
+- black `target-version` 统一 `py314`（与 `requires-python>=3.14`、CI 3.14 对齐）。
+- 本地验证（Python 3.14 隔离环境）：`pytest` 55 passed / mypy strict / basedpyright 0 errors / isort / `uv pip install --dry-run -r requirements.txt` 全绿。
+
+### 仓库清理
+- `_cdnauth.txt`（CDN 认证令牌）从 git 取消跟踪并加入 `.gitignore`，**本地文件保留**；历史记录仍在，需维护者自行轮换。
+- `tests/` 改为**仅本地维护**，不随仓库分发（CI 不跑测试，Actions 全自动运行），仓库保持精简。
+- 修复 `docs/wiki/订阅地址.md` 的 GBK 编码（GitHub 上会显示乱码），重写为 UTF-8 并同步订阅地址。
+- 文档全量同步：订阅地址改 `fastly.jsdelivr.net`、双周发布节奏、`repo-write` 并发组、Cloudflare 缓存刷新、ABP checksum 规范、目录结构补齐 `run_all.py` / `utils.py` / `validate_dist.py`。
+
+---
+
 ## 2026-06-30（GitHub Pages 部署提速 — 合并双 Job 为单 Job）
 
 ### 优化背景

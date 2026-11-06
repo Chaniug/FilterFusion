@@ -38,3 +38,14 @@ Thumbs.db
 
 # Don't ignore dist/ directory - we want to track generated files
 !dist/
+
+# CDN 认证令牌：仅保留在本地，切勿提交（仓库历史中曾有记录，需用户自行轮换）
+_cdnauth.txt
+
+# 本地测试套件：仅本地维护，不随仓库分发（CI 不跑测试，Actions 全自动运行）
+/tests/
+
+# 类型检查 / 测试缓存
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
